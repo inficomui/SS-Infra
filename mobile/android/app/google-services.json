@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "585236823710",
+    "project_id": "ss-infra-f3668",
+    "storage_bucket": "ss-infra-f3668.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:585236823710:android:a9fa85d56b9f157342058f",
+        "android_client_info": {
+          "package_name": "com.inficom.ssinfra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARfUXJr_QjTmGJnU82D_ilTOc_NEl1or4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
