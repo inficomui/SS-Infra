@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Mode Colors */
+  --background: #ffffff;
+  --foreground: #09090b;
+  /* Zinc-950 */
+
+  --card: #ffffff;
+  --card-foreground: #09090b;
+
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+
+  --primary: #facc15;
+  /* Yellow-400 - Vibrant Yellow */
+  --primary-foreground: #09090b;
+  /* Black text on yellow */
+
+  --secondary: #f4f4f5;
+  /* Zinc-100 */
+  --secondary-foreground: #18181b;
+  /* Zinc-900 */
+
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  /* Zinc-500 */
+
+  --accent: #facc15;
+  /* Yellow accent */
+  --accent-foreground: #09090b;
+
+  --destructive: #ef4444;
+  /* Red-500 */
+  --destructive-foreground: #fafafa;
+
+  --border: #e4e4e7;
+  /* Zinc-200 */
+  --input: #e4e4e7;
+  --ring: #facc15;
+  /* Yellow ring */
+
+  --radius: 0.375rem;
+}
+
+.dark {
+  /* Dark Mode Colors - Deep Black Theme */
+  --background: #09090b;
+  /* Zinc-950 Deep Black */
+  --foreground: #fafafa;
+  /* Zinc-50 */
+
+  --card: #18181b;
+  /* Zinc-900 */
+  --card-foreground: #fafafa;
+
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+
+  --primary: #facc15;
+  /* Yellow-400 - Maintains vibrancy */
+  --primary-foreground: #09090b;
+  /* Black text on yellow */
+
+  --secondary: #27272a;
+  /* Zinc-800 */
+  --secondary-foreground: #fafafa;
+
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  /* Zinc-400 */
+
+  --accent: #facc15;
+  /* Yellow accent */
+  --accent-foreground: #09090b;
+
+  --destructive: #7f1d1d;
+  /* Red-900 */
+  --destructive-foreground: #fafafa;
+
+  --border: #27272a;
+  /* Zinc-800 */
+  --input: #27272a;
+  --ring: #facc15;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-radius: var(--radius);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Custom Utilities for Yellow/Black Theme */
+.bg-theme-gradient {
+  background: linear-gradient(135deg, #09090b 0%, #18181b 100%);
+}
+
+.text-theme-gradient {
+  background: linear-gradient(to right, #facc15, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
