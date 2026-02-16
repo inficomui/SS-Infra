@@ -71,7 +71,8 @@ export default function CreateBillScreen() {
                                                 hourlyRate: rate,
                                                 description: description,
                                                 date: new Date().toLocaleDateString(),
-                                                photoUri: params.afterWorkPhoto
+                                                photoUri: params.afterWorkPhoto,
+                                                invoiceId: result.invoice?.id
                                             }
                                         });
                                     }

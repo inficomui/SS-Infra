@@ -1,11 +1,14 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query/react';
+import Reactotron from '../reactotron';
 import { authApi } from './apis/authApi';
 import { workApi } from './apis/workApi';
 import { ownerApi } from './apis/ownerApi';
 import { walletApi } from './apis/walletApi';
 import { fuelApi } from './apis/fuelApi';
 import { maintenanceApi } from './apis/maintenanceApi';
+import { notificationApi } from './apis/notificationApi';
+import { subscriptionApi } from './apis/subscriptionApi';
 import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import { storage } from './storage';
@@ -19,6 +22,8 @@ const rootReducer = combineReducers({
     [walletApi.reducerPath]: walletApi.reducer,
     [fuelApi.reducerPath]: fuelApi.reducer,
     [maintenanceApi.reducerPath]: maintenanceApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
+    [subscriptionApi.reducerPath]: subscriptionApi.reducer,
     auth: authReducer,
     theme: themeReducer,
     notifications: notificationReducer,
@@ -45,8 +50,12 @@ export const store = configureStore({
             ownerApi.middleware,
             walletApi.middleware,
             fuelApi.middleware,
-            maintenanceApi.middleware
+            maintenanceApi.middleware,
+            notificationApi.middleware,
+            subscriptionApi.middleware
         ),
+    enhancers: (getDefaultEnhancers) =>
+        __DEV__ && Reactotron.createEnhancer ? getDefaultEnhancers().concat(Reactotron.createEnhancer()) : getDefaultEnhancers(),
 });
 
 export const persistor = persistStore(store);

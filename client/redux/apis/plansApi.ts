@@ -5,7 +5,7 @@ export const plansApi = createApi({
     reducerPath: 'plansApi',
     tagTypes: ['Plans'],
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://backend.ssinfrasoftware.com/api/v1',
+        baseUrl: process.env.NEXT_PUBLIC_API_BASE_PATH || '/api/v1',
         prepareHeaders: (headers, { getState }) => {
             const token = (getState() as RootState).auth.token
             if (token) {

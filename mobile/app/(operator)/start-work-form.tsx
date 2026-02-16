@@ -67,6 +67,7 @@ export default function StartWorkForm() {
             }
         };
         loadMachine();
+        handleGetLocation(); // Auto-fetch location on mount
     }, []);
 
     // GPS Location
@@ -191,6 +192,7 @@ export default function StartWorkForm() {
             formData.append('siteAddress', newLocation);
 
             if (selectedMachine?.id) {
+                // Backend expects machineId (camelCase) based on validation errors
                 formData.append('machineId', selectedMachine.id.toString());
             }
 
@@ -217,15 +219,18 @@ export default function StartWorkForm() {
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
 
-            // @ts-ignore
             formData.append('beforePhoto', {
                 uri: photoUri,
                 name: filename,
                 type: type
-            });
+            } as any);
 
             console.log("Submitting Work Data to Server...");
+
+
+            // Explicitly unwrap to catch error status codes
             const response = await startWork(formData).unwrap();
+
             console.log("Start Work API Success:", JSON.stringify(response, null, 2));
 
             const session = response.workSession;
@@ -246,7 +251,12 @@ export default function StartWorkForm() {
 
         } catch (error: any) {
             console.error("--- START WORK ERROR LOG ---");
-            console.error(JSON.stringify(error, null, 2));
+            // Enhanced error logging to see the actual response body
+            if (error?.data) {
+                console.error("Error Data:", JSON.stringify(error.data, null, 2));
+            } else {
+                console.error("Error Object:", JSON.stringify(error, null, 2));
+            }
 
             const msg = error?.data?.message || error?.message || "Failed to start work session.";
             setErrorMsg(msg);
@@ -355,7 +365,6 @@ export default function StartWorkForm() {
                                             onPress={() => {
                                                 setIsNewClient(false);
                                                 setSelectedClient(client);
-                                                setNewLocation(`${client.taluka}, ${client.district}`);
                                                 setShowClientModal(false);
                                             }}
                                         >

@@ -1,3 +1,5 @@
+
+
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -14,6 +16,7 @@ import { Colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
 import toastConfig from '../components/CustomToast';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import SplashScreen from '../components/SplashScreen';
 
 const { LightTheme, DarkTheme: NavDarkTheme } = adaptNavigationTheme({
   reactNavigationLight: DefaultTheme,
@@ -87,7 +90,7 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <ReduxProvider store={store}>
-      <PersistGate loading={<View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator color="#FACC15" /></View>} persistor={persistor}>
+      <PersistGate loading={<SplashScreen />} persistor={persistor}>
         <RootLayoutNav />
       </PersistGate>
     </ReduxProvider>

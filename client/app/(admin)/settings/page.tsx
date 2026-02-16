@@ -37,8 +37,8 @@ export default function SettingsPage() {
 
     // General Settings State (Mocked)
     const [generalSettings, setGeneralSettings] = useState({
-        siteName: 'SS Infra Admin',
-        supportEmail: 'admin@ssinfra.com',
+        siteName: process.env.NEXT_PUBLIC_SITE_NAME || 'SS Infra Admin',
+        supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'admin@ssinfra.com',
         maintenanceMode: false
     })
 

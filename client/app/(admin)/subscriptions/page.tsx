@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useGetAllSubscriptionsQuery, useCancelSubscriptionMutation } from '@/redux/apis/subscriptionApi'
-import { Loader2, Search, Filter, Calendar, User, MoreVertical, XCircle, Trash2, ChevronLeft, ChevronRight, Hash, CheckCircle2, Clock, AlertCircle, RefreshCw } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useGetAllSubscriptionsQuery, useCancelSubscriptionMutation, useAssignPlanMutation, useGetUserSubscriptionsQuery } from '@/redux/apis/subscriptionApi'
+import { useGetPlansQuery } from '@/redux/apis/plansApi'
+import { Loader2, Search, Filter, Calendar, User, MoreVertical, XCircle, Trash2, ChevronLeft, ChevronRight, Hash, CheckCircle2, Clock, AlertCircle, RefreshCw, UserPlus, X, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,13 +12,44 @@ export default function SubscriptionsPage() {
     const [page, setPage] = useState(1)
     const [statusFilter, setStatusFilter] = useState<string>('')
 
+    // Queries
     const { data, isLoading, error, refetch } = useGetAllSubscriptionsQuery({
         page,
         limit: 10,
         status: statusFilter || undefined
     })
 
-    const [cancelSubscription, { isLoading: isCancelling }] = useCancelSubscriptionMutation()
+    const { data: plansData } = useGetPlansQuery({})
+
+    // Mutations
+    const [cancelSubscription] = useCancelSubscriptionMutation()
+    const [assignPlan, { isLoading: isAssigning }] = useAssignPlanMutation()
+
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [targetUserId, setTargetUserId] = useState('')
+    const [debouncedUserId, setDebouncedUserId] = useState<number | null>(null)
+    const [selectedPlanId, setSelectedPlanId] = useState<string>('')
+    const [notes, setNotes] = useState('')
+
+    // User Lookup Query
+    const { data: userData, isLoading: isLoadingUser, isError: isUserError } = useGetUserSubscriptionsQuery(
+        debouncedUserId!,
+        { skip: !debouncedUserId }
+    )
+
+    // Debounce User ID Input
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            const id = parseInt(targetUserId)
+            if (!isNaN(id) && id > 0) {
+                setDebouncedUserId(id)
+            } else {
+                setDebouncedUserId(null)
+            }
+        }, 500)
+        return () => clearTimeout(handler)
+    }, [targetUserId])
 
     const handleCancel = async (id: number, softDelete: boolean) => {
         if (!confirm(`Are you sure you want to ${softDelete ? 'cancel' : 'permanently delete'} this subscription?`)) return
@@ -25,21 +57,47 @@ export default function SubscriptionsPage() {
         try {
             await cancelSubscription({ id, softDelete }).unwrap()
             toast.success(`Subscription ${softDelete ? 'cancelled' : 'deleted'} successfully`)
+            refetch()
         } catch (err: any) {
             toast.error(err?.data?.message || 'Action failed')
         }
     }
 
+    const handleAssign = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!debouncedUserId || !selectedPlanId) return
+
+        try {
+            await assignPlan({
+                userId: debouncedUserId,
+                planId: parseInt(selectedPlanId),
+                notes,
+                startDate: new Date().toISOString()
+            }).unwrap()
+
+            toast.success('Plan assigned successfully')
+            setIsModalOpen(false)
+            setTargetUserId('')
+            setNotes('')
+            setSelectedPlanId('')
+            refetch()
+        } catch (err: any) {
+            toast.error(err?.data?.message || 'Failed to assign plan')
+        }
+    }
+
     const subscriptions = data?.subscriptions || []
     const pagination = data?.pagination
+    const availablePlans = plansData?.plans || []
+    const activeSubscription = userData?.subscriptions?.find((s: any) => s.status === 'active')
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
+            className="space-y-8 relative"
         >
-            {/* Header & Advanced Filters */}
+            {/* Header & Actions */}
             <div className="bg-card border border-border/50 p-6 sm:p-8 rounded-md shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div>
                     <h2 className="text-3xl font-black text-foreground tracking-tight">Access Subscriptions</h2>
@@ -47,6 +105,14 @@ export default function SubscriptionsPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 px-5 py-3 bg-primary text-primary-foreground font-bold rounded-md hover:bg-primary/90 transition-all shadow-md active:scale-95"
+                    >
+                        <UserPlus className="h-5 w-5" />
+                        Assign Plan
+                    </button>
+
                     <button
                         type="button"
                         onClick={() => {
@@ -59,6 +125,7 @@ export default function SubscriptionsPage() {
                     >
                         <RefreshCw className="h-5 w-5" />
                     </button>
+
                     <div className="relative flex-1 min-w-[200px]">
                         <select
                             value={statusFilter}
@@ -232,6 +299,125 @@ export default function SubscriptionsPage() {
                     )}
                 </AnimatePresence>
             </div>
+
+            {/* Assign Plan Modal */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-card w-full max-w-lg rounded-xl shadow-2xl border border-border overflow-hidden"
+                        >
+                            <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
+                                <h3 className="text-xl font-black text-foreground">Assign New Plan</h3>
+                                <button onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                                    <X className="h-6 w-6" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleAssign} className="p-6 space-y-6">
+                                {/* User Search */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Target User ID</label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            value={targetUserId}
+                                            onChange={(e) => setTargetUserId(e.target.value)}
+                                            placeholder="Enter User ID (e.g. 125)"
+                                            className="w-full pl-10 pr-4 py-3 bg-muted/30 border border-border rounded-md text-sm font-bold focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                                            required
+                                        />
+                                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                    </div>
+
+                                    {/* User Preview */}
+                                    {isLoadingUser && <p className="text-xs text-primary animate-pulse font-bold mt-2">Searching user database...</p>}
+                                    {userData?.user && (
+                                        <div className="mt-3 p-3 bg-primary/5 border border-primary/20 rounded-md flex items-center gap-3">
+                                            <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center text-primary font-black">
+                                                {userData.user.name?.[0]}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-foreground">{userData.user.name}</p>
+                                                <p className="text-xs text-muted-foreground">{userData.user.mobile} • {userData.user.role}</p>
+                                            </div>
+                                            {activeSubscription && (
+                                                <div className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded border border-emerald-500/20">
+                                                    Has Active Plan
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isUserError && targetUserId && (
+                                        <p className="text-xs text-destructive font-bold mt-2">User not found with this ID.</p>
+                                    )}
+                                </div>
+
+                                {/* Plan Selection */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Select Plan</label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto custom-scrollbar">
+                                        {availablePlans.map((plan: any) => (
+                                            <div
+                                                key={plan.id}
+                                                onClick={() => setSelectedPlanId(plan.id.toString())}
+                                                className={clsx(
+                                                    "cursor-pointer p-3 border rounded-md transition-all flex flex-col gap-1 relative",
+                                                    selectedPlanId === plan.id.toString()
+                                                        ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary" // Fixed: ring-primary
+                                                        : "border-border hover:border-primary/50 hover:bg-muted/50"
+                                                )}
+                                            >
+                                                {selectedPlanId === plan.id.toString() && (
+                                                    <div className="absolute top-2 right-2 text-primary">
+                                                        <CheckCircle2 className="h-4 w-4" />
+                                                    </div>
+                                                )}
+                                                <span className="font-black text-sm text-foreground">{plan.name}</span>
+                                                <span className="text-xs text-muted-foreground">₹{plan.price} / {plan.type}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Notes */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Internal Notes (Optional)</label>
+                                    <textarea
+                                        value={notes}
+                                        onChange={(e) => setNotes(e.target.value)}
+                                        rows={3}
+                                        placeholder="Reason for assignment..."
+                                        className="w-full p-3 bg-muted/30 border border-border rounded-md text-sm font-medium focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
+                                    />
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex justify-end gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsModalOpen(false)}
+                                        className="px-5 py-2.5 text-sm font-bold text-muted-foreground hover:bg-muted rounded-md transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={!selectedPlanId || !userData?.user || isAssigning || (!!activeSubscription && !notes)} // Require notes if overriding? No, just basic validation
+                                        className="px-5 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-md hover:bg-primary/90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    >
+                                        {isAssigning && <Loader2 className="h-4 w-4 animate-spin" />}
+                                        {isAssigning ? 'Processing...' : 'Confirm Assignment'}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </motion.div>
     )
 }

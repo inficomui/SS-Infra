@@ -142,14 +142,33 @@ export const walletApi = createApi({
         getPlans: builder.query<{ success: boolean; plans: any[] }, void>({
             query: () => '/plans',
         }),
+        // Create Razorpay Order
+        createSubscriptionOrder: builder.mutation<{ success: boolean; order_id: string; amount: number; currency: string; key: string; plan_name: string; user_email: string; user_mobile: string; user_name: string }, { planId: string; billingCycle: 'monthly' | 'yearly' }>({
+            query: ({ planId, billingCycle }) => ({
+                url: `/plans/${planId}/purchase/initiate`,
+                method: 'POST',
+                body: { billingCycle },
+            }),
+        }),
+        // Verify Razorpay Payment
+        verifySubscriptionPayment: builder.mutation<{ success: boolean; message: string }, { planId: string; razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }>({
+            query: ({ planId, ...data }) => ({
+                url: `/plans/${planId}/purchase/verify`,
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Wallet'],
+        }),
     }),
 });
 
-// Export hooks for usage in functional components
+
 export const {
     useGetWalletQuery,
     useRequestWithdrawalMutation,
     useGetWithdrawalsQuery,
     useGetMyPaymentsQuery,
     useGetPlansQuery,
+    useCreateSubscriptionOrderMutation,
+    useVerifySubscriptionPaymentMutation,
 } = walletApi;

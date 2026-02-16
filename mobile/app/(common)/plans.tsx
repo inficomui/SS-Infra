@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated, Alert } from 'react-native';
 import { Text, Button, Divider, ActivityIndicator } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
-import { useGetPlansQuery } from '@/redux/apis/walletApi';
+import { useGetPlansQuery, useCreateSubscriptionOrderMutation, useVerifySubscriptionPaymentMutation } from '@/redux/apis/walletApi';
 import { LinearGradient } from 'expo-linear-gradient';
+import RazorpayCheckout from 'react-native-razorpay';
+import { useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
 
@@ -13,8 +16,11 @@ export default function PlansScreen() {
     const router = useRouter();
     const { colors, isDark } = useAppTheme();
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const { user } = useSelector((state: any) => state.auth);
 
     const { data: plansData, isLoading } = useGetPlansQuery();
+    const [createOrder, { isLoading: isCreatingOrder }] = useCreateSubscriptionOrderMutation();
+    const [verifyPayment, { isLoading: isVerifyingPayment }] = useVerifySubscriptionPaymentMutation();
 
     // Mock plans if API returns empty - with enhanced metadata
     const plans = plansData?.plans || [
@@ -51,6 +57,83 @@ export default function PlansScreen() {
             popular: false
         }
     ];
+
+    const handlePurchase = async (plan: any) => {
+        console.log('Attempting purchase for plan:', plan);
+
+        if (plan.price === 'Custom') {
+            Toast.show({ type: 'info', text1: 'Contact Sales', text2: 'Please contact support for custom enterprise plans.' });
+            return;
+        }
+
+        try {
+            // 1. Create Order on Backend
+            const orderRes = await createOrder({ planId: plan.id, billingCycle }).unwrap();
+            console.log('Order Response:', orderRes);
+
+            if (!orderRes.success) {
+                Toast.show({ type: 'error', text1: 'Order Creation Failed', text2: 'Could not initiate subscription.' });
+                return;
+            }
+
+            const { order_id, amount, key, currency, user_email, user_mobile, user_name } = orderRes;
+
+            // 2. Open Razorpay Checkout
+            const options = {
+                description: `Subscription to ${plan.name} (${billingCycle})`,
+                image: 'https://i.imgur.com/3g7nmJC.png', // Replace with your logo URL
+                currency: currency || 'INR',
+                key: key,
+                amount: amount,
+                name: 'SS-Infra',
+                order_id: order_id, // Updated to underscore
+                prefill: {
+                    email: user_email || user?.email || '',
+                    contact: user_mobile || user?.mobile || '',
+                    name: user_name || user?.name || ''
+                },
+                theme: { color: colors.primary }
+            };
+
+            RazorpayCheckout.open(options)
+                .then(async (data: any) => {
+                    // 3. Verify Payment on Backend
+                    try {
+                        const verifyRes = await verifyPayment({
+                            planId: plan.id, // Added planId
+                            razorpay_payment_id: data.razorpay_payment_id,
+                            razorpay_order_id: data.razorpay_order_id,
+                            razorpay_signature: data.razorpay_signature
+                        }).unwrap();
+
+                        if (verifyRes.success) {
+                            Toast.show({ type: 'success', text1: 'Plan Activated!', text2: `Welcome to ${plan.name} plan.` });
+                            router.back();
+                        } else {
+                            Toast.show({ type: 'error', text1: 'Activation Failed', text2: verifyRes.message || 'Payment verification failed.' });
+                        }
+                    } catch (err: any) {
+                        console.error('Verification Error:', err);
+                        Toast.show({ type: 'error', text1: 'Verification Error', text2: 'Payment successful but verification failed. Contact support.' });
+                    }
+                })
+                .catch((error: any) => {
+                    console.log('Razorpay Error:', error);
+                    // Razorpay returns an error object with code and description
+                    if (error.code && error.description) {
+                        Toast.show({ type: 'error', text1: 'Payment Failed', text2: error.description });
+                    } else {
+                        // User cancelled or generic error
+                        // Toast.show({ type: 'info', text1: 'Payment Cancelled' }); 
+                    }
+                });
+
+        } catch (error: any) {
+            console.error('Purchase Error:', error);
+            const errorMessage = error?.data?.message || error?.data?.error || 'Something went wrong.';
+            Toast.show({ type: 'error', text1: 'Error', text2: errorMessage });
+        }
+    };
 
     if (isLoading) {
         return (
@@ -149,16 +232,24 @@ export default function PlansScreen() {
                                     ))}
                                 </View>
 
-                                <TouchableOpacity style={styles.btnShadow}>
+                                <TouchableOpacity
+                                    style={styles.btnShadow}
+                                    onPress={() => handlePurchase(plan)}
+                                    disabled={isCreatingOrder || isVerifyingPayment}
+                                >
                                     <LinearGradient
                                         colors={plan.popular ? plan.gradient : [colors.card, colors.card]}
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
                                         style={[styles.actionBtn, !plan.popular && { borderWidth: 1, borderColor: colors.border }]}
                                     >
-                                        <Text style={[styles.actionBtnText, { color: plan.popular ? '#000' : colors.textMain }]}>
-                                            {plan.price === 'Custom' ? 'Contact Sales' : 'Get Started'}
-                                        </Text>
+                                        {isCreatingOrder || isVerifyingPayment ? (
+                                            <ActivityIndicator color={plan.popular ? '#000' : colors.textMain} size="small" />
+                                        ) : (
+                                            <Text style={[styles.actionBtnText, { color: plan.popular ? '#000' : colors.textMain }]}>
+                                                {plan.price === 'Custom' ? 'Contact Sales' : 'Get Started'}
+                                            </Text>
+                                        )}
                                     </LinearGradient>
                                 </TouchableOpacity>
                             </TouchableOpacity>

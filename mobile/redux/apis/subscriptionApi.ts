@@ -1,7 +1,7 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { RootState } from '../store'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { CONFIG } from '@/constants/Config';
 
-// Types (mirrored from mobile/redux/apis/subscriptionApi.ts)
+// Types
 export interface Plan {
     id: number;
     name: string;
@@ -26,7 +26,7 @@ export interface AdminSummary {
 export interface Subscription {
     id: number;
     user?: UserSummary;
-    userId?: number;
+    userId?: number; // In case user object is not returned in some responses
     plan: Plan;
     startDate: string;
     endDate: string;
@@ -53,8 +53,15 @@ export interface AssignPlanResponse {
 export interface CancelSubscriptionResponse {
     success: boolean;
     message: string;
-    subscription?: Subscription;
-    deletedSubscription?: { id: number; userId: number; userName: string };
+    subscription?: Subscription; // For soft delete
+    deletedSubscription?: { id: number; userId: number; userName: string }; // For hard delete
+}
+
+export interface GetUserSubscriptionsResponse {
+    success: boolean;
+    user: UserSummary;
+    subscriptions: Subscription[];
+    totalSubscriptions: number;
 }
 
 export interface GetAllSubscriptionsResponse {
@@ -69,26 +76,54 @@ export interface GetAllSubscriptionsResponse {
 }
 
 export interface GetAllSubscriptionsParams {
-    status?: string;
+    status?: 'active' | 'expired' | 'cancelled';
     planId?: number;
     limit?: number;
     page?: number;
 }
 
+// API Definition
 export const subscriptionApi = createApi({
     reducerPath: 'subscriptionApi',
-    tagTypes: ['Subscriptions', 'UserSubscriptions'],
     baseQuery: fetchBaseQuery({
-        baseUrl: process.env.NEXT_PUBLIC_API_BASE_PATH || '/api/v1',
+        baseUrl: CONFIG.API_URL,
         prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as RootState).auth.token
+            const token = (getState() as any).auth.token;
             if (token) {
-                headers.set('authorization', `Bearer ${token}`)
+                headers.set('authorization', `Bearer ${token}`);
             }
-            return headers
+            return headers;
         },
     }),
+    tagTypes: ['Subscriptions', 'UserSubscriptions'],
     endpoints: (builder) => ({
+        // 1. Assign Plan to User (Admin Only)
+        assignPlan: builder.mutation<AssignPlanResponse, AssignPlanRequest>({
+            query: (data) => ({
+                url: '/subscriptions/assign',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
+        }),
+
+        // 2. Cancel/Delete Subscription (Admin Only)
+        cancelSubscription: builder.mutation<CancelSubscriptionResponse, { id: number; softDelete?: boolean }>({
+            query: ({ id, softDelete = false }) => ({
+                url: `/subscriptions/${id}`,
+                method: 'DELETE',
+                params: { softDelete },
+            }),
+            invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
+        }),
+
+        // 3. Get User's Subscriptions (Admin Only)
+        getUserSubscriptions: builder.query<GetUserSubscriptionsResponse, number>({
+            query: (userId) => `/subscriptions/user/${userId}`,
+            providesTags: (result, error, userId) => [{ type: 'UserSubscriptions', id: userId }],
+        }),
+
+        // 4. Get All Subscriptions (Admin Only) with filtering
         getAllSubscriptions: builder.query<GetAllSubscriptionsResponse, GetAllSubscriptionsParams>({
             query: (params) => ({
                 url: '/subscriptions',
@@ -96,32 +131,12 @@ export const subscriptionApi = createApi({
             }),
             providesTags: ['Subscriptions'],
         }),
-        getUserSubscriptions: builder.query<{ success: boolean; user: UserSummary; subscriptions: Subscription[] }, number>({
-            query: (userId) => `/subscriptions/user/${userId}`,
-            providesTags: (result, error, userId) => [{ type: 'UserSubscriptions', id: userId }],
-        }),
-        assignPlan: builder.mutation<AssignPlanResponse, AssignPlanRequest>({
-            query: (body) => ({
-                url: '/subscriptions/assign',
-                method: 'POST',
-                body,
-            }),
-            invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
-        }),
-        cancelSubscription: builder.mutation<CancelSubscriptionResponse, { id: number, softDelete?: boolean }>({
-            query: ({ id, softDelete }) => ({
-                url: `/subscriptions/${id}`,
-                method: 'DELETE',
-                params: { softDelete },
-            }),
-            invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
-        }),
     }),
-})
+});
 
 export const {
-    useGetAllSubscriptionsQuery,
-    useGetUserSubscriptionsQuery,
     useAssignPlanMutation,
-    useCancelSubscriptionMutation
-} = subscriptionApi
+    useCancelSubscriptionMutation,
+    useGetUserSubscriptionsQuery,
+    useGetAllSubscriptionsQuery,
+} = subscriptionApi;

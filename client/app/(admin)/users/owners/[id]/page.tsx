@@ -6,6 +6,7 @@ import { useGetOwnerDetailsQuery } from '@/redux/apis/usersApi'
 import { Loader2, User, MapPin, Phone, Calendar, Truck, Users, Activity, CreditCard, Network, ChevronRight, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
+import SubscriptionManagerModal from '@/components/subscriptions/SubscriptionManagerModal'
 
 export default function OwnerDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
@@ -14,6 +15,7 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
     const { data, isLoading, error, refetch } = useGetOwnerDetailsQuery(id)
 
     const [activeTab, setActiveTab] = useState<'overview' | 'machines' | 'operators' | 'referrals'>('overview')
+    const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
 
     if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin h-10 w-10 text-blue-600" /></div>
     if (error) return <div className="p-10 text-center text-red-500">Error loading owner details. The owner might not exist.</div>
@@ -35,17 +37,28 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-card border border-border/50 rounded-md shadow-xl shadow-black/5 overflow-hidden relative group"
             >
-                <button
-                    type="button"
-                    onClick={() => {
-                        setActiveTab('overview')
-                        refetch()
-                    }}
-                    className="absolute top-4 right-4 z-20 p-2 text-foreground/50 hover:text-foreground bg-background/20 hover:bg-background/40 backdrop-blur-md rounded-full border border-border/20 transition-all"
-                    title="Refresh Details"
-                >
-                    <RefreshCw className="h-5 w-5" />
-                </button>
+                <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setIsSubscriptionModalOpen(true)}
+                        className="flex items-center gap-2 px-3 py-2 text-foreground/70 hover:text-foreground bg-background/20 hover:bg-background/40 backdrop-blur-md rounded-md border border-border/20 transition-all text-xs font-black uppercase tracking-widest"
+                        title="Manage Subscription"
+                    >
+                        <CreditCard className="h-4 w-4" />
+                        <span>Manage Plan</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setActiveTab('overview')
+                            refetch()
+                        }}
+                        className="p-2 text-foreground/50 hover:text-foreground bg-background/20 hover:bg-background/40 backdrop-blur-md rounded-full border border-border/20 transition-all"
+                        title="Refresh Details"
+                    >
+                        <RefreshCw className="h-5 w-5" />
+                    </button>
+                </div>
 
                 {/* Decorative Background */}
                 <div className="h-40 bg-linear-to-br from-primary/20 via-primary/5 to-transparent relative overflow-hidden">
@@ -368,6 +381,14 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
                     )}
                 </AnimatePresence>
             </div>
+
+            <SubscriptionManagerModal
+                isOpen={isSubscriptionModalOpen}
+                onClose={() => setIsSubscriptionModalOpen(false)}
+                userId={owner.id}
+                userName={owner.name}
+                userRole="Owner"
+            />
         </div>
     )
 }

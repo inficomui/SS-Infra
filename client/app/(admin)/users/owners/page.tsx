@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { useGetOwnersQuery, useCreateOwnerMutation, useUpdateOwnerMutation, useDeleteOwnerMutation } from '@/redux/apis/usersApi'
-import { Loader2, Search, Plus, MapPin, User, X, Check, Filter, MoreHorizontal, ChevronLeft, ChevronRight, Phone, Hash, Edit2, Trash2, RefreshCw } from 'lucide-react'
+import { Loader2, Search, Plus, MapPin, User, X, Check, Filter, MoreHorizontal, ChevronLeft, ChevronRight, Phone, Hash, Edit2, Trash2, RefreshCw, CreditCard } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
+import SubscriptionManagerModal from '@/components/subscriptions/SubscriptionManagerModal'
 
 export default function OwnersPage() {
     const [page, setPage] = useState(1)
@@ -14,6 +15,10 @@ export default function OwnersPage() {
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingOwner, setEditingOwner] = useState<any>(null)
+
+    // Subscription Modal State
+    const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
+    const [selectedOwnerForSub, setSelectedOwnerForSub] = useState<any>(null)
 
     // Form State
     const [formData, setFormData] = useState({
@@ -49,6 +54,11 @@ export default function OwnersPage() {
             referralCode: owner.referralCode || ''
         })
         setIsModalOpen(true)
+    }
+
+    const handleManageSubscription = (owner: any) => {
+        setSelectedOwnerForSub(owner)
+        setIsSubscriptionModalOpen(true)
     }
 
     const handleDelete = async (id: number) => {
@@ -229,6 +239,13 @@ export default function OwnersPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleManageSubscription(owner)}
+                                                    className="p-2 text-muted-foreground hover:text-green-600 hover:bg-green-500/10 rounded-md transition-colors"
+                                                    title="Manage Subscription"
+                                                >
+                                                    <CreditCard className="h-4 w-4" />
+                                                </button>
                                                 <Link
                                                     href={`/users/owners/${owner.id}`}
                                                     className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
@@ -414,6 +431,18 @@ export default function OwnersPage() {
                     </>
                 )}
             </AnimatePresence>
+
+            {/* Subscription Modal */}
+            <SubscriptionManagerModal
+                isOpen={isSubscriptionModalOpen}
+                onClose={() => {
+                    setIsSubscriptionModalOpen(false)
+                    setSelectedOwnerForSub(null)
+                }}
+                userId={selectedOwnerForSub?.id || null}
+                userName={selectedOwnerForSub?.name || ''}
+                userRole="Owner"
+            />
         </motion.div>
     )
 }

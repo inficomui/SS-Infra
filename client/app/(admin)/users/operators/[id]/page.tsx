@@ -1,18 +1,20 @@
 'use client'
 
-import { use } from 'react'
+import { use, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGetOperatorDetailsQuery } from '@/redux/apis/usersApi'
-import { Loader2, User, Phone, MapPin, Calendar, Briefcase, Truck, Activity, ChevronRight, History, RefreshCw } from 'lucide-react'
+import { Loader2, User, Phone, MapPin, Calendar, Briefcase, Truck, Activity, ChevronRight, History, RefreshCw, CreditCard } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import clsx from 'clsx'
+import SubscriptionManagerModal from '@/components/subscriptions/SubscriptionManagerModal'
 
 export default function OperatorDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params);
     const { id } = resolvedParams;
     const router = useRouter()
     const { data, isLoading, error, refetch } = useGetOperatorDetailsQuery(id)
+    const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
 
     if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin h-10 w-10 text-primary" /></div>
     if (error) return <div className="p-10 text-center text-red-500">Error loading operator details. The operator might not exist.</div>
@@ -32,14 +34,25 @@ export default function OperatorDetailsPage({ params }: { params: Promise<{ id: 
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-card border border-border/50 rounded-md shadow-xl shadow-black/5 overflow-hidden relative"
             >
-                <button
-                    type="button"
-                    onClick={() => refetch()}
-                    className="absolute top-4 right-4 z-20 p-2 text-foreground/50 hover:text-foreground bg-background/20 hover:bg-background/40 backdrop-blur-md rounded-full border border-border/20 transition-all"
-                    title="Refresh Details"
-                >
-                    <RefreshCw className="h-5 w-5" />
-                </button>
+                <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setIsSubscriptionModalOpen(true)}
+                        className="flex items-center gap-2 px-3 py-2 text-foreground/70 hover:text-foreground bg-background/20 hover:bg-background/40 backdrop-blur-md rounded-md border border-border/20 transition-all text-xs font-black uppercase tracking-widest"
+                        title="Manage Subscription"
+                    >
+                        <CreditCard className="h-4 w-4" />
+                        <span>Manage Plan</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="p-2 text-foreground/50 hover:text-foreground bg-background/20 hover:bg-background/40 backdrop-blur-md rounded-full border border-border/20 transition-all"
+                        title="Refresh Details"
+                    >
+                        <RefreshCw className="h-5 w-5" />
+                    </button>
+                </div>
 
                 {/* Decorative Background */}
                 <div className="h-32 bg-linear-to-br from-emerald-500/20 via-primary/5 to-transparent relative overflow-hidden">
@@ -198,6 +211,13 @@ export default function OperatorDetailsPage({ params }: { params: Promise<{ id: 
                     </table>
                 </div>
             </div>
+            <SubscriptionManagerModal
+                isOpen={isSubscriptionModalOpen}
+                onClose={() => setIsSubscriptionModalOpen(false)}
+                userId={operator.id}
+                userName={operator.name}
+                userRole="Operator"
+            />
         </div>
     )
 }

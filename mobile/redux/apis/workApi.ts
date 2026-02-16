@@ -187,6 +187,14 @@ export const workApi = createApi({
             }),
             invalidatesTags: ['Work'],
         }),
+        recordPayment: builder.mutation<{ success: boolean; message: string; invoice: any }, { invoiceId: string | number; amount: number; paymentDate: string; nextPaymentDate?: string; notes?: string }>({
+            query: ({ invoiceId, ...body }) => ({
+                url: `/billing/${invoiceId}/payment`,
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Work'],
+        }),
     }),
 });
 
@@ -207,4 +215,5 @@ export const {
     useUpdateWorkSessionMutation,
     // Billing
     useGenerateBillMutation,
+    useRecordPaymentMutation,
 } = workApi;

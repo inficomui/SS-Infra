@@ -13,14 +13,25 @@ export default function NotificationDetailsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const dispatch = useDispatch();
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, notification: notificationParam } = useLocalSearchParams<{ id: string, notification: string }>();
 
-    const notification = useSelector((state) => selectNotificationById(state, id));
+    const reduxNotification = useSelector((state) => selectNotificationById(state, id));
 
-    // Mark as read when viewing details
+    const notification = React.useMemo(() => {
+        if (notificationParam) {
+            try {
+                return JSON.parse(notificationParam);
+            } catch (e) {
+                console.error("Failed to parse notification param", e);
+            }
+        }
+        return reduxNotification;
+    }, [notificationParam, reduxNotification]);
+
+    // Mark as read when viewing details (only if ID exists)
     React.useEffect(() => {
-        if (id && notification && !notification.isRead) {
-            dispatch(markAsRead(id));
+        if ((id || notification?.id) && notification && !notification.isRead) {
+            dispatch(markAsRead(id || notification.id));
         }
     }, [id, notification]);
 

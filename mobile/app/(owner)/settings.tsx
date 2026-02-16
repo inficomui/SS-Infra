@@ -87,6 +87,7 @@ export default function SettingsScreen() {
                         descriptionStyle={{ color: colors.textMuted }}
                     />
                 </View>
+
             </ScrollView>
         </View>
     );

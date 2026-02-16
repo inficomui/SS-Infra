@@ -47,13 +47,20 @@ export default function LoginScreen() {
         }
         try {
             const response: any = await sendOtp({ mobile: mobileNumber }).unwrap();
+            console.log('Send OTP Response:', response);
             if (response?.success) {
                 setIsOtpSent(true);
                 if (response.devOtp) setDevOtp(response.devOtp);
                 Toast.show({ type: 'success', text1: 'OTP Sent Successfully' });
             }
         } catch (error: any) {
-            Toast.show({ type: 'error', text1: 'Error', text2: error?.data?.message || "Failed to send OTP." });
+            console.error('Send OTP Error:', error);
+            const errorMessage = error?.data?.message || error?.data?.error || error?.message || "Failed to send OTP. Please try again.";
+            Toast.show({
+                type: 'error',
+                text1: 'OTP Sending Failed',
+                text2: errorMessage
+            });
         }
     };
 

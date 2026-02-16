@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { useGetOperatorsQuery, useCreateOperatorMutation, useUpdateOperatorMutation, useDeleteOperatorMutation } from '@/redux/apis/usersApi'
-import { Loader2, Search, Filter, MoreVertical, Eye, MapPin, Phone, Hash, ChevronLeft, ChevronRight, User, Shield, Plus, X, Edit2, Trash2, MoreHorizontal, RefreshCw } from 'lucide-react'
+import { Loader2, Search, Filter, MoreVertical, Eye, MapPin, Phone, Hash, ChevronLeft, ChevronRight, User, Shield, Plus, X, Edit2, Trash2, MoreHorizontal, RefreshCw, CreditCard } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
+import SubscriptionManagerModal from '@/components/subscriptions/SubscriptionManagerModal'
 
 export default function OperatorsPage() {
     const [page, setPage] = useState(1)
@@ -14,6 +15,10 @@ export default function OperatorsPage() {
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingOperator, setEditingOperator] = useState<any>(null)
+
+    // Subscription Modal State
+    const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
+    const [selectedOperatorForSub, setSelectedOperatorForSub] = useState<any>(null)
 
     // Form State
     const [formData, setFormData] = useState({
@@ -49,6 +54,11 @@ export default function OperatorsPage() {
             referralCode: operator.referralCode || ''
         })
         setIsModalOpen(true)
+    }
+
+    const handleManageSubscription = (operator: any) => {
+        setSelectedOperatorForSub(operator)
+        setIsSubscriptionModalOpen(true)
     }
 
     const handleDelete = async (id: number) => {
@@ -238,6 +248,13 @@ export default function OperatorsPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleManageSubscription(operator)}
+                                                    className="p-2 text-muted-foreground hover:text-green-600 hover:bg-green-500/10 rounded-md transition-colors"
+                                                    title="Manage Subscription"
+                                                >
+                                                    <CreditCard className="h-4 w-4" />
+                                                </button>
                                                 <Link
                                                     href={`/users/operators/${operator.id}`}
                                                     className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
@@ -423,6 +440,18 @@ export default function OperatorsPage() {
                     </>
                 )}
             </AnimatePresence>
+
+            {/* Subscription Modal */}
+            <SubscriptionManagerModal
+                isOpen={isSubscriptionModalOpen}
+                onClose={() => {
+                    setIsSubscriptionModalOpen(false)
+                    setSelectedOperatorForSub(null)
+                }}
+                userId={selectedOperatorForSub?.id || null}
+                userName={selectedOperatorForSub?.name || ''}
+                userRole="Operator"
+            />
         </motion.div>
     )
 }
