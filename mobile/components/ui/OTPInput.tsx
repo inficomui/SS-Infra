@@ -9,6 +9,7 @@ import {
     ViewStyle,
     TextStyle
 } from 'react-native';
+import { useAppTheme } from '@/hooks/use-theme-color';
 
 interface OTPInputProps {
     length: number;
@@ -20,13 +21,10 @@ interface OTPInputProps {
     textStyle?: StyleProp<TextStyle>;
 }
 
-const PRIMARY_YELLOW = '#FFD700';
-const DEEP_BLACK = '#121212';
-const DARK_GREY = '#1E1E1E';
-
 const OTPInput = ({ length, value, onChange, error, containerStyle, boxStyle, textStyle }: OTPInputProps) => {
     const inputs = useRef<(TextInput | null)[]>([]);
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+    const { colors, isDark } = useAppTheme();
 
     const handleChange = (text: string, index: number) => {
         const chars = Array(length).fill('').map((_, i) => value[i] || '');
@@ -65,14 +63,18 @@ const OTPInput = ({ length, value, onChange, error, containerStyle, boxStyle, te
                     key={i}
                     style={[
                         styles.boxContainer,
+                        { backgroundColor: colors.card, borderColor: colors.border },
                         boxStyle,
-                        error && styles.errorBorder,
-                        focusedIndex === i && styles.activeBorder // Highlight active box
+                        error && { borderColor: colors.danger, borderWidth: 2 },
+                        focusedIndex === i && {
+                            borderColor: colors.primary,
+                            backgroundColor: isDark ? '#252525' : '#F9FAFB' // Subtle highlight
+                        }
                     ]}
                 >
                     <TextInput
                         ref={ref => { inputs.current[i] = ref; }}
-                        style={[styles.input, textStyle]}
+                        style={[styles.input, { color: colors.primary }, textStyle]}
                         keyboardType="number-pad"
                         maxLength={1}
                         value={value[i] || ''}
@@ -80,11 +82,11 @@ const OTPInput = ({ length, value, onChange, error, containerStyle, boxStyle, te
                         onKeyPress={(e) => handleKeyPress(e, i)}
                         onFocus={() => setFocusedIndex(i)}
                         onBlur={() => setFocusedIndex(null)}
-                        selectionColor={PRIMARY_YELLOW}
+                        selectionColor={colors.primary}
                         textAlign="center"
-                        cursorColor={PRIMARY_YELLOW}
+                        cursorColor={colors.primary}
                         placeholder="-"
-                        placeholderTextColor="#444"
+                        placeholderTextColor={colors.textMuted}
                     />
                 </View>
             ))}
@@ -103,9 +105,7 @@ const styles = StyleSheet.create({
         width: 58,
         height: 68,
         borderRadius: 15,
-        backgroundColor: DARK_GREY, // Dark theme background
         borderWidth: 2,
-        borderColor: '#333', // Subtle border
         justifyContent: 'center',
         alignItems: 'center',
         // Shadow for depth
@@ -115,22 +115,13 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 5,
     },
-    activeBorder: {
-        borderColor: PRIMARY_YELLOW, // Industrial Yellow highlight
-        backgroundColor: '#252525',
-    },
     input: {
         fontSize: 28,
         fontWeight: '900', // Bold numbers
         width: '100%',
         height: '100%',
         textAlign: 'center',
-        color: PRIMARY_YELLOW, // Yellow text for OTP
         padding: 0,
-    },
-    errorBorder: {
-        borderColor: '#EF4444',
-        borderWidth: 2,
     }
 });
 

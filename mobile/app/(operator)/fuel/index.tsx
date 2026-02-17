@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { formatDate } from '../../../utils/formatters';
 
 export default function FuelLogsScreen() {
     const router = useRouter();
@@ -84,7 +85,7 @@ export default function FuelLogsScreen() {
                             {log.machine?.name || 'Unknown Machine'}
                         </Text>
                         <Text style={[styles.dateText, { color: colors.textMuted }]}>
-                            {new Date(log.log_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                            {formatDate(log.log_date)}
                         </Text>
                     </View>
                 </View>
@@ -164,12 +165,12 @@ export default function FuelLogsScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollContent}>
                     <TouchableOpacity onPress={() => setShowStartPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-import" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>From: {startDate.toLocaleDateString()}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>From: {formatDate(startDate)}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => setShowEndPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-export" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>To: {endDate.toLocaleDateString()}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>To: {formatDate(endDate)}</Text>
                     </TouchableOpacity>
 
                     <Menu

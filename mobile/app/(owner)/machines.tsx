@@ -8,6 +8,7 @@ import { useGetMachinesQuery, useDeleteMachineMutation, useGetOperatorsQuery } f
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Toast from 'react-native-toast-message';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import { resolveImageUrl } from '../../utils/imageHelpers';
 
 const { width } = Dimensions.get('window');
 
@@ -204,7 +205,7 @@ function MachineListItem({ machine, colors, currentOperator, onEdit, onDelete }:
         >
             <View style={[styles.machineIconBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 {machine.photo_url ? (
-                    <Image source={{ uri: machine.photo_url }} style={styles.machineImage} />
+                    <Image source={{ uri: resolveImageUrl(machine.photo_url) }} style={styles.machineImage} />
                 ) : (
                     <MaterialCommunityIcons name="excavator" size={32} color={colors.textMuted} />
                 )}

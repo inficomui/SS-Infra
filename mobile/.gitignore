@@ -32,12 +32,13 @@ yarn-error.*
 
 # local env files
 .env*.local
-
+android
+.gitignore
 # typescript
 *.tsbuildinfo
 
 app-example
 
 # generated native folders
-# /ios
-# /android
+/ios
+/android

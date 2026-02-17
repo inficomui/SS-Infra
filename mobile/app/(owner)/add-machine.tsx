@@ -17,6 +17,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { formatDate, resolveImageUrl } from '@/utils/formatters';
 import { useAddMachineMutation, useUpdateMachineMutation } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Toast from 'react-native-toast-message';
@@ -50,16 +51,8 @@ export default function AddMachineScreen() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [date, setDate] = useState(formData.purchaseDate ? new Date(formData.purchaseDate) : new Date());
 
-    // Helper to resolve image URL
-    const getFullImageUrl = (path: string | null) => {
-        if (!path) return null;
-        if (path.startsWith('http')) return path;
-        // Assuming Laravel storage link behavior
-        return `https://backend.ssinfrasoftware.com/storage/${path.replace(/^storage\//, '')}`;
-    };
-
     const initialPhoto = (params.photo as string) || machineData.photo_url || machineData.photoUrl || machineData.photo_path;
-    const [photoUri, setPhotoUri] = useState<string | null>(initialPhoto ? getFullImageUrl(initialPhoto) : null);
+    const [photoUri, setPhotoUri] = useState<string | null>(initialPhoto ? resolveImageUrl(initialPhoto) : null);
     const [errors, setErrors] = useState<any>({});
 
     console.log("Initial Form Data:", JSON.stringify(formData, null, 2));
@@ -93,7 +86,7 @@ export default function AddMachineScreen() {
 
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ['images'],
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [16, 9],
             quality: 0.7,
         });
@@ -113,7 +106,7 @@ export default function AddMachineScreen() {
 
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [16, 9],
             quality: 0.7,
         });
@@ -370,7 +363,7 @@ const styles = StyleSheet.create({
     scrollView: { flex: 1 },
     scrollContent: { padding: 24 },
     photoUploadSection: { marginBottom: 30 },
-    photoFrame: { height: 200, borderRadius: 4, borderWidth: 1, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+    photoFrame: { height: 200, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
     photoOverlay: { position: 'absolute', bottom: 12, right: 12, flexDirection: 'row', gap: 8 },
     actionFab: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84 },
@@ -379,15 +372,15 @@ const styles = StyleSheet.create({
     photoLabel: { fontSize: 14, fontWeight: '800' },
     hintText: { textAlign: 'center', fontSize: 11, marginTop: 8 },
     choiceButtons: { flexDirection: 'row', gap: 12, marginTop: 10, width: '80%', justifyContent: 'center' },
-    choiceBtn: { flex: 1, height: 44, borderRadius: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+    choiceBtn: { flex: 1, height: 44, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
     choiceBtnText: { fontSize: 11, fontWeight: '900' },
-    formSection: { borderRadius: 4, padding: 20, borderWidth: 1, gap: 20 },
+    formSection: { borderRadius: 12, padding: 20, borderWidth: 1, gap: 20 },
     fieldWrapper: { gap: 8 },
     inputLabel: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1, marginLeft: 4 },
-    inputContainer: { flexDirection: 'row', alignItems: 'center', borderRadius: 4, borderWidth: 1, paddingLeft: 12 },
+    inputContainer: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, borderWidth: 1, paddingLeft: 12 },
     textInput: { flex: 1, backgroundColor: 'transparent', height: 50, fontSize: 15 },
     errorLabel: { fontSize: 11, fontWeight: '600', marginLeft: 4 },
-    submitButton: { marginTop: 30, borderRadius: 4, overflow: 'hidden' },
+    submitButton: { marginTop: 30, borderRadius: 16, overflow: 'hidden' },
     gradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, gap: 10 },
     submitText: { fontSize: 15, fontWeight: '900', color: '#000' },
     modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' },

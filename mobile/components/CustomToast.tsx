@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import { useAppTheme } from '@/hooks/use-theme-color';
 
 /*
   1. Success Toast (Green)
@@ -60,29 +61,40 @@ const toastConfig = {
     )
 };
 
-const GenericToast = ({ color, icon, title, message, ...props }: any) => (
-    <View style={[styles.container, { borderLeftColor: color }]}>
-        <View style={[styles.iconContainer, { backgroundColor: color }]}>
-            <MaterialCommunityIcons name={icon} size={24} color="#FFF" />
+const GenericToast = ({ color, icon, title, message, ...props }: any) => {
+    const { colors, isDark } = useAppTheme();
+
+    return (
+        <View style={[
+            styles.container,
+            {
+                borderLeftColor: color,
+                backgroundColor: isDark ? '#1F1F1F' : '#FFFFFF',
+                shadowColor: isDark ? '#000' : '#000',
+                borderColor: isDark ? '#333' : 'transparent',
+                borderWidth: isDark ? 1 : 0
+            }
+        ]}>
+            <View style={[styles.iconContainer, { backgroundColor: color }]}>
+                <MaterialCommunityIcons name={icon} size={24} color="#FFF" />
+            </View>
+            <View style={styles.contentContainer}>
+                <Text style={[styles.title, { color: colors.textMain }]}>{title}</Text>
+                {message ? <Text style={[styles.message, { color: colors.textMuted }]}>{message}</Text> : null}
+            </View>
+            {/* Optional close button if library supports onPress logic here easily, usually handled by autoHide though. */}
         </View>
-        <View style={styles.contentContainer}>
-            <Text style={styles.title}>{title}</Text>
-            {message ? <Text style={styles.message}>{message}</Text> : null}
-        </View>
-        {/* Optional close button if library supports onPress logic here easily, usually handled by autoHide though. */}
-    </View>
-);
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         height: 60,
         width: '90%',
-        backgroundColor: '#fff',
         borderRadius: 8,
         borderLeftWidth: 5,
         flexDirection: 'row',
         alignItems: 'center',
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 6,
@@ -105,12 +117,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 15,
         fontWeight: '700',
-        color: '#333',
         marginBottom: 2
     },
     message: {
         fontSize: 12,
-        color: '#666',
         fontWeight: '500'
     }
 });

@@ -7,25 +7,20 @@ export interface Notification {
     body: string;
     type: string;
     data?: any;
-    isRead: boolean;
-    createdAt: string;
+    isRead?: boolean;
+    is_read?: boolean;
+    createdAt?: string;
+    created_at?: string;
 }
+
+import { baseQuery } from '../baseQuery';
 
 export const notificationApi = createApi({
     reducerPath: 'notificationApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: CONFIG.API_URL,
-        prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as any).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     tagTypes: ['Notifications'],
     endpoints: (builder) => ({
-        getNotifications: builder.query<{ success: boolean; notifications: Notification[] }, void>({
+        getNotifications: builder.query<{ success: boolean; notifications?: Notification[]; data?: Notification[] }, void>({
             query: () => '/notifications',
             providesTags: ['Notifications'],
         }),

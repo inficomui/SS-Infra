@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetWithdrawalsQuery } from '@/redux/apis/walletApi';
+import { formatDate } from '../../../utils/formatters';
 
 export default function WithdrawalHistoryScreen() {
     const router = useRouter();
@@ -68,7 +69,7 @@ export default function WithdrawalHistoryScreen() {
                                     <View style={[styles.infoBar, { backgroundColor: colors.background + '80' }]}>
                                         <MaterialCommunityIcons name="calendar-month" size={16} color={colors.textMuted} />
                                         <Text style={{ fontSize: 13, color: colors.textMain, fontWeight: '600' }}>
-                                            {new Date(w.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}
+                                            {formatDate(w.createdAt)}
                                         </Text>
                                     </View>
 

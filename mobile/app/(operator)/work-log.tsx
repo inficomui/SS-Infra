@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGetWorkHistoryQuery } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { formatDate, formatDuration } from '../../utils/formatters';
 
 export default function WorkLogScreen() {
     const router = useRouter();
@@ -17,13 +18,6 @@ export default function WorkLogScreen() {
         if (data?.pagination && data.pagination.currentPage < data.pagination.totalPages) {
             setPage(prev => prev + 1);
         }
-    };
-
-    const formatDate = (dateString: string) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-IN', {
-            day: 'numeric', month: 'short', year: 'numeric'
-        });
     };
 
     const renderItem = ({ item }: { item: any }) => (
@@ -60,7 +54,7 @@ export default function WorkLogScreen() {
                 <View style={styles.detailItem}>
                     <MaterialCommunityIcons name="clock-outline" size={16} color={colors.textMuted} />
                     <Text style={[styles.detailText, { color: colors.textMain }]}>
-                        {item.totalHours ? `${Number(item.totalHours).toFixed(2)} hrs` : 'In Progress'}
+                        {item.totalHours ? formatDuration(item.totalHours) : 'In Progress'}
                     </Text>
                 </View>
                 <View style={styles.detailItem}>

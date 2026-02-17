@@ -5,6 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetPaymentHistoryQuery } from '@/redux/apis/ownerApi';
+import { formatDate } from '../../../utils/formatters';
 
 export default function OperatorPaymentHistoryScreen() {
     const router = useRouter();
@@ -38,7 +39,7 @@ export default function OperatorPaymentHistoryScreen() {
                 <View style={styles.infoRow}>
                     <MaterialCommunityIcons name="calendar" size={16} color={colors.textMuted} />
                     <Text style={[styles.infoText, { color: colors.textMain }]}>
-                        {new Date(item.payment_date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {formatDate(item.payment_date)}
                     </Text>
                 </View>
 

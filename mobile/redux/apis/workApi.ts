@@ -81,18 +81,11 @@ export interface GenerateBillResponse {
     };
 }
 
+import { baseQuery } from '../baseQuery';
+
 export const workApi = createApi({
     reducerPath: 'workApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: CONFIG.API_URL,
-        prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as any).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     tagTypes: ['Work', 'Clients'],
     endpoints: (builder) => ({
         // ============ CLIENTS ENDPOINTS ============

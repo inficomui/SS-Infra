@@ -147,8 +147,24 @@ export default function OperatorProfileScreen() {
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Information</Text>
                     <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <MenuRow icon="shield-check-outline" label="Privacy Policy" colors={colors} onPress={() => { }} />
-                        <MenuRow icon="help-circle-outline" label="Support" colors={colors} onPress={() => { }} />
+                        <MenuRow
+                            icon="shield-check-outline"
+                            label="Privacy Policy"
+                            colors={colors}
+                            onPress={() => router.push('/(operator)/privacy-policy' as any)}
+                        />
+                        <MenuRow
+                            icon="information-outline"
+                            label="About Us"
+                            colors={colors}
+                            onPress={() => router.push('/(operator)/about' as any)}
+                        />
+                        <MenuRow
+                            icon="help-circle-outline"
+                            label="Support"
+                            colors={colors}
+                            onPress={() => { }}
+                        />
                     </View>
                 </View>
 

@@ -40,7 +40,8 @@ export default function NotificationList({ basePath = '/(owner)' }: { basePath?:
     };
 
     const handlePress = async (notification: Notification) => {
-        if (!notification.isRead) {
+        const isRead = notification.isRead || notification.is_read;
+        if (!isRead) {
             try {
                 await markAsRead(notification.id).unwrap();
             } catch (error) {
@@ -69,6 +70,8 @@ export default function NotificationList({ basePath = '/(owner)' }: { basePath?:
     };
 
     const renderItem = ({ item }: { item: Notification }) => {
+        const isRead = item.isRead || item.is_read;
+        const createdAt = item.createdAt || item.created_at || new Date().toISOString();
         const isWorkEvent = item.type === 'work_event';
         const isAlert = item.type === 'alert';
 
@@ -89,7 +92,7 @@ export default function NotificationList({ basePath = '/(owner)' }: { basePath?:
 
         return (
             <TouchableOpacity
-                style={[styles.itemContainer, { backgroundColor: item.isRead ? colors.background : colors.cardLight, borderColor: colors.border }]}
+                style={[styles.itemContainer, { backgroundColor: isRead ? colors.background : colors.cardLight, borderColor: colors.border }]}
                 onPress={() => handlePress(item)}
             >
                 <View style={[styles.iconContainer, { backgroundColor: iconColor + '15' }]}>
@@ -97,11 +100,11 @@ export default function NotificationList({ basePath = '/(owner)' }: { basePath?:
                 </View>
                 <View style={styles.contentContainer}>
                     <View style={styles.headerRow}>
-                        <Text style={[styles.title, { color: colors.textMain, fontWeight: item.isRead ? '600' : '800' }]}>
+                        <Text style={[styles.title, { color: colors.textMain, fontWeight: isRead ? '600' : '800' }]}>
                             {item.title}
                         </Text>
                         <Text style={[styles.time, { color: colors.textMuted }]}>
-                            {timeAgo(item.createdAt)}
+                            {timeAgo(createdAt)}
                         </Text>
                     </View>
                     <Text style={[styles.body, { color: colors.textMuted }]} numberOfLines={2}>
@@ -126,7 +129,7 @@ export default function NotificationList({ basePath = '/(owner)' }: { basePath?:
         );
     }
 
-    const notifications = data?.notifications || [];
+    const notifications = data?.notifications || data?.data || [];
 
     if (!isLoading && notifications.length === 0) {
         return (

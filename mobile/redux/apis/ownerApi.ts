@@ -106,19 +106,12 @@ export interface SalaryReportResponse {
     };
 }
 
+import { baseQuery } from '../baseQuery';
+
 // Define the API service
 export const ownerApi = createApi({
     reducerPath: 'ownerApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: CONFIG.API_URL,
-        prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as any).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     tagTypes: ['Operators', 'Machines'],
     endpoints: (builder) => ({
         // Get all operators

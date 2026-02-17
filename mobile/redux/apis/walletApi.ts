@@ -68,19 +68,12 @@ export interface WithdrawalHistoryResponse {
     pagination: PaginationMetadata;
 }
 
+import { baseQuery } from '../baseQuery';
+
 // Define the API service
 export const walletApi = createApi({
     reducerPath: 'walletApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: CONFIG.API_URL,
-        prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as any).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     tagTypes: ['Wallet'],
     endpoints: (builder) => ({
         // Get Wallet Balance & History
@@ -157,7 +150,7 @@ export const walletApi = createApi({
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: ['Wallet'],
+            invalidatesTags: ['Wallet', 'User' as any],
         }),
     }),
 });

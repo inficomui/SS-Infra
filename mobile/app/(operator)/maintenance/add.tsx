@@ -58,18 +58,26 @@ export default function OperatorAddMaintenanceScreen() {
         formData.append('description', description);
 
         if (serviceImage) {
+            const filename = serviceImage.uri.split('/').pop() || 'service_photo.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image/jpeg`;
+
             formData.append('service_image', {
                 uri: serviceImage.uri,
-                type: 'image/jpeg',
-                name: 'service_photo.jpg',
+                type: type,
+                name: filename,
             } as any);
         }
 
         if (invoiceImage) {
+            const filename = invoiceImage.uri.split('/').pop() || 'invoice_photo.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image/jpeg`;
+
             formData.append('invoice_image', {
                 uri: invoiceImage.uri,
-                type: 'image/jpeg',
-                name: 'invoice_photo.jpg',
+                type: type,
+                name: filename,
             } as any);
         }
 

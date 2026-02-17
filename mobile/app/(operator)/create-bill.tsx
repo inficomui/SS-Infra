@@ -70,7 +70,7 @@ export default function CreateBillScreen() {
                                                 totalHours: hours,
                                                 hourlyRate: rate,
                                                 description: description,
-                                                date: new Date().toLocaleDateString(),
+                                                date: new Date().toISOString(),
                                                 photoUri: params.afterWorkPhoto,
                                                 invoiceId: result.invoice?.id
                                             }
@@ -79,20 +79,7 @@ export default function CreateBillScreen() {
                                 }
                             ]);
                         } catch (error: any) {
-                            console.error("--- INVOICE GENERATION ERROR ---");
                             const errData = error?.data || error;
-                            console.error(JSON.stringify({
-                                status: error?.status,
-                                message: errData?.message,
-                                endpoint: '/billing/generate',
-                                payload: {
-                                    workSessionId: workId,
-                                    hourlyRate: parseFloat(rate),
-                                    totalHours: parseFloat(hours),
-                                    totalAmount: parseFloat(totalAmount)
-                                }
-                            }, null, 2));
-
                             const msg = errData?.message || "The billing service is currently unavailable. Please notify the backend developer.";
                             Alert.alert("Submission Failed", msg);
                         }
@@ -216,24 +203,24 @@ export default function CreateBillScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    backBtn: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    backBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
     scrollContent: { padding: 24 },
-    card: { borderRadius: 4, padding: 20, marginBottom: 20, borderWidth: 1 },
+    card: { borderRadius: 12, padding: 20, marginBottom: 20, borderWidth: 1 },
     clientRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-    iconBox: { width: 56, height: 56, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    iconBox: { width: 56, height: 56, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     cardLabel: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', marginBottom: 2 },
     cardValue: { fontSize: 18, fontWeight: '900' },
     cardSubValue: { fontSize: 13, fontWeight: '600' },
-    photoStatus: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 4, marginBottom: 24, borderWidth: 1, gap: 12 },
-    photoThumb: { width: 44, height: 44, borderRadius: 4 },
+    photoStatus: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12, marginBottom: 24, borderWidth: 1, gap: 12 },
+    photoThumb: { width: 44, height: 44, borderRadius: 8 },
     statusTitle: { fontWeight: '900', fontSize: 14 },
     statusSub: { fontSize: 11, fontWeight: '600' },
     sectionTitle: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, marginLeft: 4 },
-    formCard: { borderRadius: 4, padding: 20, marginBottom: 24, borderWidth: 1 },
+    formCard: { borderRadius: 12, padding: 20, marginBottom: 24, borderWidth: 1 },
     inputGroup: { marginBottom: 16 },
     inputLabel: { marginBottom: 8, fontSize: 13, fontWeight: '700' },
-    inputWrapper: { flexDirection: 'row', alignItems: 'center', borderRadius: 4, borderWidth: 1, paddingHorizontal: 16, height: 54 },
+    inputWrapper: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, borderWidth: 1, paddingHorizontal: 16, height: 54 },
     input: { flex: 1, fontSize: 16, fontWeight: '700' },
     unitText: { fontWeight: '900', fontSize: 12, marginLeft: 8 },
     currency: { fontSize: 18, fontWeight: '900', marginRight: 8 },
@@ -242,7 +229,7 @@ const styles = StyleSheet.create({
     totalLabel: { fontSize: 18, fontWeight: '900' },
     totalValue: { fontSize: 26, fontWeight: '900' },
     footer: { padding: 24, borderTopWidth: 1 },
-    submitBtn: { height: 64, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    submitBtn: { height: 64, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     btnContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
     btnText: { fontSize: 16, fontWeight: '900', color: '#000', letterSpacing: 1 }
 });

@@ -34,7 +34,7 @@ export default function FinishWorkScreen() {
 
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ['images'],
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [4, 3],
             quality: 0.7,
         });
@@ -53,7 +53,7 @@ export default function FinishWorkScreen() {
 
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [4, 3],
             quality: 0.7,
         });
@@ -95,7 +95,7 @@ export default function FinishWorkScreen() {
             const hours = (Number(elapsedSeconds) / 3600).toFixed(2);
             formData.append('totalHours', hours);
 
-            const filename = photoUri.split('/').pop() || 'finish_photo.jpg';
+            const filename = photoUri.split('/').pop() || 'finish_work_photo.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
 
@@ -106,7 +106,6 @@ export default function FinishWorkScreen() {
                 type: type
             });
 
-            console.log("Submitting Final Work Logs:", { workSessionId: workId, totalHours: hours });
             await finishWork(formData).unwrap();
 
             router.push({
@@ -220,27 +219,27 @@ export default function FinishWorkScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    backBtn: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    backBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
     content: { padding: 24 },
-    card: { borderRadius: 4, padding: 24, marginBottom: 30, borderWidth: 1 },
+    card: { borderRadius: 12, padding: 24, marginBottom: 30, borderWidth: 1 },
     sectionHeader: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, marginLeft: 4 },
     summaryRow: { flexDirection: 'row', alignItems: 'center', gap: 20 },
-    iconBox: { width: 64, height: 64, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    iconBox: { width: 64, height: 64, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     label: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', marginBottom: 4 },
     value: { fontSize: 32, fontWeight: '900' },
     clientInfo: { gap: 4 },
     clientValue: { fontSize: 18, fontWeight: '800' },
     subValue: { fontSize: 13, fontWeight: '600' },
     divider: { height: 1, marginVertical: 20 },
-    photoBox: { height: 240, borderRadius: 4, borderWidth: 2, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+    photoBox: { height: 240, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     placeholder: { alignItems: 'center', gap: 12 },
-    cameraCircle: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center' },
-    placeholderText: { fontSize: 13, fontWeight: '700' },
-    previewImage: { width: '100%', height: '100%' },
+    cameraCircle: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center' },
+    placeholderText: { fontSize: 14, fontWeight: '800' },
+    previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
     editBadge: { position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
     footer: { padding: 24, borderTopWidth: 1 },
-    submitBtn: { height: 64, borderRadius: 4, overflow: 'hidden' },
+    submitBtn: { height: 64, borderRadius: 16, overflow: 'hidden' },
     gradient: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
     btnText: { fontSize: 16, fontWeight: '900', color: '#000', letterSpacing: 1 }
 });

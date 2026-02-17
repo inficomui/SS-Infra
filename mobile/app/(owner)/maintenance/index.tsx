@@ -6,6 +6,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetMaintenanceRecordsQuery } from '@/redux/apis/maintenanceApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { resolveImageUrl } from '../../../utils/imageHelpers';
+import { formatDate } from '../../../utils/formatters';
 
 export default function MaintenanceRecordsScreen() {
     const router = useRouter();
@@ -62,15 +64,22 @@ export default function MaintenanceRecordsScreen() {
     };
 
     const renderItem = ({ item: record }: { item: any }) => (
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <TouchableOpacity
+            onPress={() => router.push({ pathname: '/(owner)/maintenance/[id]', params: { id: record.id, data: JSON.stringify(record) } })}
+            style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
+        >
             <View style={styles.cardHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <View style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}>
-                        <MaterialCommunityIcons name="tools" size={20} color={colors.primary} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+                    <View style={[styles.iconBox, { backgroundColor: colors.primary + '15', overflow: 'hidden' }]}>
+                        {record.service_image_url ? (
+                            <Image source={{ uri: resolveImageUrl(record.service_image_url) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                        ) : (
+                            <MaterialCommunityIcons name="tools" size={20} color={colors.primary} />
+                        )}
                     </View>
-                    <View>
-                        <Text style={[styles.machineName, { color: colors.textMain }]}>{record.machine?.name || 'Machine #' + record.machine_id}</Text>
-                        <Text style={[styles.subText, { color: colors.textMuted }]}>{record.service_date} | {record.service_type}</Text>
+                    <View style={{ flex: 1 }}>
+                        <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || 'Machine #' + record.machine_id}</Text>
+                        <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.service_date)}</Text>
                     </View>
                 </View>
                 <Text style={[styles.amountText, { color: colors.textMain }]}>₹{record.cost}</Text>
@@ -101,10 +110,10 @@ export default function MaintenanceRecordsScreen() {
 
             {record.description && (
                 <View style={[styles.descriptionBox, { backgroundColor: colors.background + '50' }]}>
-                    <Text style={[styles.descriptionText, { color: colors.textMuted }]}>{record.description}</Text>
+                    <Text style={[styles.descriptionText, { color: colors.textMuted }]} numberOfLines={2}>{record.description}</Text>
                 </View>
             )}
-        </View>
+        </TouchableOpacity>
     );
 
     return (
@@ -141,12 +150,12 @@ export default function MaintenanceRecordsScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollContent}>
                     <TouchableOpacity onPress={() => setShowStartPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-range" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>From: {startDate.toLocaleDateString()}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>From: {formatDate(startDate)}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => setShowEndPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-check" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>To: {endDate.toLocaleDateString()}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>To: {formatDate(endDate)}</Text>
                     </TouchableOpacity>
 
                     <Menu

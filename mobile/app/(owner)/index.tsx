@@ -6,14 +6,18 @@ import {
     ScrollView,
     RefreshControl,
     Dimensions,
+    Image,
 } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useSelector } from 'react-redux';
-import { useGetOperatorsQuery, useGetMachinesQuery } from '@/redux/apis/ownerApi';
+import { useGetOperatorsQuery, useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
+import { useGetNotificationsQuery, Notification as ApiNotification } from '@/redux/apis/notificationApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { storage } from '@/redux/storage';
+import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
 
 const { width } = Dimensions.get('window');
 
@@ -25,6 +29,7 @@ export default function OwnerDashboard() {
     // Fetch data
     const { data: operatorsData, isLoading: loadingOperators, refetch: refetchOperators } = useGetOperatorsQuery();
     const { data: machinesData, isLoading: loadingMachines, refetch: refetchMachines } = useGetMachinesQuery();
+    const { data: notificationsData, refetch: refetchNotifications } = useGetNotificationsQuery();
 
     const [refreshing, setRefreshing] = useState(false);
 
@@ -33,9 +38,19 @@ export default function OwnerDashboard() {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        await Promise.all([refetchOperators(), refetchMachines()]);
+        await Promise.all([refetchOperators(), refetchMachines(), refetchNotifications()]);
         setRefreshing(false);
     };
+
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 17) return 'Good Afternoon';
+        return 'Good Evening';
+    };
+
+    const allNotifications = notificationsData?.notifications || notificationsData?.data || [];
+    const unreadCount = allNotifications.filter((n: ApiNotification) => !n.isRead && !n.is_read).length || 0;
 
     // Calculate statistics
     const activeOperators = operators.length;
@@ -48,7 +63,7 @@ export default function OwnerDashboard() {
             {/* Header */}
             <View style={styles.header}>
                 <View>
-                    <Text style={[styles.greeting, { color: colors.textMuted }]}>Good Morning,</Text>
+                    <Text style={[styles.greeting, { color: colors.textMuted }]}>{getGreeting()},</Text>
                     <Text style={[styles.ownerName, { color: colors.textMain }]}>{user?.name || 'Owner'}</Text>
                     <View style={[styles.locationBadge, { backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="map-marker" size={12} color={colors.primary} />
@@ -61,8 +76,9 @@ export default function OwnerDashboard() {
                         style={[styles.profileCircle, { backgroundColor: colors.card, borderColor: colors.border, marginRight: 12 }]}
                     >
                         <MaterialCommunityIcons name="bell-outline" size={24} color={colors.textMain} />
-                        {/* Badge */}
-                        {/* <View style={{ position: 'absolute', top: 12, right: 14, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.danger }} /> */}
+                        {unreadCount > 0 && (
+                            <View style={{ position: 'absolute', top: 12, right: 14, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.danger, borderWidth: 1, borderColor: colors.card }} />
+                        )}
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -125,7 +141,6 @@ export default function OwnerDashboard() {
                             label="New Operator"
                             onPress={() => router.push('/(owner)/add-operator' as any)}
                             gradient={[colors.primary]}
-                            // dark
                             colors={colors}
                         />
                         <ActionButton
@@ -335,13 +350,22 @@ function MachineCard({ machine, colors, onPress }: any) {
 
     const status = (machine.status || 'available') as string;
 
+    const imageUrl = resolveImageUrl(machine.photo_url || machine.photo_path || machine.photoUrl);
+
     return (
         <TouchableOpacity
             style={[styles.listCard, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={onPress}
         >
             <View style={[styles.listCardIcon, { backgroundColor: statusColors[status] + '15' }]}>
-                <MaterialCommunityIcons name="truck-outline" size={24} color={statusColors[status]} />
+                {imageUrl ? (
+                    <Image
+                        source={{ uri: imageUrl }}
+                        style={{ width: '100%', height: '100%', borderRadius: 8 }}
+                    />
+                ) : (
+                    <MaterialCommunityIcons name="truck-outline" size={24} color={statusColors[status]} />
+                )}
             </View>
             <View style={styles.listCardContent}>
                 <View style={styles.titleRow}>
@@ -383,15 +407,15 @@ const styles = StyleSheet.create({
     subtitle: { fontSize: 12, marginLeft: 4 },
     profileCircle: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     scrollView: { flex: 1 },
-    scrollContent: { paddingHorizontal: 24 },
+    scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
     statsContainer: { marginTop: 10 },
     statsRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-    statCard: { flex: 1, borderRadius: 4, padding: 16, borderWidth: 1 },
+    statCard: { flex: 1, borderRadius: 12, padding: 16, borderWidth: 1 },
     statHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
-    statIconContainer: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    statIconContainer: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     statValue: { fontSize: 24, fontWeight: '900' },
     statLabel: { fontSize: 13, fontWeight: '500' },
-    miniStatsRow: { flexDirection: 'row', justifyContent: 'space-between', borderRadius: 4, padding: 12, borderWidth: 1 },
+    miniStatsRow: { flexDirection: 'row', justifyContent: 'space-between', borderRadius: 12, padding: 12, borderWidth: 1 },
     miniStat: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     miniStatValue: { fontSize: 14, fontWeight: '700' },
     miniStatLabel: { fontSize: 11 },
@@ -401,17 +425,17 @@ const styles = StyleSheet.create({
     viewAll: { fontSize: 13, fontWeight: '700' },
     actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
     actionButton: { width: (width - 60) / 2 },
-    actionGradient: { width: '100%', paddingVertical: 20, borderRadius: 4, justifyContent: 'center', alignItems: 'center', gap: 8 },
+    actionGradient: { width: '100%', paddingVertical: 20, borderRadius: 12, justifyContent: 'center', alignItems: 'center', gap: 8 },
     actionLabel: { fontSize: 13, fontWeight: '700', textAlign: 'center' },
-    listCard: { flexDirection: 'row', borderRadius: 4, padding: 12, marginBottom: 10, alignItems: 'center', borderWidth: 1 },
-    listCardIcon: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+    listCard: { flexDirection: 'row', borderRadius: 12, padding: 12, marginBottom: 10, alignItems: 'center', borderWidth: 1 },
+    listCardIcon: { width: 44, height: 44, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
     listCardContent: { flex: 1 },
     titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
     listCardTitle: { fontSize: 15, fontWeight: '700' },
-    typeChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1 },
+    typeChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1 },
     typeChipText: { fontSize: 10, fontWeight: '600', textTransform: 'uppercase' },
     listCardSubtitle: { fontSize: 12 },
-    statusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 4, gap: 6 },
+    statusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, gap: 6 },
     statusDot: { width: 6, height: 6, borderRadius: 3 },
     statusText: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
     emptyState: { alignItems: 'center', paddingVertical: 30, borderRadius: 4, borderStyle: 'dashed', borderWidth: 1 },

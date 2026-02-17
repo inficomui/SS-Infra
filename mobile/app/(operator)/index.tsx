@@ -5,9 +5,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useGetActiveWorkQuery, useGetWorkHistoryQuery } from '@/redux/apis/workApi';
+import { useGetNotificationsQuery, Notification as ApiNotification } from '@/redux/apis/notificationApi';
 import { useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
+import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
 
 const { width } = Dimensions.get('window');
 
@@ -60,12 +62,14 @@ export default function OperatorOverview() {
         to: todayStr
     });
 
+    const { data: notificationsData, refetch: refetchNotifications } = useGetNotificationsQuery();
+
     // Refresh data when screen comes into focus
     useFocusEffect(
         useCallback(() => {
-            console.log("Refreshing Operator Dashboard...");
             refetchActive();
             refetchStats();
+            refetchNotifications();
 
             // Load selected machine
             const loadMachine = async () => {
@@ -75,12 +79,15 @@ export default function OperatorOverview() {
                         setSelectedMachine(JSON.parse(stored));
                     }
                 } catch (e) {
-                    console.error("Failed to load machine", e);
+                    // Failed to load machine, continue without it
                 }
             };
             loadMachine();
         }, [])
     );
+
+    const allNotifications = notificationsData?.notifications || notificationsData?.data || [];
+    const unreadCount = allNotifications.filter((n: ApiNotification) => !n.isRead && !n.is_read).length || 0;
 
     const intervalRef = useRef<number | null>(null);
 
@@ -92,7 +99,7 @@ export default function OperatorOverview() {
     const activeHours = activeWorkId ? (elapsedSeconds / 3600) : 0;
 
     // 3. Total Today
-    const totalTodayHours = (Number(completedHours) + Number(activeHours)).toFixed(1);
+    const totalTodayHours = (Number(completedHours) + Number(activeHours));
 
     // 4. Tasks Count (Completed + 1 if active)
     const completedTasksCount = todayStatsData?.workSessions?.length || 0;
@@ -291,6 +298,9 @@ export default function OperatorOverview() {
                     <TouchableOpacity onPress={() => router.push('/(operator)/notifications' as any)}>
                         <View style={[styles.profileCircle, { backgroundColor: colors.card, borderColor: colors.border }]}>
                             <MaterialCommunityIcons name="bell-outline" size={26} color={colors.textMain} />
+                            {unreadCount > 0 && (
+                                <View style={{ position: 'absolute', top: 12, right: 12, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.danger, borderWidth: 1, borderColor: colors.card }} />
+                            )}
                         </View>
                     </TouchableOpacity>
 
@@ -345,7 +355,7 @@ export default function OperatorOverview() {
                         <StatItem
                             icon="clock-check"
                             label="Today's Hours"
-                            value={`${totalTodayHours}h`}
+                            value={formatDuration(totalTodayHours)}
                             colors={colors}
                             loading={isLoadingStats}
                         />
@@ -371,7 +381,7 @@ export default function OperatorOverview() {
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.machineLabel, { color: colors.textMuted }]}>Current Machine</Text>
                         <Text style={[styles.machineValue, { color: selectedMachine ? colors.textMain : colors.textMuted }]}>
-                            {selectedMachine ? `${selectedMachine?.name || 'Unknown Machine'} (${selectedMachine?.registration_number || 'No Reg'})` : 'Tap to assign machine'}
+                            {selectedMachine ? `${selectedMachine?.name || 'Unknown Machine'} (${selectedMachine?.registration_number || selectedMachine.registrationNumber || "No Reg Number"})` : 'Tap to assign machine'}
                         </Text>
                     </View>
                     <MaterialCommunityIcons name="chevron-down" size={24} color={colors.textMuted} />
@@ -394,13 +404,6 @@ export default function OperatorOverview() {
                         color={colors.success}
                         colors={colors}
                     />
-                    {/* <MenuIconButton
-                        icon="lifebuoy"
-                        label="Support"
-                        onPress={() => router.push('/(operator)/support')}
-                        color={colors.danger}
-                        colors={colors}
-                    /> */}
                     <MenuIconButton
                         icon="wallet-outline"
                         label="Wallet"
@@ -570,7 +573,7 @@ function RecentActivity({ router, colors }: any) {
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.activityTitle, { color: colors.textMain }]}>{latestWork.clientName}</Text>
                         <Text style={[styles.activityTime, { color: colors.textMuted }]}>
-                            {new Date(latestWork.createdAt).toLocaleDateString()} • {Number(latestWork.totalHours || 0).toFixed(1)} Hours Logged
+                            {formatDate(latestWork.createdAt)} • {formatDuration(latestWork.totalHours || 0)} Logged
                         </Text>
                     </View>
                     <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />

@@ -6,6 +6,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import { CONFIG } from '@/constants/Config';
+import { resolveImageUrl } from '../../../utils/imageHelpers';
+import { formatDate } from '../../../utils/formatters';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,31 +24,27 @@ export default function OwnerFuelDetailScreen() {
         return logsData.data.data.find((l: FuelLog) => l.id.toString() === id);
     }, [logsData, id]);
 
+    // Debugging logs to help identify data structure issues
+    useEffect(() => {
+        if (log) {
+            console.log("Owner Fuel Log Data FULL:", JSON.stringify(log, null, 2));
+            console.log("Owner Fuel Log Data - Processed Images:", JSON.stringify({
+                id: log.id,
+                before: log.reading_before_url || log.reading_before || log.before_reading_url,
+                after: log.reading_after_url || log.reading_after || log.after_reading_url
+            }, null, 2));
+        }
+    }, [log]);
+
     // Image Preview State
     const [previewVisible, setPreviewVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
-    const getImageUrl = (url: any) => {
-        if (!url || typeof url !== 'string') return undefined;
 
-        // If it's already a full URL, use it
-        if (url.startsWith('http')) return url;
-
-        // Construct the base URL from API_URL by removing /api/v1
-        const baseUrl = CONFIG.API_URL.replace('/api/v1', '').replace(/\/$/, '');
-
-        // Standardize the path: remove leading slashes and leading 'storage/' if present
-        let cleanPath = url.trim();
-        if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
-        if (cleanPath.startsWith('storage/')) cleanPath = cleanPath.substring(8);
-
-        const finalUrl = `${baseUrl}/storage/${cleanPath}`;
-        return finalUrl;
-    };
 
     const openPreview = (url: string | undefined) => {
         if (!url) return;
-        const resolved = getImageUrl(url);
+        const resolved = resolveImageUrl(url);
         if (resolved) {
             setSelectedImage(resolved);
             setPreviewVisible(true);
@@ -159,7 +157,7 @@ export default function OwnerFuelDetailScreen() {
                         <View style={styles.statItem}>
                             <Text style={[styles.statLabel, { color: colors.textMuted }]}>Date</Text>
                             <Text style={[styles.statValue, { color: colors.textMain }]}>
-                                {new Date(log.log_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                {formatDate(log.log_date)}
                             </Text>
                         </View>
                     </View>
@@ -172,12 +170,8 @@ export default function OwnerFuelDetailScreen() {
                     <Divider style={styles.listDivider} />
                     {renderInfoRow('account-tie', 'Operator', log.operator?.name || 'N/A')}
                     <Divider style={styles.listDivider} />
-                    {renderInfoRow('calendar-clock', 'Date & Time', new Date(log.log_date).toLocaleDateString(undefined, {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }))}
+                    <Divider style={styles.listDivider} />
+                    {renderInfoRow('calendar-clock', 'Date & Time', formatDate(log.log_date))}
                     {log.description && (
                         <>
                             <Divider style={styles.listDivider} />
@@ -199,7 +193,7 @@ export default function OwnerFuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: getImageUrl(beforeImage) }}
+                                        source={{ uri: resolveImageUrl(beforeImage) }}
                                         style={styles.image}
                                         resizeMode="cover"
                                     />
@@ -226,7 +220,7 @@ export default function OwnerFuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: getImageUrl(afterImage) }}
+                                        source={{ uri: resolveImageUrl(afterImage) }}
                                         style={styles.image}
                                         resizeMode="cover"
                                     />

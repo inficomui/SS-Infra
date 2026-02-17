@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetWalletQuery } from '@/redux/apis/walletApi';
+import { formatDate } from '../../../utils/formatters';
 
 export default function WalletScreen() {
     const router = useRouter();
@@ -100,7 +101,7 @@ export default function WalletScreen() {
                                             </Text>
                                         </View>
                                         <Text style={[styles.txDate, { color: colors.textMuted }]}>
-                                            {new Date(tx.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            {formatDate(tx.createdAt)}
                                         </Text>
                                         <Text style={[styles.txDesc, { color: colors.textMuted }]} numberOfLines={2}>{tx.description}</Text>
                                     </View>

@@ -5,6 +5,7 @@ import { Text, Avatar } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { resolveImageUrl } from '../../utils/imageHelpers';
 
 export default function MachineDetailsScreen() {
     const router = useRouter();
@@ -51,7 +52,7 @@ export default function MachineDetailsScreen() {
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 <View style={[styles.imageContainer, { borderColor: colors.border, backgroundColor: colors.card }]}>
                     {photo_url ? (
-                        <Image source={{ uri: photo_url }} style={styles.machineImage} resizeMode="cover" />
+                        <Image source={{ uri: resolveImageUrl(photo_url) }} style={styles.machineImage} resizeMode="cover" />
                     ) : (
                         <View style={[styles.placeholderImage, { backgroundColor: colors.background }]}>
                             <MaterialCommunityIcons name="excavator" size={60} color={colors.textMuted} />

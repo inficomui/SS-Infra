@@ -82,19 +82,12 @@ export interface GetAllSubscriptionsParams {
     page?: number;
 }
 
+import { baseQuery } from '../baseQuery';
+
 // API Definition
 export const subscriptionApi = createApi({
     reducerPath: 'subscriptionApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: CONFIG.API_URL,
-        prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as any).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     tagTypes: ['Subscriptions', 'UserSubscriptions'],
     endpoints: (builder) => ({
         // 1. Assign Plan to User (Admin Only)

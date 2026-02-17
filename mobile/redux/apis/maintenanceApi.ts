@@ -20,18 +20,11 @@ export interface GetMaintenanceParams {
     page?: number;
 }
 
+import { baseQuery } from '../baseQuery';
+
 export const maintenanceApi = createApi({
     reducerPath: 'maintenanceApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: CONFIG.API_URL,
-        prepareHeaders: (headers, { getState }) => {
-            const token = (getState() as any).auth.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     tagTypes: ['Maintenance'],
     endpoints: (builder) => ({
         getMaintenanceRecords: builder.query<{

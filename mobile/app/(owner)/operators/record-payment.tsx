@@ -7,6 +7,7 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useRecordPaymentMutation } from '@/redux/apis/ownerApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Toast from 'react-native-toast-message';
+import { formatDate } from '../../../utils/formatters';
 
 export default function RecordPaymentScreen() {
     const router = useRouter();
@@ -135,7 +136,7 @@ export default function RecordPaymentScreen() {
                     <TouchableOpacity onPress={() => setShowDatePicker(true)} style={[styles.datePickerBtn, { borderColor: colors.border, backgroundColor: colors.background }]}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                             <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
-                            <Text style={{ color: colors.textMain, fontWeight: '600' }}>{paymentDate.toLocaleDateString()}</Text>
+                            <Text style={{ color: colors.textMain, fontWeight: '600' }}>{formatDate(paymentDate)}</Text>
                         </View>
                         <Text style={{ color: colors.primary, fontWeight: '800', fontSize: 12 }}>CHANGE</Text>
                     </TouchableOpacity>

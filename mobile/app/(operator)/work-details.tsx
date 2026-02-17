@@ -7,6 +7,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGetWorkDetailsQuery } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { resolveImageUrl } from '../../utils/imageHelpers';
+import { formatDuration, formatDate } from '@/utils/formatters';
 
 export default function WorkDetailsScreen() {
     const router = useRouter();
@@ -29,7 +31,7 @@ export default function WorkDetailsScreen() {
                 hourlyRate: '1200', // Should come from API if available
                 totalAmount: ((workSession.totalHours || 0) * 1200).toString(),
                 description: workSession.notes || 'Work session',
-                date: workSession.createdAt,
+                date: formatDate(workSession.createdAt),
                 photoUri: workSession.afterPhotoUrl
             }
         });
@@ -95,13 +97,13 @@ export default function WorkDetailsScreen() {
                         <View>
                             <Text style={[styles.label, { color: colors.textMuted }]}>Date</Text>
                             <Text style={[styles.value, { color: colors.textMain }]}>
-                                {new Date(workSession.createdAt).toLocaleDateString()}
+                                {formatDate(workSession.createdAt)}
                             </Text>
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={[styles.label, { color: colors.textMuted }]}>Duration</Text>
                             <Text style={[styles.value, { color: colors.textMain }]}>
-                                {workSession.totalHours ? `${workSession.totalHours} hrs` : 'In Progress'}
+                                {workSession.totalHours ? formatDuration(workSession.totalHours) : 'In Progress'}
                             </Text>
                         </View>
                     </View>
@@ -152,7 +154,7 @@ export default function WorkDetailsScreen() {
                         <View style={styles.photosRow}>
                             {workSession.beforePhotoUrl && (
                                 <View style={[styles.photoContainer, { borderColor: colors.border }]}>
-                                    <Image source={{ uri: workSession.beforePhotoUrl }} style={styles.photo} />
+                                    <Image source={{ uri: resolveImageUrl(workSession.beforePhotoUrl) }} style={styles.photo} />
                                     <View style={styles.photoLabel}>
                                         <Text style={styles.photoLabelText}>BEFORE</Text>
                                     </View>
@@ -160,7 +162,7 @@ export default function WorkDetailsScreen() {
                             )}
                             {workSession.afterPhotoUrl && (
                                 <View style={[styles.photoContainer, { borderColor: colors.border }]}>
-                                    <Image source={{ uri: workSession.afterPhotoUrl }} style={styles.photo} />
+                                    <Image source={{ uri: resolveImageUrl(workSession.afterPhotoUrl) }} style={styles.photo} />
                                     <View style={[styles.photoLabel, { backgroundColor: 'rgba(34, 197, 94, 0.8)' }]}>
                                         <Text style={styles.photoLabelText}>AFTER</Text>
                                     </View>

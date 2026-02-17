@@ -42,12 +42,11 @@ export function usePushNotifications() {
                 setDevicePushToken(deviceToken);
 
                 if (expoToken) {
-                    console.log("Push Token Generated:", expoToken);
                     // Send to backend
                     registerPushToken({ pushToken: expoToken })
                         .unwrap()
-                        .then(() => console.log("Push Token sent to backend successfully"))
-                        .catch(err => console.log("Failed to send push token:", err));
+                        .then(() => { })
+                        .catch(() => { });
                 }
             })
             .catch((error: any) => setExpoPushToken(`${error}`));
@@ -67,13 +66,12 @@ export function usePushNotifications() {
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log(response);
             // Handle navigation based on notification data here if needed
         });
 
         return () => {
-            notificationListener.current && notificationListener.current.remove();
-            responseListener.current && responseListener.current.remove();
+            notificationListener.current?.remove();
+            responseListener.current?.remove();
         };
     }, [isAuthenticated]);
 
@@ -105,25 +103,19 @@ async function registerForPushNotificationsAsync() {
             finalStatus = status;
         }
         if (finalStatus !== 'granted') {
-            console.log('Failed to get push token for push notification!');
             return { expoToken: undefined, deviceToken: undefined };
         }
 
         try {
             expoToken = (await Notifications.getExpoPushTokenAsync()).data;
-        } catch (e) {
-            console.log("Error fetching expo token", e);
-        }
+        } catch (e) { }
 
         try {
             deviceToken = (await Notifications.getDevicePushTokenAsync()).data;
-            console.log("Device Token (FCM):", deviceToken);
-        } catch (e) {
-            console.log("Error fetching device token", e);
-        }
+        } catch (e) { }
 
     } else {
-        console.log('Must use physical device for Push Notifications');
+        // Must use physical device for Push Notifications
     }
 
     return { expoToken, deviceToken };

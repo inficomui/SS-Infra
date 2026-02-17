@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetSalaryReportQuery, useGetOperatorsQuery } from '@/redux/apis/ownerApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { formatDate } from '../../utils/formatters';
 
 export default function SalaryReportScreen() {
     const router = useRouter();
@@ -24,13 +25,10 @@ export default function SalaryReportScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [recentOperators, setRecentOperators] = useState<{ id: number, name: string }[]>([]);
 
-    // Format dates for API (YYYY-MM-DD)
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
-
     // Queries
     const { data: reportData, isLoading, isFetching, refetch } = useGetSalaryReportQuery({
-        startDate: formatDate(startDate),
-        endDate: formatDate(endDate),
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
         operatorId: selectedOperator
     });
 
@@ -181,7 +179,7 @@ export default function SalaryReportScreen() {
                                     ₹{reportData?.report?.totalAmount || '0.00'}
                                 </Text>
                                 <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 4 }}>
-                                    {startDate.toLocaleDateString()} - {endDate.toLocaleDateString()}
+                                    {formatDate(startDate)} - {formatDate(endDate)}
                                 </Text>
                             </View>
                             <View style={[styles.iconCircle, { backgroundColor: colors.primary }]}>

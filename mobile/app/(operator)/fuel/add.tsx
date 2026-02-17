@@ -29,7 +29,7 @@ export default function AddFuelLogScreen() {
     const pickImage = async (type: 'before' | 'after') => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [4, 3],
             quality: 0.5,
         });
@@ -53,20 +53,30 @@ export default function AddFuelLogScreen() {
         formData.append('log_date', logDate.toISOString().split('T')[0]);
 
         if (readingBefore) {
+            const filename = readingBefore.uri.split('/').pop() || 'reading_before.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image/jpeg`;
+
             formData.append('reading_before_image', {
                 uri: readingBefore.uri,
-                type: 'image/jpeg',
-                name: 'reading_before.jpg',
+                type: type,
+                name: filename,
             } as any);
         }
 
         if (readingAfter) {
+            const filename = readingAfter.uri.split('/').pop() || 'reading_after.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image/jpeg`;
+
             formData.append('reading_after_image', {
                 uri: readingAfter.uri,
-                type: 'image/jpeg',
-                name: 'reading_after.jpg',
+                type: type,
+                name: filename,
             } as any);
         }
+
+
 
         try {
             await addFuelLog(formData).unwrap();
@@ -214,15 +224,15 @@ export default function AddFuelLogScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { paddingTop: 60, paddingHorizontal: 24, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    iconButton: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    iconButton: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
     scrollContent: { padding: 24, paddingBottom: 40 },
     label: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
     machineScroll: { flexDirection: 'row', marginBottom: 12 },
-    machineChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 24, borderWidth: 1, marginRight: 8 },
+    machineChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1, marginRight: 8 },
     inputGroup: { marginBottom: 24 },
-    dateInput: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderWidth: 1, borderRadius: 4 },
+    dateInput: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderWidth: 1, borderRadius: 12 },
     imageRow: { flexDirection: 'row', gap: 16 },
-    imageUpload: { width: 100, height: 100, borderWidth: 1, borderStyle: 'dashed', borderRadius: 8, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+    imageUpload: { width: 100, height: 100, borderWidth: 1, borderStyle: 'dashed', borderRadius: 12, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     uploadedImage: { width: '100%', height: '100%' }
 });

@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import { CONFIG } from '@/constants/Config';
+import { resolveImageUrl } from '../../../utils/imageHelpers';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,38 +28,13 @@ export default function FuelDetailScreen() {
     const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
     // Debugging logs to help identify data structure issues
-    useEffect(() => {
-        if (log) {
-            console.log("Fuel Log Data:", JSON.stringify({
-                id: log.id,
-                before: log.reading_before_url || log.reading_before || log.before_reading_url,
-                after: log.reading_after_url || log.reading_after || log.after_reading_url
-            }, null, 2));
-        }
-    }, [log]);
 
-    const getImageUrl = (url: any) => {
-        if (!url || typeof url !== 'string') return undefined;
 
-        // If it's already a full URL, use it
-        if (url.startsWith('http')) return url;
 
-        // Construct the base URL from API_URL by removing /api/v1
-        const baseUrl = CONFIG.API_URL.replace('/api/v1', '').replace(/\/$/, '');
-
-        // Standardize the path: remove leading slashes and leading 'storage/' if present
-        let cleanPath = url.trim();
-        if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
-        if (cleanPath.startsWith('storage/')) cleanPath = cleanPath.substring(8);
-
-        const finalUrl = `${baseUrl}/storage/${cleanPath}`;
-        console.log("Resolving Image URL:", { original: url, resolved: finalUrl });
-        return finalUrl;
-    };
 
     const openPreview = (url: string | undefined) => {
         if (!url) return;
-        const resolved = getImageUrl(url);
+        const resolved = resolveImageUrl(url);
         if (resolved) {
             setSelectedImage(resolved);
             setPreviewVisible(true);
@@ -211,7 +187,7 @@ export default function FuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: getImageUrl(beforeImage) }}
+                                        source={{ uri: resolveImageUrl(beforeImage) }}
                                         style={styles.image}
                                         resizeMode="cover"
                                     />
@@ -238,7 +214,7 @@ export default function FuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: getImageUrl(afterImage) }}
+                                        source={{ uri: resolveImageUrl(afterImage) }}
                                         style={styles.image}
                                         resizeMode="cover"
                                     />

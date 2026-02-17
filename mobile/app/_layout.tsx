@@ -17,6 +17,7 @@ import Toast from 'react-native-toast-message';
 import toastConfig from '../components/CustomToast';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import SplashScreen from '../components/SplashScreen';
+import { useGetMeQuery } from '@/redux/apis/authApi';
 
 const { LightTheme, DarkTheme: NavDarkTheme } = adaptNavigationTheme({
   reactNavigationLight: DefaultTheme,
@@ -39,6 +40,7 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const { role, isAuthenticated, user } = useSelector((state: any) => state.auth);
+  const { isLoading: isValidatingSession } = useGetMeQuery(undefined, { skip: !isAuthenticated });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ function RootLayoutNav() {
   usePushNotifications();
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || (isAuthenticated && isValidatingSession)) return;
 
     if (!isAuthenticated) {
       if (segments[0] !== 'login') {
@@ -64,7 +66,11 @@ function RootLayoutNav() {
         }
       }
     }
-  }, [isAuthenticated, role, segments, user, mounted]);
+  }, [isAuthenticated, role, segments, user, mounted, isValidatingSession]);
+
+  if (!mounted || (isAuthenticated && isValidatingSession)) {
+    return <SplashScreen />;
+  }
 
   return (
     <PaperProvider

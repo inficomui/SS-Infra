@@ -49,19 +49,6 @@ export default function SalaryHistoryScreen() {
         }, [refetch])
     );
 
-    // Debug API response
-    React.useEffect(() => {
-        console.log('=== Salary History API Debug ===');
-        console.log('Loading:', isLoading);
-        console.log('Fetching:', isFetching);
-        console.log('Start Date:', formattedStartDate);
-        console.log('End Date:', formattedEndDate);
-        console.log('Response Data:', paymentsData);
-        if (paymentsData) {
-            console.log('Payments Data Structure:', Object.keys(paymentsData));
-        }
-    }, [paymentsData, isLoading, isFetching, formattedStartDate, formattedEndDate]);
-
     const rawPayments = useMemo(() => {
         // Try multiple common property names for the payment list
         const source = paymentsData?.payments || paymentsData?.data || paymentsData?.report?.payments;

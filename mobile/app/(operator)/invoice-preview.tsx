@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useRecordPaymentMutation } from '@/redux/apis/workApi';
+import { formatDate, formatDuration } from '../../utils/formatters';
 
 export default function InvoicePreviewScreen() {
     const router = useRouter();
@@ -69,6 +70,25 @@ Sent via SS Infra App
     const handleHome = () => {
         router.dismissAll();
         router.replace('/(operator)');
+    };
+
+    const handlePaymentReminder = async () => {
+        const balance = parseFloat(totalAmount) - paidAmount;
+        const message = `Hello ${clientName}, this is a reminder regarding Invoice #${invoiceNumber} for ₹${balance}. Please arrange payment at your earliest convenience. Thank you. - SS Infra`;
+        const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
+
+        try {
+            const supported = await Linking.canOpenURL(url);
+            if (supported) {
+                await Linking.openURL(url);
+            } else {
+                // Fallback to SMS
+                const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
+                await Linking.openURL(smsUrl);
+            }
+        } catch (error) {
+            Alert.alert("Error", "Could not open messaging app");
+        }
     };
 
     const handleRecordPayment = async () => {
@@ -175,14 +195,14 @@ Sent via SS Infra App
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
                                 <Text style={styles.label}>Date</Text>
-                                <Text style={styles.value}>{date}</Text>
+                                <Text style={styles.value}>{formatDate(date)}</Text>
                             </View>
                         </View>
 
                         <View style={styles.divider} />
 
                         <View style={styles.lineItem}>
-                            <Text style={styles.itemText}>Machine Work ({totalHours} hrs @ ₹{hourlyRate})</Text>
+                            <Text style={styles.itemText}>Machine Work ({formatDuration(Number(totalHours))} @ ₹{hourlyRate}/hr)</Text>
                             <Text style={styles.itemTotal}>₹{totalAmount}</Text>
                         </View>
 
@@ -243,13 +263,23 @@ Sent via SS Infra App
 
             <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
                 {paymentStatus !== 'paid' && (
-                    <TouchableOpacity
-                        style={[styles.paymentBtn, { backgroundColor: colors.success }]}
-                        onPress={() => setShowPaymentModal(true)}
-                    >
-                        <MaterialCommunityIcons name="cash-register" size={24} color="#fff" />
-                        <Text style={styles.paymentBtnText}>RECORD PAYMENT</Text>
-                    </TouchableOpacity>
+                    <View style={{ gap: 12 }}>
+                        <TouchableOpacity
+                            style={[styles.paymentBtn, { backgroundColor: '#25D366' }]} // WhatsApp Color
+                            onPress={handlePaymentReminder}
+                        >
+                            <MaterialCommunityIcons name="whatsapp" size={24} color="#fff" />
+                            <Text style={styles.paymentBtnText}>SEND REMINDER</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.paymentBtn, { backgroundColor: colors.success }]}
+                            onPress={() => setShowPaymentModal(true)}
+                        >
+                            <MaterialCommunityIcons name="cash-register" size={24} color="#fff" />
+                            <Text style={styles.paymentBtnText}>RECORD PAYMENT</Text>
+                        </TouchableOpacity>
+                    </View>
                 )}
 
                 <View style={styles.footerBtnRow}>
@@ -366,14 +396,14 @@ Sent via SS Infra App
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    backBtn: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    backBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
-    content: { padding: 24, paddingBottom: 150 },
-    invoiceCard: { borderRadius: 8, overflow: 'hidden', elevation: 4, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, marginBottom: 20 },
+    content: { padding: 24, paddingBottom: 250 },
+    invoiceCard: { borderRadius: 12, overflow: 'hidden', elevation: 4, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, marginBottom: 20 },
     invoiceHeader: { padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     invoiceTitle: { fontSize: 20, fontWeight: '900', color: '#000', letterSpacing: 2 },
     invoiceNumber: { fontSize: 14, fontWeight: '700', color: '#000', opacity: 0.7 },
-    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
+    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
     statusText: { fontSize: 10, fontWeight: '900', letterSpacing: 1 },
     invoiceBody: { padding: 24 },
     row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
@@ -391,28 +421,28 @@ const styles = StyleSheet.create({
     footerInfo: { padding: 16, alignItems: 'center', backgroundColor: '#f9f9f9' },
     footerText: { fontSize: 12, fontWeight: '700', color: '#555' },
     footerSubText: { fontSize: 10, color: '#999', marginTop: 4 },
-    proofCard: { marginTop: 16, borderWidth: 1, padding: 16, borderRadius: 6 },
+    proofCard: { marginTop: 16, borderWidth: 1, padding: 16, borderRadius: 12 },
     sectionTitle: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
-    imageContainer: { height: 200, borderRadius: 4, overflow: 'hidden', position: 'relative' },
+    imageContainer: { height: 200, borderRadius: 12, overflow: 'hidden', position: 'relative' },
     proofImage: { width: '100%', height: '100%' },
     verifiedBadge: { position: 'absolute', bottom: 12, right: 12, backgroundColor: '#22c55e', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 4 },
     verifiedText: { color: '#fff', fontSize: 10, fontWeight: '800' },
     footer: { padding: 24, borderTopWidth: 1, position: 'absolute', bottom: 0, left: 0, right: 0, gap: 16 },
-    paymentBtn: { height: 50, borderRadius: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+    paymentBtn: { height: 50, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
     paymentBtnText: { color: '#fff', fontWeight: '900', fontSize: 14, letterSpacing: 1 },
     footerBtnRow: { flexDirection: 'row', gap: 16 },
-    actionBtn: { flex: 1, height: 56, borderWidth: 1, borderRadius: 4, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8 },
+    actionBtn: { flex: 1, height: 56, borderWidth: 1, borderRadius: 12, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8 },
     actionText: { fontWeight: '700', fontSize: 14 },
-    primaryBtn: { flex: 2, height: 56, borderRadius: 4, overflow: 'hidden' },
+    primaryBtn: { flex: 2, height: 56, borderRadius: 12, overflow: 'hidden' },
     primaryBtnText: { fontSize: 14, fontWeight: '900', color: '#000', letterSpacing: 1 },
     gradient: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { padding: 24, borderTopLeftRadius: 20, borderTopRightRadius: 20 },
+    modalContent: { padding: 24, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
     modalTitle: { fontSize: 18, fontWeight: '900' },
     inputGroup: { marginBottom: 16 },
     inputLabel: { fontSize: 12, fontWeight: '700', marginBottom: 8, textTransform: 'uppercase' },
-    input: { height: 50, borderWidth: 1, borderRadius: 4, paddingHorizontal: 16, fontSize: 16, fontWeight: '600' },
-    confirmBtn: { height: 56, borderRadius: 4, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+    input: { height: 50, borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, fontSize: 16, fontWeight: '600' },
+    confirmBtn: { height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
     confirmBtnText: { color: '#000', fontWeight: '900', fontSize: 16, letterSpacing: 1 }
 });

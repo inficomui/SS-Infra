@@ -9,6 +9,7 @@ import {
     useAssignPlanMutation,
     useCancelSubscriptionMutation,
 } from '@/redux/apis/subscriptionApi';
+import { formatDate } from '../../utils/formatters';
 import { useGetPlansQuery } from '@/redux/apis/walletApi';
 import { useGetOperatorsQuery } from '@/redux/apis/ownerApi';
 
@@ -156,7 +157,10 @@ export default function SubscriptionManagementScreen() {
                                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                                 <View>
                                                     <Text style={[styles.planName, { color: colors.primary }]}>{activeSubscription.plan?.name}</Text>
-                                                    <Text style={{ color: colors.textMuted }}>Expires: {new Date(activeSubscription.endDate).toLocaleDateString()}</Text>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                                        <MaterialCommunityIcons name="clock-outline" size={14} color={colors.textMuted} />
+                                                        <Text style={{ color: colors.textMuted }}>Expires: {formatDate(activeSubscription.endDate)}</Text>
+                                                    </View>
                                                     <Text style={{ color: colors.textMain, fontWeight: 'bold', marginTop: 4 }}>{activeSubscription.daysRemaining} Days Remaining</Text>
                                                 </View>
                                                 <View style={[styles.statusBadge, { backgroundColor: colors.success + '20' }]}>
@@ -199,7 +203,10 @@ export default function SubscriptionManagementScreen() {
                                             <View key={sub.id} style={[styles.historyItem, { borderBottomColor: colors.border }]}>
                                                 <View>
                                                     <Text style={{ color: colors.textMain, fontWeight: '600' }}>{sub.plan?.name}</Text>
-                                                    <Text style={{ color: colors.textMuted, fontSize: 12 }}>{new Date(sub.startDate).toLocaleDateString()} - {new Date(sub.endDate).toLocaleDateString()}</Text>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                                        <MaterialCommunityIcons name="calendar-range" size={14} color={colors.textMuted} />
+                                                        <Text style={{ color: colors.textMuted, fontSize: 12 }}>{formatDate(sub.startDate)} - {formatDate(sub.endDate)}</Text>
+                                                    </View>
                                                 </View>
                                                 <Text style={{ color: sub.status === 'expired' ? colors.textMuted : colors.danger, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' }}>
                                                     {sub.status}
@@ -272,7 +279,7 @@ export default function SubscriptionManagementScreen() {
                                 {plansData?.plans?.map((plan: any) => (
                                     <RadioButton.Item
                                         key={plan.id}
-                                        label={`${plan.name} - ₹${plan.price}`}
+                                        label={`${plan.name} - ₹${plan.price} `}
                                         value={plan.id.toString()}
                                         color={colors.primary}
                                         labelStyle={{ color: colors.textMain }}

@@ -130,7 +130,7 @@ export default function StartWorkForm() {
 
             const result = await ImagePicker.launchCameraAsync({
                 mediaTypes: ['images'],
-                allowsEditing: true,
+                allowsEditing: false,
                 aspect: [4, 3],
                 quality: 0.7,
             });
@@ -139,13 +139,11 @@ export default function StartWorkForm() {
                 setPhotoUri(result.assets[0].uri);
             }
         } catch (error) {
-            console.error("Camera Error:", error);
             Alert.alert("Camera Error", "Could not open camera.");
         }
     };
 
     const handleStartWork = async () => {
-        console.log("--- INITIATING WORK SESSION ---");
         let clientIdToSend = selectedClient ? selectedClient.id.toString() : '';
         let clientNameToSend = selectedClient ? selectedClient.name : '';
 
@@ -155,7 +153,6 @@ export default function StartWorkForm() {
                     Alert.alert("Missing Details", "Please fill all new client details.");
                     return;
                 }
-                console.log("Registering new client first...");
                 const newClientRes = await createClient({
                     name: newClientName,
                     mobile: clientNumber,
@@ -215,7 +212,7 @@ export default function StartWorkForm() {
             console.log("Photo URI:", photoUri);
 
             // Handle Photo upload properly for React Native FormData
-            const filename = photoUri.split('/').pop() || 'photo.jpg';
+            const filename = photoUri.split('/').pop() || 'start_work_photo.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
 
@@ -224,6 +221,8 @@ export default function StartWorkForm() {
                 name: filename,
                 type: type
             } as any);
+
+            console.log("Image Data Prepared:", { uri: photoUri, name: filename, type: type });
 
             console.log("Submitting Work Data to Server...");
 
@@ -505,36 +504,36 @@ function StyledInput({ label, icon, colors, ...props }: any) {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { paddingTop: 60, paddingBottom: 20, paddingHorizontal: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    backBtn: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    backBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
-    scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
+    scrollContent: { paddingHorizontal: 24, paddingBottom: 150 },
     sectionTitle: { fontSize: 14, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 },
-    card: { borderRadius: 4, borderWidth: 1, padding: 20 },
+    card: { borderRadius: 12, borderWidth: 1, padding: 20 },
     cardSub: { fontSize: 13, fontWeight: '700', lineHeight: 18 },
     subHeader: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', marginBottom: 16 },
     input: { marginBottom: 4 },
-    gpsBtn: { width: 56, height: 56, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
-    photoBox: { height: 220, borderRadius: 4, borderWidth: 2, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+    gpsBtn: { width: 56, height: 56, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+    photoBox: { height: 220, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     photoPlaceholder: { alignItems: 'center', gap: 12 },
     iconCircle: { width: 70, height: 70, borderRadius: 35, justifyContent: 'center', alignItems: 'center' },
     photoText: { fontSize: 13, fontWeight: '700' },
     previewImage: { width: '100%', height: '100%' },
     editBadge: { position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(0,0,0,0.1)' },
     bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 24, borderTopWidth: 1 },
-    submitBtn: { borderRadius: 4, overflow: 'hidden', height: 64 },
+    submitBtn: { borderRadius: 16, overflow: 'hidden', height: 64 },
     gradientBtn: { flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12 },
     submitText: { fontSize: 16, fontWeight: '900', color: '#000', letterSpacing: 1 },
-    selectorBtn: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 4, borderWidth: 1, marginBottom: 16 },
-    selectorIcon: { width: 48, height: 48, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    selectorBtn: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, borderWidth: 1, marginBottom: 16 },
+    selectorIcon: { width: 48, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     selectorLabel: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
     selectorValue: { fontSize: 16, fontWeight: '900', marginTop: 2 },
-    modalContainer: { margin: 20, padding: 20, borderRadius: 4, maxHeight: '80%' },
+    modalContainer: { margin: 20, padding: 20, borderRadius: 12, maxHeight: '80%' },
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
     modalTitle: { fontSize: 20, fontWeight: '900' },
-    searchBar: { elevation: 0, borderBottomWidth: 1, borderBottomColor: '#333', marginBottom: 16, borderRadius: 4 },
+    searchBar: { elevation: 0, borderBottomWidth: 1, borderBottomColor: '#333', marginBottom: 16, borderRadius: 12 },
     clientList: { marginTop: 10 },
     clientItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, gap: 14 },
-    clientIcon: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    clientIcon: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     clientName: { fontSize: 16, fontWeight: '800' },
     clientSub: { fontSize: 12, marginTop: 2 },
 });

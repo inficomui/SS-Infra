@@ -9,25 +9,22 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     Keyboard,
-    ActivityIndicator
+    ActivityIndicator,
+    useColorScheme
 } from 'react-native';
 import { TextInput, Text, Surface } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials } from '@/redux/slices/authSlice';
 import CountryCodePicker from '@/components/ui/CountryCodePicker';
 import OTPInput from '@/components/ui/OTPInput';
 import { useSendOtpMutation, useVerifyOtpMutation } from '@/redux/apis/authApi';
 import Toast from 'react-native-toast-message';
+import { selectThemeMode } from '@/redux/slices/themeSlice';
+import { Colors } from '@/constants/theme';
 
 const { width, height } = Dimensions.get('window');
-
-const PRIMARY_YELLOW = '#FFD700';
-const SECONDARY_YELLOW = '#FDB813';
-const DEEP_BLACK = '#0F0F0F';
-const CARD_BG = '#1A1A1A';
-const INPUT_BG = '#252525';
 
 export default function LoginScreen() {
     const dispatch = useDispatch();
@@ -40,6 +37,24 @@ export default function LoginScreen() {
     const [otp, setOtp] = useState('');
     const [devOtp, setDevOtp] = useState<string | null>(null);
 
+    // Theme Logic
+    const deviceColorScheme = useColorScheme();
+    const themeMode = useSelector(selectThemeMode);
+    const isDark = themeMode === 'system' ? (deviceColorScheme === 'dark') : themeMode === 'dark';
+    const themeColors = isDark ? Colors.dark : Colors.light;
+
+    const CONTAINER_BG = themeColors.background;
+    const CARD_BG = isDark ? '#1A1A1A' : '#FFFFFF';
+    const INPUT_BG = isDark ? '#252525' : '#F3F4F6';
+    const TEXT_PRIMARY = themeColors.text;
+    const TEXT_SECONDARY = themeColors.textMuted;
+    const BORDER_COLOR = themeColors.border;
+    const PRIMARY_YELLOW = themeColors.primary;
+    const SECONDARY_YELLOW = isDark ? '#FDB813' : '#F59E0B';
+    const LOGO_BG = isDark ? '#0F0F0F' : '#FFF';
+    const HERO_TEXT = isDark ? '#0F0F0F' : '#0F0F0F'; // Keep dark text on yellow gradient
+    const PLACEHOLDER_TEXT = isDark ? '#555' : '#9CA3AF';
+
     const handleSendOtp = async () => {
         if (mobileNumber.length < 10) {
             Toast.show({ type: 'error', text1: 'Invalid Number', text2: 'Please enter a 10-digit number.' });
@@ -47,14 +62,12 @@ export default function LoginScreen() {
         }
         try {
             const response: any = await sendOtp({ mobile: mobileNumber }).unwrap();
-            console.log('Send OTP Response:', response);
             if (response?.success) {
                 setIsOtpSent(true);
                 if (response.devOtp) setDevOtp(response.devOtp);
                 Toast.show({ type: 'success', text1: 'OTP Sent Successfully' });
             }
         } catch (error: any) {
-            console.error('Send OTP Error:', error);
             const errorMessage = error?.data?.message || error?.data?.error || error?.message || "Failed to send OTP. Please try again.";
             Toast.show({
                 type: 'error',
@@ -88,7 +101,7 @@ export default function LoginScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: CONTAINER_BG }]}>
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -96,33 +109,33 @@ export default function LoginScreen() {
 
                             {/* Top Branding Section */}
                             <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.headerHero}>
-                                <Surface style={styles.logoCircle} elevation={5}>
-                                    <MaterialCommunityIcons name="crane" size={45} style={{ color: 'yellow' }} />
+                                <Surface style={[styles.logoCircle, { backgroundColor: LOGO_BG }]} elevation={5}>
+                                    <MaterialCommunityIcons name="crane" size={45} style={{ color: PRIMARY_YELLOW }} />
                                 </Surface>
-                                <Text style={styles.heroTitle}>SS INFRA</Text>
-                                <Text style={styles.heroSubtitle}>FLEET OPERATIONS PORTAL</Text>
+                                <Text style={[styles.heroTitle, { color: HERO_TEXT }]}>SS INFRA</Text>
+                                <Text style={[styles.heroSubtitle, { color: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.7)' }]}>FLEET OPERATIONS PORTAL</Text>
                             </LinearGradient>
 
                             <View style={styles.formContainer}>
-                                <Surface style={styles.glassCard} elevation={2}>
+                                <Surface style={[styles.glassCard, { backgroundColor: CARD_BG, borderColor: BORDER_COLOR }]} elevation={2}>
                                     {!isOtpSent ? (
                                         <View>
-                                            <Text style={styles.formHeading}>Sign In</Text>
-                                            <Text style={styles.formSubtext}>Access your fleet dashboard</Text>
+                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>Sign In</Text>
+                                            <Text style={[styles.formSubtext, { color: TEXT_SECONDARY }]}>Access your fleet dashboard</Text>
 
                                             {/* Input 2: Mobile Number at Bottom */}
                                             <View style={styles.inputGroup}>
-                                                <Text style={styles.inputLabel}>Mobile Number</Text>
+                                                <Text style={[styles.inputLabel, { color: TEXT_SECONDARY }]}>Mobile Number</Text>
                                                 <TextInput
                                                     value={mobileNumber}
                                                     onChangeText={setMobileNumber}
                                                     placeholder="96687 85545"
-                                                    placeholderTextColor="#555"
+                                                    placeholderTextColor={PLACEHOLDER_TEXT}
                                                     keyboardType="phone-pad"
                                                     maxLength={10}
                                                     mode="flat"
-                                                    style={styles.textInput}
-                                                    textColor="#FFF"
+                                                    style={[styles.textInput, { backgroundColor: INPUT_BG, borderColor: BORDER_COLOR }]}
+                                                    textColor={TEXT_PRIMARY}
                                                     underlineColor="transparent"
                                                     activeUnderlineColor={PRIMARY_YELLOW}
                                                     left={<TextInput.Icon icon="phone-outline" color={PRIMARY_YELLOW} />}
@@ -131,10 +144,10 @@ export default function LoginScreen() {
 
                                             <TouchableOpacity style={styles.actionButton} onPress={handleSendOtp} disabled={isSendingOtp}>
                                                 <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.buttonGradient}>
-                                                    {isSendingOtp ? <ActivityIndicator color={DEEP_BLACK} /> : (
+                                                    {isSendingOtp ? <ActivityIndicator color={HERO_TEXT} /> : (
                                                         <>
-                                                            <Text style={styles.buttonText}>Send OTP</Text>
-                                                            <MaterialCommunityIcons name="chevron-right" size={24} color={DEEP_BLACK} />
+                                                            <Text style={[styles.buttonText, { color: HERO_TEXT }]}>Send OTP</Text>
+                                                            <MaterialCommunityIcons name="chevron-right" size={24} color={HERO_TEXT} />
                                                         </>
                                                     )}
                                                 </LinearGradient>
@@ -142,16 +155,16 @@ export default function LoginScreen() {
                                         </View>
                                     ) : (
                                         <View>
-                                            <Text style={styles.formHeading}>Verification</Text>
-                                            <Text style={styles.otpSubtext}>OTP sent to {countryCode} {mobileNumber}</Text>
+                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>Verification</Text>
+                                            <Text style={[styles.otpSubtext, { color: TEXT_SECONDARY }]}>OTP sent to {countryCode} {mobileNumber}</Text>
 
                                             <OTPInput
                                                 length={4}
                                                 value={otp}
                                                 onChange={setOtp}
                                                 containerStyle={styles.otpWrapper}
-                                                boxStyle={styles.otpBox}
-                                                textStyle={styles.otpText}
+                                                boxStyle={[styles.otpBox, { backgroundColor: INPUT_BG, borderColor: BORDER_COLOR }]}
+                                                textStyle={[styles.otpText, { color: PRIMARY_YELLOW }]}
                                             />
 
                                             {devOtp && (
@@ -162,17 +175,17 @@ export default function LoginScreen() {
 
                                             <TouchableOpacity style={styles.actionButton} onPress={handleVerifyOtp} disabled={isVerifyingOtp}>
                                                 <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.buttonGradient}>
-                                                    {isVerifyingOtp ? <ActivityIndicator color={DEEP_BLACK} /> : <Text style={styles.buttonText}>Secure Login</Text>}
+                                                    {isVerifyingOtp ? <ActivityIndicator color={HERO_TEXT} /> : <Text style={[styles.buttonText, { color: HERO_TEXT }]}>Secure Login</Text>}
                                                 </LinearGradient>
                                             </TouchableOpacity>
 
                                             <TouchableOpacity onPress={() => setIsOtpSent(false)} style={styles.backButton}>
-                                                <Text style={styles.backButtonText}>Change Mobile Number</Text>
+                                                <Text style={[styles.backButtonText, { color: TEXT_SECONDARY }]}>Change Mobile Number</Text>
                                             </TouchableOpacity>
                                         </View>
                                     )}
                                 </Surface>
-                                <Text style={styles.protocolText}>Encrypted Infrastructure Protocol v4.2</Text>
+                                <Text style={[styles.protocolText, { color: TEXT_SECONDARY }]}>Encrypted Infrastructure Protocol v4.2</Text>
                             </View>
                         </View>
                     </TouchableWithoutFeedback>
@@ -183,7 +196,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: DEEP_BLACK },
+    container: { flex: 1 },
     scrollContent: { flexGrow: 1 },
     innerView: { flex: 1 },
     headerHero: {
@@ -196,21 +209,18 @@ const styles = StyleSheet.create({
         width: 85,
         height: 85,
         borderRadius: 42,
-        backgroundColor: DEEP_BLACK,
         justifyContent: 'center',
         alignItems: 'center',
     },
     heroTitle: {
         fontSize: 36,
         fontWeight: '900',
-        color: DEEP_BLACK,
         marginTop: 15,
         letterSpacing: 1.5,
     },
     heroSubtitle: {
         fontSize: 12,
         fontWeight: '700',
-        color: 'rgba(0,0,0,0.6)',
         letterSpacing: 2,
     },
     formContainer: {
@@ -219,20 +229,16 @@ const styles = StyleSheet.create({
         marginTop: -40,
     },
     glassCard: {
-        backgroundColor: CARD_BG,
         borderRadius: 30,
         padding: 30,
         borderWidth: 1,
-        borderColor: '#333',
     },
     formHeading: {
         fontSize: 26,
         fontWeight: '900',
-        color: PRIMARY_YELLOW,
         marginBottom: 5,
     },
     formSubtext: {
-        color: '#888',
         fontSize: 14,
         marginBottom: 25,
     },
@@ -240,30 +246,18 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     inputLabel: {
-        color: '#AAA',
         fontSize: 12,
         textTransform: 'uppercase',
         letterSpacing: 1,
         marginBottom: 8,
         fontWeight: 'bold',
     },
-    countryPickerWrapper: {
-        backgroundColor: INPUT_BG,
-        borderRadius: 12,
-        height: 55,
-        justifyContent: 'center',
-        paddingHorizontal: 15,
-        borderWidth: 1,
-        borderColor: '#444',
-    },
     textInput: {
-        backgroundColor: INPUT_BG,
         borderRadius: 12,
         height: 55,
         fontSize: 18,
         fontWeight: '700',
         borderWidth: 1,
-        borderColor: '#444',
         overflow: 'hidden',
     },
     actionButton: {
@@ -280,24 +274,21 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     buttonText: {
-        color: DEEP_BLACK,
         fontWeight: '900',
         fontSize: 16,
         textTransform: 'uppercase',
     },
-    otpSubtext: { color: '#888', marginBottom: 20 },
+    otpSubtext: { marginBottom: 20 },
     otpWrapper: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25 },
     otpBox: {
         width: width * 0.14,
         height: 60,
         borderRadius: 12,
-        backgroundColor: INPUT_BG,
         borderWidth: 2,
-        borderColor: '#444',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    otpText: { fontSize: 24, fontWeight: 'bold', color: PRIMARY_YELLOW },
+    otpText: { fontSize: 24, fontWeight: 'bold' },
     devBanner: {
         backgroundColor: 'rgba(255,215,0,0.1)',
         padding: 10,
@@ -306,12 +297,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255,215,0,0.3)',
     },
-    devText: { color: PRIMARY_YELLOW, textAlign: 'center', fontWeight: 'bold', fontSize: 12 },
+    devText: { color: '#FFD700', textAlign: 'center', fontWeight: 'bold', fontSize: 12 },
     backButton: { marginTop: 20, alignItems: 'center' },
-    backButtonText: { color: '#666', fontSize: 13, textDecorationLine: 'underline' },
+    backButtonText: { fontSize: 13, textDecorationLine: 'underline' },
     protocolText: {
         textAlign: 'center',
-        color: '#333',
         fontSize: 10,
         marginTop: 25,
         letterSpacing: 1,
