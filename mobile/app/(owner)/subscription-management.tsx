@@ -12,10 +12,12 @@ import {
 import { formatDate } from '../../utils/formatters';
 import { useGetPlansQuery } from '@/redux/apis/walletApi';
 import { useGetOperatorsQuery } from '@/redux/apis/ownerApi';
+import { useTranslation } from 'react-i18next';
 
 export default function SubscriptionManagementScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     const [targetUserId, setTargetUserId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -59,31 +61,31 @@ export default function SubscriptionManagementScreen() {
                 startDate: new Date().toISOString()
             }).unwrap();
 
-            Alert.alert('Success', 'Plan assigned successfully');
+            Alert.alert(t('common.success'), t('owner.subscription_manager.plan_assigned'));
             setShowAssignModal(false);
             setNotes('');
             refetchUserSubs();
         } catch (error: any) {
-            Alert.alert('Error', error?.data?.message || 'Failed to assign plan');
+            Alert.alert(t('common.error'), error?.data?.message || t('owner.subscription_manager.failed_assign'));
         }
     };
 
     const handleCancelSubscription = async (subscriptionId: number) => {
         Alert.alert(
-            'Confirm Cancellation',
-            'Are you sure you want to cancel this subscription?',
+            t('owner.subscription_manager.confirm_cancellation'),
+            t('owner.subscription_manager.confirm_cancel_msg'),
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Confirm',
+                    text: t('common.confirm'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await cancelSubscription({ id: subscriptionId, softDelete: true }).unwrap();
-                            Alert.alert('Success', 'Subscription cancelled');
+                            Alert.alert(t('common.success'), t('owner.subscription_manager.subscription_cancelled'));
                             refetchUserSubs();
                         } catch (error: any) {
-                            Alert.alert('Error', error?.data?.message || 'Failed to cancel subscription');
+                            Alert.alert(t('common.error'), error?.data?.message || t('owner.subscription_manager.failed_cancel'));
                         }
                     }
                 }
@@ -103,7 +105,7 @@ export default function SubscriptionManagementScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Subscription Manager</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.subscription_manager.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -115,11 +117,11 @@ export default function SubscriptionManagementScreen() {
                 >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <View>
-                            <Text style={[styles.sectionTitle, { color: colors.textMuted, marginBottom: 4 }]}>Select User / Operator</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textMuted, marginBottom: 4 }]}>{t('owner.subscription_manager.select_user')}</Text>
                             {selectedOperator ? (
                                 <Text style={[styles.userName, { color: colors.textMain }]}>{selectedOperator.name}</Text>
                             ) : (
-                                <Text style={{ color: colors.textMuted, fontSize: 16 }}>Tap to search operators...</Text>
+                                <Text style={{ color: colors.textMuted, fontSize: 16 }}>{t('owner.subscription_manager.tap_search')}</Text>
                             )}
                         </View>
                         <MaterialCommunityIcons name="chevron-down" size={24} color={colors.textMuted} />
@@ -151,7 +153,7 @@ export default function SubscriptionManagementScreen() {
                             <>
                                 {/* Active Subscription / Assign Plan */}
                                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Current Subscription</Text>
+                                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.subscription_manager.current_subscription')}</Text>
                                     {activeSubscription ? (
                                         <View style={styles.activeSubContainer}>
                                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -159,12 +161,12 @@ export default function SubscriptionManagementScreen() {
                                                     <Text style={[styles.planName, { color: colors.primary }]}>{activeSubscription.plan?.name}</Text>
                                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
                                                         <MaterialCommunityIcons name="clock-outline" size={14} color={colors.textMuted} />
-                                                        <Text style={{ color: colors.textMuted }}>Expires: {formatDate(activeSubscription.endDate)}</Text>
+                                                        <Text style={{ color: colors.textMuted }}>{t('owner.subscription_manager.expires')} {formatDate(activeSubscription.endDate)}</Text>
                                                     </View>
-                                                    <Text style={{ color: colors.textMain, fontWeight: 'bold', marginTop: 4 }}>{activeSubscription.daysRemaining} Days Remaining</Text>
+                                                    <Text style={{ color: colors.textMain, fontWeight: 'bold', marginTop: 4 }}>{activeSubscription.daysRemaining} {t('owner.subscription_manager.days_remaining')}</Text>
                                                 </View>
                                                 <View style={[styles.statusBadge, { backgroundColor: colors.success + '20' }]}>
-                                                    <Text style={{ color: colors.success, fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>Active</Text>
+                                                    <Text style={{ color: colors.success, fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>{t('owner.subscription_manager.active')}</Text>
                                                 </View>
                                             </View>
 
@@ -176,12 +178,12 @@ export default function SubscriptionManagementScreen() {
                                                 loading={isCancelling}
                                                 disabled={isCancelling}
                                             >
-                                                Cancel Subscription
+                                                {t('owner.subscription_manager.cancel_subscription')}
                                             </Button>
                                         </View>
                                     ) : (
                                         <View style={styles.emptyState}>
-                                            <Text style={{ color: colors.textMuted }}>No active subscription found.</Text>
+                                            <Text style={{ color: colors.textMuted }}>{t('owner.subscription_manager.no_active_sub')}</Text>
                                             <Button
                                                 mode="contained"
                                                 buttonColor={colors.primary}
@@ -189,7 +191,7 @@ export default function SubscriptionManagementScreen() {
                                                 style={{ marginTop: 12 }}
                                                 onPress={() => setShowAssignModal(true)}
                                             >
-                                                Assign New Plan
+                                                {t('owner.subscription_manager.assign_new_plan')}
                                             </Button>
                                         </View>
                                     )}
@@ -198,7 +200,7 @@ export default function SubscriptionManagementScreen() {
                                 {/* History */}
                                 {pastSubscriptions.length > 0 && (
                                     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                                        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>History</Text>
+                                        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.subscription_manager.history')}</Text>
                                         {pastSubscriptions.map((sub: any) => (
                                             <View key={sub.id} style={[styles.historyItem, { borderBottomColor: colors.border }]}>
                                                 <View>
@@ -225,9 +227,9 @@ export default function SubscriptionManagementScreen() {
             <Portal>
                 <Modal visible={showUserModal} onDismiss={() => setShowUserModal(false)} contentContainerStyle={[styles.modalContent, { backgroundColor: colors.background, padding: 0, overflow: 'hidden' }]}>
                     <View style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}>
-                        <Text style={[styles.modalTitle, { color: colors.textMain, marginBottom: 10 }]}>Select Operator</Text>
+                        <Text style={[styles.modalTitle, { color: colors.textMain, marginBottom: 10 }]}>{t('owner.subscription_manager.select_operator_title')}</Text>
                         <Searchbar
-                            placeholder="Search by name or mobile"
+                            placeholder={t('owner.subscription_manager.search_placeholder')}
                             onChangeText={setSearchQuery}
                             value={searchQuery}
                             style={{ backgroundColor: colors.card, height: 44 }}
@@ -258,18 +260,18 @@ export default function SubscriptionManagementScreen() {
                                 </TouchableOpacity>
                             )}
                             ListEmptyComponent={
-                                <Text style={{ padding: 20, textAlign: 'center', color: colors.textMuted }}>No operators found.</Text>
+                                <Text style={{ padding: 20, textAlign: 'center', color: colors.textMuted }}>{t('common.no_runners')} </Text>
                             }
                         />
                     )}
-                    <Button mode="text" onPress={() => setShowUserModal(false)} style={{ margin: 8 }}>Close</Button>
+                    <Button mode="text" onPress={() => setShowUserModal(false)} style={{ margin: 8 }}>{t('owner.subscription_manager.close')}</Button>
                 </Modal>
             </Portal>
 
             {/* Assign Plan Modal */}
             <Portal>
                 <Modal visible={showAssignModal} onDismiss={() => setShowAssignModal(false)} contentContainerStyle={[styles.modalContent, { backgroundColor: colors.background }]}>
-                    <Text style={[styles.modalTitle, { color: colors.textMain }]}>Assign Plan</Text>
+                    <Text style={[styles.modalTitle, { color: colors.textMain }]}>{t('owner.subscription_manager.assign_plan_title')}</Text>
 
                     <ScrollView style={{ maxHeight: 300 }}>
                         {isLoadingPlans ? (
@@ -291,14 +293,14 @@ export default function SubscriptionManagementScreen() {
 
                     <TextInput
                         style={[styles.input, { color: colors.textMain, backgroundColor: colors.background, borderColor: colors.border, marginTop: 16 }]}
-                        placeholder="Admin Notes (Optional)"
+                        placeholder={t('owner.subscription_manager.admin_notes')}
                         placeholderTextColor={colors.textMuted}
                         value={notes}
                         onChangeText={setNotes}
                     />
 
                     <View style={styles.modalActions}>
-                        <Button mode="text" textColor={colors.textMuted} onPress={() => setShowAssignModal(false)}>Cancel</Button>
+                        <Button mode="text" textColor={colors.textMuted} onPress={() => setShowAssignModal(false)}>{t('common.cancel')}</Button>
                         <Button
                             mode="contained"
                             buttonColor={colors.primary}
@@ -307,7 +309,7 @@ export default function SubscriptionManagementScreen() {
                             loading={isAssigning}
                             disabled={!selectedPlanId || isAssigning}
                         >
-                            Assign Plan
+                            {t('owner.subscription_manager.assign_plan_title')}
                         </Button>
                     </View>
                 </Modal>

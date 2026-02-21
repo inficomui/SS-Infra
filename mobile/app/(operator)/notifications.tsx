@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import NotificationList from '@/components/NotificationList';
 import { useMarkAllAsReadMutation } from '@/redux/apis/notificationApi';
+import { t } from 'i18next';
 
 export default function NotificationsScreen() {
     const { colors } = useAppTheme();
@@ -27,7 +28,7 @@ export default function NotificationsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Notifications</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('notifications_screen.title')}</Text>
                 <TouchableOpacity onPress={handleMarkAllRead}>
                     <MaterialCommunityIcons name="playlist-check" size={24} color={colors.primary} />
                 </TouchableOpacity>

@@ -4,6 +4,7 @@ import { Text, TextInput, Button, Menu } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAddMaintenanceRecordMutation } from '@/redux/apis/maintenanceApi';
 import { useGetMachinesQuery } from '@/redux/apis/ownerApi';
@@ -13,6 +14,7 @@ export default function AddMaintenanceScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // Form State
     const [machineId, setMachineId] = useState(params.preselectedMachineId?.toString() || '');
@@ -47,7 +49,7 @@ export default function AddMaintenanceScreen() {
 
     const handleSubmit = async () => {
         if (!machineId || !serviceType || !cost) {
-            Alert.alert("Error", "Please fill all required fields.");
+            Alert.alert(t('common.error'), t('owner.maintenance_records.fill_required'));
             return;
         }
 
@@ -76,10 +78,10 @@ export default function AddMaintenanceScreen() {
 
         try {
             await addMaintenance(formData).unwrap();
-            Alert.alert("Success", "Maintenance record logged!");
+            Alert.alert(t('common.success'), t('owner.maintenance_records.log_success'));
             router.back();
         } catch (error: any) {
-            Alert.alert("Error", error?.data?.message || "Failed to log maintenance.");
+            Alert.alert(t('common.error'), error?.data?.message || t('owner.maintenance_records.log_error'));
         }
     };
 
@@ -89,7 +91,7 @@ export default function AddMaintenanceScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Log Maintenance</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.maintenance_records.log_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -122,7 +124,7 @@ export default function AddMaintenanceScreen() {
                 </ScrollView>
 
                 <View style={styles.formSection}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>Service Details</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('owner.maintenance_records.service_details')}</Text>
 
                     <Menu
                         visible={showTypeMenu}
@@ -140,7 +142,7 @@ export default function AddMaintenanceScreen() {
                     </Menu>
 
                     <TextInput
-                        label="Service Cost (₹)"
+                        label={t('owner.maintenance_records.cost_label')}
                         value={cost}
                         onChangeText={setCost}
                         keyboardType="numeric"
@@ -159,7 +161,7 @@ export default function AddMaintenanceScreen() {
                     </TouchableOpacity>
 
                     <TextInput
-                        label="Service Description (Optional)"
+                        label={t('owner.maintenance_records.desc_label')}
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -172,10 +174,10 @@ export default function AddMaintenanceScreen() {
                 </View>
 
                 <View style={styles.formSection}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>Attachments</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('owner.maintenance_records.attachments')}</Text>
                     <View style={styles.imageRow}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.imgLabel}>Service Photo</Text>
+                            <Text style={styles.imgLabel}>{t('owner.maintenance_records.service_photo')}</Text>
                             <TouchableOpacity style={[styles.imageUpload, { borderColor: colors.border }]} onPress={() => pickImage('service')}>
                                 {serviceImage ? (
                                     <Image source={{ uri: serviceImage.uri }} style={styles.uploadedImage} />
@@ -186,7 +188,7 @@ export default function AddMaintenanceScreen() {
                         </View>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.imgLabel}>Invoice / Bill</Text>
+                            <Text style={styles.imgLabel}>{t('owner.maintenance_records.invoice_bill')}</Text>
                             <TouchableOpacity style={[styles.imageUpload, { borderColor: colors.border }]} onPress={() => pickImage('invoice')}>
                                 {invoiceImage ? (
                                     <Image source={{ uri: invoiceImage.uri }} style={styles.uploadedImage} />
@@ -206,7 +208,7 @@ export default function AddMaintenanceScreen() {
                     style={styles.submitBtn}
                     labelStyle={styles.submitBtnLabel}
                 >
-                    Log Record
+                    {t('owner.maintenance_records.log_btn')}
                 </Button>
 
             </ScrollView>

@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --bg: #ffffff;
+  --bg-muted: #f8f8f9;
+  --fg: #0a0a0b;
+  --fg-muted: #71717a;
+  --border: rgba(0, 0, 0, 0.08);
+  --card: #ffffff;
+  --card-hover: #fafafa;
+  --glass: rgba(255, 255, 255, 0.72);
+  --accent: #f59e0b;
+  --accent-dim: rgba(245, 158, 11, 0.12);
+}
+
+.dark {
+  --bg: #06060a;
+  --bg-muted: #0e0e14;
+  --fg: #f2f2f4;
+  --fg-muted: #71717a;
+  --border: rgba(255, 255, 255, 0.06);
+  --card: #0e0e14;
+  --card-hover: #141420;
+  --glass: rgba(10, 10, 18, 0.80);
+  --accent: #f59e0b;
+  --accent-dim: rgba(245, 158, 11, 0.10);
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+/* ─── Selection ─────────────────────────────────────────────── */
+::selection {
+  background: rgba(245, 158, 11, 0.25);
+}
+
+/* ─── Grid Background ───────────────────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* ─── Glass / Blur ──────────────────────────────────────────── */
+.neo-blur {
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+  background: var(--glass);
+}
+
+/* ─── Bento Card ────────────────────────────────────────────── */
+.bento-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+}
+
+.bento-card:hover {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 20px 60px -12px rgba(245, 158, 11, 0.08);
+  transform: translateY(-4px);
+}
+
+/* ─── Gradient Text ─────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Scan Line ─────────────────────────────────────────────── */
+.scan-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, rgba(245, 158, 11, 0.05), transparent);
+  pointer-events: none;
+  animation: scan 14s linear infinite;
+  z-index: 0;
+}
+
+@keyframes scan {
+  from {
+    top: -80px;
+  }
+
+  to {
+    top: 110%;
+  }
+}
+
+/* ─── Trust Ticker ──────────────────────────────────────────── */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  display: flex !important;
+  width: max-content;
+  animation: ticker-scroll 70s linear infinite;
+}
+
+/* ─── iPhone 3D ─────────────────────────────────────────────── */
+.iphone-container {
+  perspective: 1800px;
+}
+
+.iphone-x {
+  position: relative;
+  width: 270px;
+  height: 560px;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  border-radius: 44px;
+  box-shadow:
+    0 60px 120px -20px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 10px #222;
+  transform: rotateY(-22deg) rotateX(8deg);
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.iphone-x:hover {
+  transform: rotateY(-6deg) rotateX(4deg) translateY(-16px);
+}
+
+.iphone-screen {
+  position: absolute;
+  inset: 10px;
+  background: #000;
+  border-radius: 36px;
+  overflow: hidden;
+}
+
+.iphone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130px;
+  height: 26px;
+  background: #1a1a1a;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  z-index: 10;
+}
+
+/* ─── Utility Transitions ───────────────────────────────────── */
+a,
+button,
+input,
+select,
+textarea {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}

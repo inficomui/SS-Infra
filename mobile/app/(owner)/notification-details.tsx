@@ -8,11 +8,13 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useDispatch, useSelector } from 'react-redux';
 import { markAsRead, selectNotificationById, deleteNotification } from '@/redux/slices/notificationSlice';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 export default function NotificationDetailsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const dispatch = useDispatch();
+    const { t } = useTranslation();
     const { id, notification: notificationParam } = useLocalSearchParams<{ id: string, notification: string }>();
 
     const reduxNotification = useSelector((state) => selectNotificationById(state, id));
@@ -42,11 +44,11 @@ export default function NotificationDetailsScreen() {
                     <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>Details</Text>
+                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.notification_details.title')}</Text>
                     <View style={{ width: 44 }} />
                 </View>
                 <View style={styles.emptyContainer}>
-                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>Notification not found</Text>
+                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('owner.notification_details.not_found')}</Text>
                 </View>
             </View>
         );
@@ -74,7 +76,7 @@ export default function NotificationDetailsScreen() {
             case 'work_start': return colors.success;
             case 'work_pause': return colors.warning;
             case 'work_finish': return colors.primary;
-            case 'invoice': return colors.secondary || '#9333EA';
+            case 'invoice': return colors.primary || '#9333EA';
             case 'machine_assign': return colors.textMuted;
             default: return colors.primary;
         }
@@ -86,7 +88,7 @@ export default function NotificationDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Details</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.notification_details.title')}</Text>
                 <TouchableOpacity onPress={handleDelete} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.danger }]}>
                     <MaterialCommunityIcons name="trash-can-outline" size={22} color={colors.danger} />
                 </TouchableOpacity>
@@ -107,7 +109,7 @@ export default function NotificationDetailsScreen() {
                     {/* Render additional data if available */}
                     {notification.data && Object.keys(notification.data).length > 0 && (
                         <View style={styles.dataContainer}>
-                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>Additional Data</Text>
+                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>{t('owner.notification_details.additional_data')}</Text>
                             {Object.entries(notification.data).map(([key, value]) => (
                                 <View key={key} style={styles.dataRow}>
                                     <Text style={[styles.dataKey, { color: colors.textMuted }]}>{key}:</Text>

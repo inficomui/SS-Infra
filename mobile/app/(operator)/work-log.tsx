@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGetWorkHistoryQuery } from '@/redux/apis/workApi';
@@ -9,6 +10,7 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { formatDate, formatDuration } from '../../utils/formatters';
 
 export default function WorkLogScreen() {
+    const { t } = useTranslation();
     const router = useRouter();
     const { colors } = useAppTheme();
     const [page, setPage] = useState(1);
@@ -43,7 +45,7 @@ export default function WorkLogScreen() {
                         styles.statusText,
                         { color: item.status === 'completed' ? colors.success : colors.primary }
                     ]}>
-                        {item.status.toUpperCase()}
+                        {(t(`overview.${item.status}`) || item.status).toUpperCase()}
                     </Text>
                 </View>
             </View>
@@ -54,13 +56,13 @@ export default function WorkLogScreen() {
                 <View style={styles.detailItem}>
                     <MaterialCommunityIcons name="clock-outline" size={16} color={colors.textMuted} />
                     <Text style={[styles.detailText, { color: colors.textMain }]}>
-                        {item.totalHours ? formatDuration(item.totalHours) : 'In Progress'}
+                        {item.totalHours ? formatDuration(item.totalHours) : t('overview.in_progress')}
                     </Text>
                 </View>
                 <View style={styles.detailItem}>
                     <MaterialCommunityIcons name="map-marker-outline" size={16} color={colors.textMuted} />
                     <Text style={[styles.detailText, { color: colors.textMain }]} numberOfLines={1}>
-                        {item.clientDistrict || 'Site Location'}
+                        {item.clientDistrict || t('operator.current_site_location')}
                     </Text>
                 </View>
             </View>
@@ -73,7 +75,7 @@ export default function WorkLogScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Work Logs</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('overview.work_log')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -94,7 +96,7 @@ export default function WorkLogScreen() {
                     ListEmptyComponent={
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="clipboard-text-outline" size={64} color={colors.border} />
-                            <Text style={[styles.emptyText, { color: colors.textMuted }]}>No work logs found.</Text>
+                            <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('overview.no_sessions_found')}</Text>
                         </View>
                     }
                 />

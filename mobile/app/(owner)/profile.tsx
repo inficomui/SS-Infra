@@ -8,6 +8,7 @@ import { selectCurrentUser, logout } from '@/redux/slices/authSlice';
 import { toggleTheme, selectThemeMode } from '@/redux/slices/themeSlice';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 export default function OwnerProfileScreen() {
     const router = useRouter();
@@ -15,6 +16,7 @@ export default function OwnerProfileScreen() {
     const { colors, isDark } = useAppTheme();
     const user = useSelector(selectCurrentUser);
     const themeMode = useSelector(selectThemeMode);
+    const { t } = useTranslation();
 
     const handleLogout = () => {
         dispatch(logout());
@@ -39,7 +41,7 @@ export default function OwnerProfileScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Profile Center</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.profile_screen.title')}</Text>
                 <TouchableOpacity onPress={() => router.push('/(owner)/settings' as any)} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="cog-outline" size={24} color={colors.textMain} />
                 </TouchableOpacity>
@@ -56,10 +58,10 @@ export default function OwnerProfileScreen() {
                             color="#000"
                         />
                     </View>
-                    <Text style={[styles.userName, { color: colors.textMain }]}>{user?.name || 'Fleet Owner'}</Text>
+                    <Text style={[styles.userName, { color: colors.textMain }]}>{user?.name || t('owner.profile_screen.fleet_owner')}</Text>
 
                     <View style={[styles.roleBadge, { backgroundColor: colors.primary + '15', borderColor: colors.primary + '30' }]}>
-                        <Text style={[styles.roleText, { color: colors.primary }]}>{user?.role || 'Owner'}</Text>
+                        <Text style={[styles.roleText, { color: colors.primary }]}>{user?.role || t('owner.profile_screen.owner_role')}</Text>
                     </View>
 
                     <Text style={[styles.userLocation, { color: colors.textMuted }]}>
@@ -70,17 +72,17 @@ export default function OwnerProfileScreen() {
                         onPress={() => router.push('/(owner)/edit-profile' as any)}
                         style={[styles.editBtn, { borderColor: colors.primary, backgroundColor: colors.primary + '10' }]}
                     >
-                        <Text style={[styles.editBtnText, { color: colors.primary }]}>Update Personal Info</Text>
+                        <Text style={[styles.editBtnText, { color: colors.primary }]}>{t('owner.profile_screen.update_personal_info')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Account Settings */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Customization</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.profile_screen.customization')}</Text>
                     <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MenuRow
                             icon="theme-light-dark"
-                            label="Dark Experience"
+                            label={t('owner.profile_screen.dark_experience')}
                             colors={colors}
                             right={
                                 <Switch
@@ -93,26 +95,32 @@ export default function OwnerProfileScreen() {
                         />
                         <MenuRow
                             icon="bell-ring-outline"
-                            label="Notifications"
+                            label={t('settings.notifications')}
                             colors={colors}
                             right={<Switch value={true} onValueChange={() => { }} trackColor={{ true: colors.primary, false: colors.border }} />}
+                        />
+                        <MenuRow
+                            icon="translate"
+                            label={t('owner.profile_screen.change_language')}
+                            colors={colors}
+                            onPress={() => router.push('/language-selection')}
                         />
                     </View>
                 </View>
 
                 <View style={[styles.section, { borderColor: colors.border }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>App Info</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.profile_screen.app_info')}</Text>
                     <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <MenuRow icon="information-outline" label="About SS Infra" colors={colors} onPress={() => router.push('/(owner)/about' as any)} />
+                        <MenuRow icon="information-outline" label={t('owner.profile_screen.about_app')} colors={colors} onPress={() => router.push('/(owner)/about' as any)} />
                     </View>
                 </View>
 
                 {/* Support Section */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Support</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.profile_screen.support')}</Text>
                     <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <MenuRow icon="help-circle-outline" label="Help Center" colors={colors} onPress={() => router.push('/(owner)/help' as any)} />
-                        <MenuRow icon="file-document-outline" label="Legal Documents" colors={colors} onPress={() => router.push('/(owner)/terms' as any)} />
+                        <MenuRow icon="help-circle-outline" label={t('owner.profile_screen.help_center')} colors={colors} onPress={() => router.push('/(owner)/help' as any)} />
+                        <MenuRow icon="file-document-outline" label={t('owner.profile_screen.legal_docs')} colors={colors} onPress={() => router.push('/(owner)/terms' as any)} />
                     </View>
                 </View>
 
@@ -125,7 +133,7 @@ export default function OwnerProfileScreen() {
                         end={{ x: 1, y: 0 }}
                     >
                         <MaterialCommunityIcons name="logout" size={20} color="#FFF" />
-                        <Text style={styles.logoutText}>Sign Out from Device</Text>
+                        <Text style={styles.logoutText}>{t('owner.profile_screen.sign_out')}</Text>
                     </LinearGradient>
                 </TouchableOpacity>
 

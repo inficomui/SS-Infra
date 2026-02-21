@@ -8,10 +8,12 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAddMaintenanceRecordMutation } from '@/redux/apis/maintenanceApi';
 import { useGetMachinesQuery } from '@/redux/apis/ownerApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTranslation } from 'react-i18next';
 
 export default function OperatorAddMaintenanceScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // Form State
     const [machineId, setMachineId] = useState('');
@@ -46,7 +48,7 @@ export default function OperatorAddMaintenanceScreen() {
 
     const handleSubmit = async () => {
         if (!machineId || !serviceType || !cost) {
-            Alert.alert("Error", "Please fill all required fields.");
+            Alert.alert(t('common.error'), t('maintenance_records.fill_required'));
             return;
         }
 
@@ -83,10 +85,10 @@ export default function OperatorAddMaintenanceScreen() {
 
         try {
             await addMaintenance(formData).unwrap();
-            Alert.alert("Success", "Maintenance record logged!");
+            Alert.alert(t('common.success'), t('maintenance_records.log_success'));
             router.back();
         } catch (error: any) {
-            Alert.alert("Error", error?.data?.message || "Failed to log maintenance.");
+            Alert.alert(t('common.error'), error?.data?.message || t('maintenance_records.log_error'));
         }
     };
 
@@ -96,13 +98,13 @@ export default function OperatorAddMaintenanceScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Log Maintenance</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('maintenance_records.log_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                <Text style={[styles.label, { color: colors.textMuted }]}>Select Machine</Text>
+                <Text style={[styles.label, { color: colors.textMuted }]}>{t('maintenance_records.select_machine')}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.machineScroll}>
                     {machinesData?.machines?.map((m) => (
                         <TouchableOpacity
@@ -129,7 +131,7 @@ export default function OperatorAddMaintenanceScreen() {
                 </ScrollView>
 
                 <View style={styles.formSection}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>Service Details</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('maintenance_records.service_details')}</Text>
 
                     <Menu
                         visible={showTypeMenu}
@@ -147,7 +149,7 @@ export default function OperatorAddMaintenanceScreen() {
                     </Menu>
 
                     <TextInput
-                        label="Service Cost (₹) - Estimate if unknown"
+                        label={t('maintenance_records.cost_label')}
                         value={cost}
                         onChangeText={setCost}
                         keyboardType="numeric"
@@ -162,11 +164,11 @@ export default function OperatorAddMaintenanceScreen() {
                             <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
                             <Text style={{ color: colors.textMain }}>{serviceDate.toLocaleDateString()}</Text>
                         </View>
-                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 12 }}>CHANGE</Text>
+                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 12 }}>{t('create_bill_screen.dispatch_invoice') !== 'DISPATCH INVOICE' ? 'बदल' : 'CHANGE'}</Text>
                     </TouchableOpacity>
 
                     <TextInput
-                        label="Service Description (Optional)"
+                        label={t('maintenance_records.desc_label')}
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -179,10 +181,10 @@ export default function OperatorAddMaintenanceScreen() {
                 </View>
 
                 <View style={styles.formSection}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>Attachments</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('maintenance_records.attachments')}</Text>
                     <View style={styles.imageRow}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.imgLabel}>Service Photo</Text>
+                            <Text style={styles.imgLabel}>{t('maintenance_records.service_photo')}</Text>
                             <TouchableOpacity style={[styles.imageUpload, { borderColor: colors.border }]} onPress={() => pickImage('service')}>
                                 {serviceImage ? (
                                     <Image source={{ uri: serviceImage.uri }} style={styles.uploadedImage} />
@@ -193,7 +195,7 @@ export default function OperatorAddMaintenanceScreen() {
                         </View>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.imgLabel}>Invoice / Bill</Text>
+                            <Text style={styles.imgLabel}>{t('maintenance_records.invoice_bill')}</Text>
                             <TouchableOpacity style={[styles.imageUpload, { borderColor: colors.border }]} onPress={() => pickImage('invoice')}>
                                 {invoiceImage ? (
                                     <Image source={{ uri: invoiceImage.uri }} style={styles.uploadedImage} />
@@ -213,7 +215,7 @@ export default function OperatorAddMaintenanceScreen() {
                     style={styles.submitBtn}
                     labelStyle={styles.submitBtnLabel}
                 >
-                    Log Record
+                    {t('maintenance_records.log_btn')}
                 </Button>
 
             </ScrollView>

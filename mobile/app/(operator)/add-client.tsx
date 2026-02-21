@@ -14,10 +14,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useCreateClientMutation } from '@/redux/apis/workApi';
+import { useTranslation } from 'react-i18next';
 
 export default function AddClientScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
     const [createClient, { isLoading }] = useCreateClientMutation();
 
     const [formData, setFormData] = useState({
@@ -31,14 +33,14 @@ export default function AddClientScreen() {
 
     const validateForm = () => {
         const newErrors: any = {};
-        if (!formData.name.trim()) newErrors.name = 'Client name is required';
+        if (!formData.name.trim()) newErrors.name = t('operator.client_name_required');
         if (!formData.mobile.trim()) {
-            newErrors.mobile = 'Mobile number is required';
+            newErrors.mobile = t('operator.mobile_required');
         } else if (!/^\d{10}$/.test(formData.mobile)) {
-            newErrors.mobile = 'Enter a valid 10-digit number';
+            newErrors.mobile = t('operator.enter_valid_mobile');
         }
-        if (!formData.district.trim()) newErrors.district = 'District is required';
-        if (!formData.taluka.trim()) newErrors.taluka = 'Taluka is required';
+        if (!formData.district.trim()) newErrors.district = t('operator.district_required');
+        if (!formData.taluka.trim()) newErrors.taluka = t('operator.taluka_required');
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -55,12 +57,12 @@ export default function AddClientScreen() {
                 taluka: formData.taluka,
             }).unwrap();
 
-            Alert.alert('Success', `New client ${formData.name} added.`, [
+            Alert.alert(t('common.success'), t('operator.client_added_success', { name: formData.name }), [
                 { text: 'OK', onPress: () => router.back() }
             ]);
         } catch (error: any) {
             console.error('Add Client Error:', error);
-            Alert.alert('Error', error?.data?.message || 'Failed to add client');
+            Alert.alert(t('common.error'), error?.data?.message || t('operator.failed_add_client') || 'Failed to add client');
         }
     };
 
@@ -70,7 +72,7 @@ export default function AddClientScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Register Client</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('operator.register_client_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -80,28 +82,28 @@ export default function AddClientScreen() {
                         <View style={[styles.mainIcon, { backgroundColor: colors.primary + '15' }]}>
                             <MaterialCommunityIcons name="account-group-outline" size={40} color={colors.primary} />
                         </View>
-                        <Text style={[styles.formTitle, { color: colors.textMain }]}>Add New Client</Text>
-                        <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>Create a new client profile for work sessions</Text>
+                        <Text style={[styles.formTitle, { color: colors.textMain }]}>{t('operator.add_new_client_title')}</Text>
+                        <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>{t('operator.add_new_client_subtitle')}</Text>
                     </View>
 
                     <View style={[styles.formSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <InputField
-                            label="Client / Project Name"
+                            label={t('operator.client_project_name_label')}
                             icon="account-outline"
                             value={formData.name}
                             onChange={(text: string) => setFormData({ ...formData, name: text })}
                             error={errors.name}
-                            placeholder="e.g. NHAI Road Project"
+                            placeholder={t('operator.client_name_placeholder')}
                             colors={colors}
                         />
 
                         <InputField
-                            label="Contact Number"
+                            label={t('operator.contact_number_label')}
                             icon="phone-outline"
                             value={formData.mobile}
                             onChange={(text: string) => setFormData({ ...formData, mobile: text.replace(/[^0-9]/g, '') })}
                             error={errors.mobile}
-                            placeholder="10-digit mobile number"
+                            placeholder={t('operator.mobile_placeholder')}
                             keyboardType="phone-pad"
                             maxLength={10}
                             colors={colors}
@@ -110,23 +112,23 @@ export default function AddClientScreen() {
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="District"
+                                    label={t('operator.district_label')}
                                     icon="map-marker-outline"
                                     value={formData.district}
                                     onChange={(text: string) => setFormData({ ...formData, district: text })}
                                     error={errors.district}
-                                    placeholder="e.g. Nasik"
+                                    placeholder={t('operator.district_placeholder')}
                                     colors={colors}
                                 />
                             </View>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="Taluka / TQ"
+                                    label={t('operator.taluka_label')}
                                     icon="map-outline"
                                     value={formData.taluka}
                                     onChange={(text: string) => setFormData({ ...formData, taluka: text })}
                                     error={errors.taluka}
-                                    placeholder="e.g. Niphad"
+                                    placeholder={t('operator.taluka_placeholder')}
                                     colors={colors}
                                 />
                             </View>
@@ -138,7 +140,7 @@ export default function AddClientScreen() {
                             {isLoading ? <ActivityIndicator color="#000" /> : (
                                 <>
                                     <MaterialCommunityIcons name="account-plus-outline" size={20} color="#000" />
-                                    <Text style={styles.submitText}>Confirm & Add Client</Text>
+                                    <Text style={styles.submitText}>{t('operator.confirm_add_client_btn')}</Text>
                                 </>
                             )}
                         </LinearGradient>

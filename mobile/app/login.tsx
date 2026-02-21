@@ -23,10 +23,13 @@ import { useSendOtpMutation, useVerifyOtpMutation } from '@/redux/apis/authApi';
 import Toast from 'react-native-toast-message';
 import { selectThemeMode } from '@/redux/slices/themeSlice';
 import { Colors } from '@/constants/theme';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const [sendOtp, { isLoading: isSendingOtp }] = useSendOtpMutation();
     const [verifyOtp, { isLoading: isVerifyingOtp }] = useVerifyOtpMutation();
@@ -57,7 +60,7 @@ export default function LoginScreen() {
 
     const handleSendOtp = async () => {
         if (mobileNumber.length < 10) {
-            Toast.show({ type: 'error', text1: 'Invalid Number', text2: 'Please enter a 10-digit number.' });
+            Toast.show({ type: 'error', text1: t('auth.invalid_number'), text2: t('auth.error_10_digit') });
             return;
         }
         try {
@@ -65,13 +68,13 @@ export default function LoginScreen() {
             if (response?.success) {
                 setIsOtpSent(true);
                 if (response.devOtp) setDevOtp(response.devOtp);
-                Toast.show({ type: 'success', text1: 'OTP Sent Successfully' });
+                Toast.show({ type: 'success', text1: t('auth.otp_success') });
             }
         } catch (error: any) {
-            const errorMessage = error?.data?.message || error?.data?.error || error?.message || "Failed to send OTP. Please try again.";
+            const errorMessage = error?.data?.message || error?.data?.error || error?.message || t('auth.otp_failed');
             Toast.show({
                 type: 'error',
-                text1: 'OTP Sending Failed',
+                text1: t('auth.otp_failed'),
                 text2: errorMessage
             });
         }
@@ -87,16 +90,16 @@ export default function LoginScreen() {
                         user: response.user,
                         token: response.token
                     }));
-                    Toast.show({ type: 'success', text1: 'Login Successful' });
+                    Toast.show({ type: 'success', text1: t('auth.login_success') });
                 } else {
-                    Toast.show({ type: 'error', text1: 'Login Failed', text2: 'Invalid response from server' });
+                    Toast.show({ type: 'error', text1: t('auth.login_failed'), text2: t('common.error') });
                 }
 
             } catch (error: any) {
-                Toast.show({ type: 'error', text1: 'Verification Failed', text2: error?.data?.message || "Invalid OTP." });
+                Toast.show({ type: 'error', text1: t('auth.verify_failed'), text2: error?.data?.message || t('auth.invalid_otp') });
             }
         } else {
-            Toast.show({ type: 'error', text1: 'Invalid OTP', text2: "Please enter a 4-digit OTP." });
+            Toast.show({ type: 'error', text1: t('auth.invalid_otp'), text2: t('auth.error_4_digit') });
         }
     };
 
@@ -109,6 +112,9 @@ export default function LoginScreen() {
 
                             {/* Top Branding Section */}
                             <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.headerHero}>
+                                <View style={styles.langToggleContainer}>
+                                    <LanguageSwitcher size={44} />
+                                </View>
                                 <Surface style={[styles.logoCircle, { backgroundColor: LOGO_BG }]} elevation={5}>
                                     <MaterialCommunityIcons name="crane" size={45} style={{ color: PRIMARY_YELLOW }} />
                                 </Surface>
@@ -120,12 +126,12 @@ export default function LoginScreen() {
                                 <Surface style={[styles.glassCard, { backgroundColor: CARD_BG, borderColor: BORDER_COLOR }]} elevation={2}>
                                     {!isOtpSent ? (
                                         <View>
-                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>Sign In</Text>
-                                            <Text style={[styles.formSubtext, { color: TEXT_SECONDARY }]}>Access your fleet dashboard</Text>
+                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>{t('auth.sign_in')}</Text>
+                                            <Text style={[styles.formSubtext, { color: TEXT_SECONDARY }]}>{t('auth.access_fleet')}</Text>
 
                                             {/* Input 2: Mobile Number at Bottom */}
                                             <View style={styles.inputGroup}>
-                                                <Text style={[styles.inputLabel, { color: TEXT_SECONDARY }]}>Mobile Number</Text>
+                                                <Text style={[styles.inputLabel, { color: TEXT_SECONDARY }]}>{t('auth.mobile_number')}</Text>
                                                 <TextInput
                                                     value={mobileNumber}
                                                     onChangeText={setMobileNumber}
@@ -146,7 +152,7 @@ export default function LoginScreen() {
                                                 <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.buttonGradient}>
                                                     {isSendingOtp ? <ActivityIndicator color={HERO_TEXT} /> : (
                                                         <>
-                                                            <Text style={[styles.buttonText, { color: HERO_TEXT }]}>Send OTP</Text>
+                                                            <Text style={[styles.buttonText, { color: HERO_TEXT }]}>{t('auth.send_otp')}</Text>
                                                             <MaterialCommunityIcons name="chevron-right" size={24} color={HERO_TEXT} />
                                                         </>
                                                     )}
@@ -155,8 +161,8 @@ export default function LoginScreen() {
                                         </View>
                                     ) : (
                                         <View>
-                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>Verification</Text>
-                                            <Text style={[styles.otpSubtext, { color: TEXT_SECONDARY }]}>OTP sent to {countryCode} {mobileNumber}</Text>
+                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>{t('auth.verification')}</Text>
+                                            <Text style={[styles.otpSubtext, { color: TEXT_SECONDARY }]}>{t('auth.otp_sent_to')} {countryCode} {mobileNumber}</Text>
 
                                             <OTPInput
                                                 length={4}
@@ -175,12 +181,12 @@ export default function LoginScreen() {
 
                                             <TouchableOpacity style={styles.actionButton} onPress={handleVerifyOtp} disabled={isVerifyingOtp}>
                                                 <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.buttonGradient}>
-                                                    {isVerifyingOtp ? <ActivityIndicator color={HERO_TEXT} /> : <Text style={[styles.buttonText, { color: HERO_TEXT }]}>Secure Login</Text>}
+                                                    {isVerifyingOtp ? <ActivityIndicator color={HERO_TEXT} /> : <Text style={[styles.buttonText, { color: HERO_TEXT }]}>{t('auth.secure_login')}</Text>}
                                                 </LinearGradient>
                                             </TouchableOpacity>
 
                                             <TouchableOpacity onPress={() => setIsOtpSent(false)} style={styles.backButton}>
-                                                <Text style={[styles.backButtonText, { color: TEXT_SECONDARY }]}>Change Mobile Number</Text>
+                                                <Text style={[styles.backButtonText, { color: TEXT_SECONDARY }]}>{t('auth.change_mobile')}</Text>
                                             </TouchableOpacity>
                                         </View>
                                     )}
@@ -204,6 +210,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderBottomRightRadius: 80,
+    },
+    langToggleContainer: {
+        position: 'absolute',
+        top: 60,
+        right: 20,
+        zIndex: 10,
     },
     logoCircle: {
         width: 85,

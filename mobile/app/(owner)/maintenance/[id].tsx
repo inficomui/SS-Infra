@@ -3,6 +3,7 @@ import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
@@ -14,15 +15,16 @@ export default function MaintenanceDetailsScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     const record = params.data ? JSON.parse(params.data as string) : null;
 
     if (!record) {
         return (
             <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: colors.textMuted }}>No maintenance record found.</Text>
+                <Text style={{ color: colors.textMuted }}>{t('owner.maintenance_records.record_not_found')}</Text>
                 <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-                    <Text style={{ color: colors.primary }}>Go Back</Text>
+                    <Text style={{ color: colors.primary }}>{t('owner.fuel_management.go_back')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -36,7 +38,7 @@ export default function MaintenanceDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Maintenance Details</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.maintenance_records.details_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -49,7 +51,7 @@ export default function MaintenanceDetailsScreen() {
                             <MaterialCommunityIcons name="excavator" size={24} color={colors.primary} />
                         </View>
                         <View>
-                            <Text style={[styles.machineName, { color: colors.textMain }]}>{machine?.name || 'Unknown Machine'}</Text>
+                            <Text style={[styles.machineName, { color: colors.textMain }]}>{machine?.name || t('owner.maintenance_records.unknown_machine')}</Text>
                             <Text style={[styles.dateText, { color: colors.textMuted }]}>{formatDate(service_date)}</Text>
                         </View>
                     </View>
@@ -58,11 +60,11 @@ export default function MaintenanceDetailsScreen() {
                 {/* Cost and Type */}
                 <View style={styles.statsRow}>
                     <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>Service Cost</Text>
+                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('owner.maintenance_records.service_cost')}</Text>
                         <Text style={[styles.costText, { color: colors.danger }]}>₹{cost}</Text>
                     </View>
                     <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>Service Type</Text>
+                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('owner.maintenance_records.service_type')}</Text>
                         <Text style={[styles.typeText, { color: colors.textMain }]}>{service_type}</Text>
                     </View>
                 </View>
@@ -70,7 +72,7 @@ export default function MaintenanceDetailsScreen() {
                 {/* Description */}
                 {description && (
                     <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Description</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('owner.maintenance_records.description')}</Text>
                         <Text style={[styles.descriptionText, { color: colors.textMuted }]}>{description}</Text>
                     </View>
                 )}
@@ -78,29 +80,29 @@ export default function MaintenanceDetailsScreen() {
                 {/* Images */}
                 {/* Images */}
                 <View style={styles.imagesContainer}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>Service Images</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>{t('owner.maintenance_records.service_images')}</Text>
 
                     {service_image_url ? (
                         <View style={[styles.imageWrapper, { borderColor: colors.border }]}>
-                            <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>Service Photo</Text>
+                            <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>{t('owner.maintenance_records.service_photo')}</Text>
                             <Image source={{ uri: resolveImageUrl(service_image_url) }} style={styles.fullImage} resizeMode="cover" />
                         </View>
                     ) : (
                         <View style={[styles.noImage, { backgroundColor: colors.card, borderColor: colors.border }]}>
                             <MaterialCommunityIcons name="camera-off" size={30} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 8 }}>No Service Photo</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 8 }}>{t('owner.maintenance_records.no_photo')}</Text>
                         </View>
                     )}
 
                     {invoice_image_url ? (
                         <View style={[styles.imageWrapper, { borderColor: colors.border, marginTop: 16 }]}>
-                            <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>Invoice Photo</Text>
+                            <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>{t('owner.maintenance_records.invoice_photo')}</Text>
                             <Image source={{ uri: resolveImageUrl(invoice_image_url) }} style={styles.fullImage} resizeMode="cover" />
                         </View>
                     ) : (
                         <View style={[styles.noImage, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 16 }]}>
                             <MaterialCommunityIcons name="file-document-outline" size={30} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 8 }}>No Invoice Photo</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 8 }}>{t('owner.maintenance_records.no_photo')}</Text>
                         </View>
                     )}
                 </View>

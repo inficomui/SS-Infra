@@ -4,6 +4,7 @@ import { Text, ActivityIndicator, Divider, Surface } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import { CONFIG } from '@/constants/Config';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
@@ -14,6 +15,7 @@ export default function FuelDetailScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // Query for fuel logs
     const { data: logsData, isLoading } = useGetFuelLogsQuery({});
@@ -53,9 +55,9 @@ export default function FuelDetailScreen() {
         return (
             <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
                 <MaterialCommunityIcons name="alert-circle-outline" size={64} color={colors.textMuted} />
-                <Text style={{ color: colors.textMuted, marginTop: 16 }}>Log not found</Text>
+                <Text style={{ color: colors.textMuted, marginTop: 16 }}>{t('fuel_management.log_not_found')}</Text>
                 <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-                    <Text style={{ color: colors.primary, fontWeight: 'bold' }}>Go Back</Text>
+                    <Text style={{ color: colors.primary, fontWeight: 'bold' }}>{t('fuel_management.go_back')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -107,8 +109,8 @@ export default function FuelDetailScreen() {
                     )}
 
                     <View style={styles.previewFooterContent}>
-                        <Text style={styles.previewFooterLabel}>Meter Reading Details</Text>
-                        <Text style={styles.previewFooterHint}>Pinch to zoom (if supported)</Text>
+                        <Text style={styles.previewFooterLabel}>{t('fuel_management.meter_reading_details')}</Text>
+                        <Text style={styles.previewFooterHint}>{t('fuel_management.pinch_zoom')}</Text>
                     </View>
                 </View>
             </Modal>
@@ -121,7 +123,7 @@ export default function FuelDetailScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Fuel Log Details</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('fuel_management.details_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -129,10 +131,10 @@ export default function FuelDetailScreen() {
                 {/* Summary Card */}
                 <Surface style={[styles.summaryCard, { backgroundColor: colors.card, borderColor: colors.border }]} elevation={2}>
                     <View style={styles.amountSection}>
-                        <Text style={[styles.amountLabel, { color: colors.textMuted }]}>Total Amount</Text>
+                        <Text style={[styles.amountLabel, { color: colors.textMuted }]}>{t('fuel_management.total_amount')}</Text>
                         <Text style={[styles.amountValue, { color: colors.textMain }]}>₹{log.amount}</Text>
                         <View style={[styles.statusBadge, { backgroundColor: colors.success + '20' }]}>
-                            <Text style={[styles.statusText, { color: colors.success }]}>COMPLETED</Text>
+                            <Text style={[styles.statusText, { color: colors.success }]}>{t('fuel_management.verified')}</Text>
                         </View>
                     </View>
 
@@ -140,12 +142,12 @@ export default function FuelDetailScreen() {
 
                     <View style={styles.quickStats}>
                         <View style={styles.statItem}>
-                            <Text style={[styles.statLabel, { color: colors.textMuted }]}>Fuel Volume</Text>
+                            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.fuel_volume')}</Text>
                             <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuel_liters} L</Text>
                         </View>
                         <View style={[styles.verticalDivider, { backgroundColor: colors.border, opacity: 0.3 }]} />
                         <View style={styles.statItem}>
-                            <Text style={[styles.statLabel, { color: colors.textMuted }]}>Date</Text>
+                            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.date')}</Text>
                             <Text style={[styles.statValue, { color: colors.textMain }]}>
                                 {new Date(log.log_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                             </Text>
@@ -154,13 +156,13 @@ export default function FuelDetailScreen() {
                 </Surface>
 
                 {/* Details Section */}
-                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Transaction Details</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('fuel_management.transaction_details')}</Text>
                 <View style={[styles.detailsList, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    {renderInfoRow('engine', 'Machine', log.machine?.name || 'N/A', log.machine?.registration_number)}
+                    {renderInfoRow('engine', t('fuel_management.machine'), log.machine?.name || 'N/A', log.machine?.registration_number)}
                     <Divider style={styles.listDivider} />
-                    {renderInfoRow('account-tie', 'Operator', log.operator?.name || 'N/A')}
+                    {renderInfoRow('account-tie', t('fuel_management.operator'), log.operator?.name || 'N/A')}
                     <Divider style={styles.listDivider} />
-                    {renderInfoRow('calendar-clock', 'Date & Time', new Date(log.log_date).toLocaleDateString(undefined, {
+                    {renderInfoRow('calendar-clock', t('fuel_management.date_time'), new Date(log.log_date).toLocaleDateString(undefined, {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
@@ -169,16 +171,16 @@ export default function FuelDetailScreen() {
                     {log.description && (
                         <>
                             <Divider style={styles.listDivider} />
-                            {renderInfoRow('note-text-outline', 'Description', log.description)}
+                            {renderInfoRow('note-text-outline', t('fuel_management.description'), log.description)}
                         </>
                     )}
                 </View>
 
                 {/* Images Section */}
-                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Meter Readings</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('fuel_management.meter_readings')}</Text>
                 <View style={styles.imageGrid}>
                     <View style={styles.imageContainer}>
-                        <Text style={[styles.imageLabel, { color: colors.textMuted }]}>Before Filling</Text>
+                        <Text style={[styles.imageLabel, { color: colors.textMuted }]}>{t('fuel_management.before_filling')}</Text>
                         <Surface style={[styles.imageWrapper, { backgroundColor: colors.card, borderColor: colors.border }]} elevation={1}>
                             {beforeImage ? (
                                 <TouchableOpacity
@@ -198,14 +200,14 @@ export default function FuelDetailScreen() {
                             ) : (
                                 <View style={styles.noImage}>
                                     <MaterialCommunityIcons name="image-off" size={32} color={colors.textMuted} />
-                                    <Text style={{ color: colors.textMuted, fontSize: 10 }}>No Image</Text>
+                                    <Text style={{ color: colors.textMuted, fontSize: 10 }}>{t('fuel_management.no_image')}</Text>
                                 </View>
                             )}
                         </Surface>
                     </View>
 
                     <View style={styles.imageContainer}>
-                        <Text style={[styles.imageLabel, { color: colors.textMuted }]}>After Filling</Text>
+                        <Text style={[styles.imageLabel, { color: colors.textMuted }]}>{t('fuel_management.after_filling')}</Text>
                         <Surface style={[styles.imageWrapper, { backgroundColor: colors.card, borderColor: colors.border }]} elevation={1}>
                             {afterImage ? (
                                 <TouchableOpacity
@@ -225,7 +227,7 @@ export default function FuelDetailScreen() {
                             ) : (
                                 <View style={styles.noImage}>
                                     <MaterialCommunityIcons name="image-off" size={32} color={colors.textMuted} />
-                                    <Text style={{ color: colors.textMuted, fontSize: 10 }}>No Image</Text>
+                                    <Text style={{ color: colors.textMuted, fontSize: 10 }}>{t('fuel_management.no_image')}</Text>
                                 </View>
                             )}
                         </Surface>

@@ -2,12 +2,14 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Linking, Platform } from 'react-native';
 import { Text, Avatar } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 
 export default function OperatorDetailsScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const params = useLocalSearchParams();
     const { colors } = useAppTheme();
 
@@ -16,9 +18,9 @@ export default function OperatorDetailsScreen() {
     if (!operator) {
         return (
             <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: colors.textMuted }}>No operator data found.</Text>
+                <Text style={{ color: colors.textMuted }}>{t('owner.no_operator_data')}</Text>
                 <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-                    <Text style={{ color: colors.primary }}>Go Back</Text>
+                    <Text style={{ color: colors.primary }}>{t('owner.go_back')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -38,7 +40,7 @@ export default function OperatorDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Operator Details</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.operator_details')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -53,18 +55,17 @@ export default function OperatorDetailsScreen() {
                             labelStyle={{ fontSize: 36, fontWeight: 'bold' }}
                         />
                         <Text style={[styles.operatorName, { color: colors.textMain }]}>{operator.name}</Text>
-                        <Text style={[styles.operatorRole, { color: colors.textMuted }]}>Certified Operator</Text>
+                        <Text style={[styles.operatorRole, { color: colors.textMuted }]}>{t('owner.certified_operator')}</Text>
                     </View>
 
                     <View style={styles.divider} />
 
                     <View style={styles.infoSection}>
-                        <DetailRow icon="phone" label="Mobile Number" value={operator.mobile} colors={colors} action={handleCall} actionIcon="phone-outgoing" />
-                        <DetailRow icon="map-marker" label="District" value={operator.district} colors={colors} />
-                        <DetailRow icon="map" label="Taluka" value={operator.taluka} colors={colors} />
-                        {operator.salary && <DetailRow icon="cash" label="Salary / Rate" value={`₹${operator.salary}`} colors={colors} />}
-                        {operator.referralCode && <DetailRow icon="ticket-confirmation" label="Referral Code" value={operator.referralCode} colors={colors} />}
-
+                        <DetailRow icon="phone" label={t('owner.phone_number')} value={operator.mobile} colors={colors} action={handleCall} actionIcon="phone-outgoing" />
+                        <DetailRow icon="map-marker" label={t('owner.district')} value={operator.district} colors={colors} />
+                        <DetailRow icon="map" label={t('owner.taluka')} value={operator.taluka} colors={colors} />
+                        {operator.salary && <DetailRow icon="cash" label={t('owner.salary_rate')} value={`₹${operator.salary}`} colors={colors} />}
+                        {operator.referralCode && <DetailRow icon="ticket-confirmation" label={t('owner.referral_code')} value={operator.referralCode} colors={colors} />}
                     </View>
                 </View>
 
@@ -79,7 +80,7 @@ export default function OperatorDetailsScreen() {
                             style={[styles.fullWidthBtn, { flex: 1, backgroundColor: colors.primary + '15', borderWidth: 1, borderColor: colors.primary }]}
                         >
                             <MaterialCommunityIcons name="gas-station" size={20} color={colors.primary} />
-                            <Text style={[styles.btnText, { color: colors.textMain, fontSize: 13 }]}>Fuel Logs</Text>
+                            <Text style={[styles.btnText, { color: colors.textMain, fontSize: 13 }]}>{t('owner.fuel_logs_btn')}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -90,7 +91,7 @@ export default function OperatorDetailsScreen() {
                             style={[styles.fullWidthBtn, { flex: 1, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]}
                         >
                             <MaterialCommunityIcons name="history" size={20} color={colors.primary} />
-                            <Text style={[styles.btnText, { color: colors.textMain, fontSize: 13 }]}>History</Text>
+                            <Text style={[styles.btnText, { color: colors.textMain, fontSize: 13 }]}>{t('owner.history')}</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -102,12 +103,12 @@ export default function OperatorDetailsScreen() {
                         style={[styles.fullWidthBtn, { backgroundColor: colors.primary + '15', borderWidth: 1, borderColor: colors.primary }]}
                     >
                         <MaterialCommunityIcons name="currency-inr" size={20} color={colors.primary} />
-                        <Text style={[styles.btnText, { color: colors.textMain, fontSize: 13 }]}>Pay Salary</Text>
+                        <Text style={[styles.btnText, { color: colors.textMain, fontSize: 13 }]}>{t('owner.pay_salary')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={handleCall} style={[styles.fullWidthBtn, { backgroundColor: colors.primary }]}>
                         <MaterialCommunityIcons name="phone" size={20} color="#000" />
-                        <Text style={styles.btnText}>Call Operator</Text>
+                        <Text style={styles.btnText}>{t('owner.call_operator')}</Text>
                     </TouchableOpacity>
                 </View>
 

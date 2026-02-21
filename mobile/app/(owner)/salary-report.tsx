@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Platform, Modal, TextInput as RNTextInput } from 'react-native';
 import { Text, ActivityIndicator, Divider, TextInput } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
@@ -10,11 +11,12 @@ import { formatDate } from '../../utils/formatters';
 
 export default function SalaryReportScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { colors, isDark } = useAppTheme();
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [selectedOperator, setSelectedOperator] = useState<number | undefined>(undefined);
-    const [selectedOperatorName, setSelectedOperatorName] = useState<string>('All Operators');
+    const [selectedOperatorName, setSelectedOperatorName] = useState<string>(t('owner.all_operators'));
 
     // UI state for date pickers
     const [showStartPicker, setShowStartPicker] = useState(false);
@@ -78,7 +80,7 @@ export default function SalaryReportScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Salary Report</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.salary_report')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -90,12 +92,12 @@ export default function SalaryReportScreen() {
             >
                 {/* Filters Section */}
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Report Filters</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.report_filters')}</Text>
 
                     {/* Date Range Selectors */}
                     <View style={styles.dateRow}>
                         <TouchableOpacity style={styles.dateInput} onPress={() => setShowStartPicker(true)}>
-                            <Text style={[styles.label, { color: colors.textMuted }]}>Start Date</Text>
+                            <Text style={[styles.label, { color: colors.textMuted }]}>{t('owner.start_date')}</Text>
                             <View style={[styles.dateBox, { borderColor: colors.border, backgroundColor: colors.background }]}>
                                 <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
                                 <Text style={{ color: colors.textMain, fontWeight: '600' }}>{formatDate(startDate)}</Text>
@@ -103,7 +105,7 @@ export default function SalaryReportScreen() {
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.dateInput} onPress={() => setShowEndPicker(true)}>
-                            <Text style={[styles.label, { color: colors.textMuted }]}>End Date</Text>
+                            <Text style={[styles.label, { color: colors.textMuted }]}>{t('owner.end_date')}</Text>
                             <View style={[styles.dateBox, { borderColor: colors.border, backgroundColor: colors.background }]}>
                                 <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
                                 <Text style={{ color: colors.textMain, fontWeight: '600' }}>{formatDate(endDate)}</Text>
@@ -113,7 +115,7 @@ export default function SalaryReportScreen() {
 
                     {/* Operator Selector Box */}
                     <View style={styles.operatorContainer}>
-                        <Text style={[styles.label, { color: colors.textMuted }]}>Select Operator</Text>
+                        <Text style={[styles.label, { color: colors.textMuted }]}>{t('owner.select_operator_label')}</Text>
                         <TouchableOpacity
                             style={[
                                 styles.selectBox,
@@ -136,7 +138,7 @@ export default function SalaryReportScreen() {
                     {/* Recent Chips */}
                     {recentOperators.length > 0 && (
                         <View style={{ marginTop: 12 }}>
-                            <Text style={[styles.label, { color: colors.textMuted, fontSize: 10, marginBottom: 6 }]}>RECENTLY SELECTED</Text>
+                            <Text style={[styles.label, { color: colors.textMuted, fontSize: 10, marginBottom: 6 }]}>{t('owner.recently_selected')}</Text>
                             <View style={styles.chipRow}>
                                 {recentOperators.map(op => (
                                     <TouchableOpacity
@@ -174,7 +176,7 @@ export default function SalaryReportScreen() {
                     <>
                         <View style={[styles.summaryCard, { backgroundColor: colors.primary + '10', borderColor: colors.primary }]}>
                             <View>
-                                <Text style={{ color: colors.textMuted, fontSize: 13, textTransform: 'uppercase', fontWeight: '700' }}>Total Payout</Text>
+                                <Text style={{ color: colors.textMuted, fontSize: 13, textTransform: 'uppercase', fontWeight: '700' }}>{t('owner.total_payout')}</Text>
                                 <Text style={{ color: colors.primary, fontSize: 36, fontWeight: '900', marginTop: 4 }}>
                                     ₹{reportData?.report?.totalAmount || '0.00'}
                                 </Text>
@@ -189,13 +191,13 @@ export default function SalaryReportScreen() {
 
                         {/* Payments List */}
                         <Text style={[styles.sectionHeader, { color: colors.textMain }]}>
-                            Payment History <Text style={{ fontSize: 14, fontWeight: 'normal', color: colors.textMuted }}>({reportData?.report?.payments?.data?.length || 0})</Text>
+                            {t('owner.payment_history')} <Text style={{ fontSize: 14, fontWeight: 'normal', color: colors.textMuted }}>({reportData?.report?.payments?.data?.length || 0})</Text>
                         </Text>
 
                         {reportData?.report?.payments?.data?.length === 0 ? (
                             <View style={styles.emptyState}>
                                 <MaterialCommunityIcons name="file-document-outline" size={48} color={colors.textMuted} />
-                                <Text style={{ color: colors.textMuted, marginTop: 12 }}>No payments found in this range.</Text>
+                                <Text style={{ color: colors.textMuted, marginTop: 12 }}>{t('owner.no_payments_found')}</Text>
                             </View>
                         ) : (
                             <View style={{ gap: 12 }}>
@@ -209,7 +211,7 @@ export default function SalaryReportScreen() {
                                                     </Text>
                                                 </View>
                                                 <View>
-                                                    <Text style={{ color: colors.textMain, fontWeight: '700', fontSize: 16 }}>{payment.operator?.name || 'Unknown Operator'}</Text>
+                                                    <Text style={{ color: colors.textMain, fontWeight: '700', fontSize: 16 }}>{payment.operator?.name || t('common.unknown_operator')}</Text>
                                                     <Text style={{ color: colors.textMuted, fontSize: 12 }}>{payment.payment_date}</Text>
                                                 </View>
                                             </View>
@@ -252,7 +254,7 @@ export default function SalaryReportScreen() {
                 <View style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)' }]}>
                     <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
                         <View style={styles.modalHeader}>
-                            <Text style={[styles.modalTitle, { color: colors.textMain }]}>Select Operator</Text>
+                            <Text style={[styles.modalTitle, { color: colors.textMain }]}>{t('owner.select_operator_label')}</Text>
                             <TouchableOpacity onPress={() => setIsOperatorModalVisible(false)}>
                                 <MaterialCommunityIcons name="close" size={24} color={colors.textMuted} />
                             </TouchableOpacity>
@@ -262,7 +264,7 @@ export default function SalaryReportScreen() {
                         <View style={[styles.searchBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
                             <MaterialCommunityIcons name="magnify" size={20} color={colors.textMuted} />
                             <RNTextInput
-                                placeholder="Search operators..."
+                                placeholder={t('owner.search_operators_placeholder')}
                                 placeholderTextColor={colors.textMuted}
                                 style={[styles.searchInput, { color: colors.textMain }]}
                                 value={searchQuery}
@@ -279,12 +281,12 @@ export default function SalaryReportScreen() {
                             {/* Option: All Operators */}
                             <TouchableOpacity
                                 style={[styles.modalItem, { borderBottomColor: colors.border }]}
-                                onPress={() => handleSelectOperator(undefined, 'All Operators')}
+                                onPress={() => handleSelectOperator(undefined, t('owner.all_operators'))}
                             >
                                 <View style={[styles.avatarSmall, { backgroundColor: colors.primary }]}>
                                     <MaterialCommunityIcons name="account-group" size={16} color="#FFF" />
                                 </View>
-                                <Text style={[styles.modalItemText, { color: colors.textMain }]}>All Operators</Text>
+                                <Text style={[styles.modalItemText, { color: colors.textMain }]}>{t('owner.all_operators')}</Text>
                                 {!selectedOperator && <MaterialCommunityIcons name="check" size={20} color={colors.primary} />}
                             </TouchableOpacity>
 

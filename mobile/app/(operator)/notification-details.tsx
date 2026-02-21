@@ -74,7 +74,7 @@ export default function NotificationDetailsScreen() {
             case 'work_start': return colors.success;
             case 'work_pause': return colors.warning;
             case 'work_finish': return colors.primary;
-            case 'invoice': return colors.secondary || '#9333EA';
+            case 'invoice': return colors.primary || '#9333EA';
             case 'machine_assign': return colors.textMuted;
             default: return colors.primary;
         }

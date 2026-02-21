@@ -8,11 +8,13 @@ import { useGetPlansQuery, useCreateSubscriptionOrderMutation, useVerifySubscrip
 import { LinearGradient } from 'expo-linear-gradient';
 import RazorpayCheckout from 'react-native-razorpay';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
 
 export default function PlansScreen() {
+    const { t } = useTranslation();
     const router = useRouter();
     const { colors, isDark } = useAppTheme();
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -26,32 +28,32 @@ export default function PlansScreen() {
     const plans = plansData?.plans || [
         {
             id: 'basic',
-            name: 'Starter',
+            name: t('plans.starter'),
             price: billingCycle === 'monthly' ? '999' : '9,999',
-            period: billingCycle === 'monthly' ? '/mo' : '/yr',
-            description: 'Perfect for single machine owners',
-            features: ['Live Tracking', 'Fuel & Maintenance Logs', 'Basic Reports', '1 Admin Account'],
+            period: billingCycle === 'monthly' ? `/${t('plans.monthly').substring(0, 2)}` : `/${t('plans.yearly').substring(0, 2)}`,
+            description: t('plans.starter_desc'),
+            features: [t('plans.features.live_tracking'), t('plans.features.fuel_maint_logs'), t('plans.features.basic_reports'), t('plans.features.admin_account')],
             icons: ['map-marker-radius', 'gas-station', 'file-chart', 'account'],
             gradient: ['#6366f1', '#4f46e5'],
             popular: false
         },
         {
             id: 'pro',
-            name: 'Business Pro',
+            name: t('plans.pro'),
             price: billingCycle === 'monthly' ? '2,499' : '24,999',
-            period: billingCycle === 'monthly' ? '/mo' : '/yr',
-            description: 'Scale your infrastructure fleet',
-            features: ['Live Fleet Dashboard', 'Advanced Maintenance alerts', 'AI-Powered Cost analysis', 'Unlimited Operators', 'Priority 24/7 Support'],
+            period: billingCycle === 'monthly' ? `/${t('plans.monthly').substring(0, 2)}` : `/${t('plans.yearly').substring(0, 2)}`,
+            description: t('plans.pro_desc'),
+            features: [t('plans.features.live_fleet_dashboard'), t('plans.features.advanced_maint_alerts'), t('plans.features.ai_cost_analysis'), t('plans.features.unlimited_operators'), t('plans.features.priority_support')],
             icons: ['view-dashboard', 'wrench-clock', 'brain', 'account-group', 'headset'],
             gradient: [colors.primary, '#f97316'],
             popular: true
         },
         {
             id: 'enterprise',
-            name: 'Enterprise',
-            price: 'Custom',
-            description: 'Full ERP for large projects',
-            features: ['API Integrations', 'Custom Whitelabeling', 'Dedicated Success Manager', 'On-site Training'],
+            name: t('plans.enterprise'),
+            price: t('plans.price_custom'),
+            description: t('plans.enterprise_desc'),
+            features: [t('plans.features.api_integrations'), t('plans.features.custom_whitelabeling'), t('plans.features.dedicated_manager'), t('plans.features.onsite_training')],
             icons: ['api', 'palette', 'shield-search', 'school'],
             gradient: ['#1e293b', '#0f172a'],
             popular: false
@@ -62,7 +64,7 @@ export default function PlansScreen() {
         console.log('Attempting purchase for plan:', plan);
 
         if (plan.price === 'Custom') {
-            Toast.show({ type: 'info', text1: 'Contact Sales', text2: 'Please contact support for custom enterprise plans.' });
+            Toast.show({ type: 'info', text1: t('plans.contact_sales'), text2: t('plans.contact_sales_msg') });
             return;
         }
 
@@ -72,7 +74,7 @@ export default function PlansScreen() {
             console.log('Order Response:', orderRes);
 
             if (!orderRes.success) {
-                Toast.show({ type: 'error', text1: 'Order Creation Failed', text2: 'Could not initiate subscription.' });
+                Toast.show({ type: 'error', text1: t('plans.order_failed'), text2: t('plans.order_failed_msg') });
                 return;
             }
 
@@ -107,21 +109,21 @@ export default function PlansScreen() {
                         }).unwrap();
 
                         if (verifyRes.success) {
-                            Toast.show({ type: 'success', text1: 'Plan Activated!', text2: `Welcome to ${plan.name} plan.` });
+                            Toast.show({ type: 'success', text1: t('plans.plan_activated'), text2: t('plans.welcome_plan', { planName: plan.name }) });
                             router.back();
                         } else {
-                            Toast.show({ type: 'error', text1: 'Activation Failed', text2: verifyRes.message || 'Payment verification failed.' });
+                            Toast.show({ type: 'error', text1: t('plans.activation_failed'), text2: verifyRes.message || t('plans.verification_error_msg') });
                         }
                     } catch (err: any) {
                         console.error('Verification Error:', err);
-                        Toast.show({ type: 'error', text1: 'Verification Error', text2: 'Payment successful but verification failed. Contact support.' });
+                        Toast.show({ type: 'error', text1: t('plans.verification_error'), text2: t('plans.verification_error_msg') });
                     }
                 })
                 .catch((error: any) => {
                     console.log('Razorpay Error:', error);
                     // Razorpay returns an error object with code and description
                     if (error.code && error.description) {
-                        Toast.show({ type: 'error', text1: 'Payment Failed', text2: error.description });
+                        Toast.show({ type: 'error', text1: t('plans.payment_failed'), text2: error.description });
                     } else {
                         // User cancelled or generic error
                         // Toast.show({ type: 'info', text1: 'Payment Cancelled' }); 
@@ -130,8 +132,8 @@ export default function PlansScreen() {
 
         } catch (error: any) {
             console.error('Purchase Error:', error);
-            const errorMessage = error?.data?.message || error?.data?.error || 'Something went wrong.';
-            Toast.show({ type: 'error', text1: 'Error', text2: errorMessage });
+            const errorMessage = error?.data?.message || error?.data?.error || t('common.error');
+            Toast.show({ type: 'error', text1: t('common.error'), text2: errorMessage });
         }
     };
 
@@ -156,15 +158,15 @@ export default function PlansScreen() {
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
                 <View style={[styles.titleBadge, { backgroundColor: colors.primary + '15' }]}>
-                    <Text style={[styles.titleBadgeText, { color: colors.primary }]}>SUBSCRIPTIONS</Text>
+                    <Text style={[styles.titleBadgeText, { color: colors.primary }]}>{t('plans.title')}</Text>
                 </View>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 <View style={styles.heroSection}>
-                    <Text style={[styles.heroTitle, { color: colors.textMain }]}>Built for the{'\n'}Future of Infra</Text>
-                    <Text style={[styles.heroSub, { color: colors.textMuted }]}>Choose the strength your business needs to grow.</Text>
+                    <Text style={[styles.heroTitle, { color: colors.textMain }]}>{t('plans.hero_title')}</Text>
+                    <Text style={[styles.heroSub, { color: colors.textMuted }]}>{t('plans.hero_sub')}</Text>
                 </View>
 
                 {/* Billing Toggle */}
@@ -173,16 +175,16 @@ export default function PlansScreen() {
                         onPress={() => setBillingCycle('monthly')}
                         style={[styles.toggleBtn, billingCycle === 'monthly' && { backgroundColor: colors.primary }]}
                     >
-                        <Text style={[styles.toggleText, { color: billingCycle === 'monthly' ? '#000' : colors.textMuted }]}>Monthly</Text>
+                        <Text style={[styles.toggleText, { color: billingCycle === 'monthly' ? '#000' : colors.textMuted }]}>{t('plans.monthly')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => setBillingCycle('yearly')}
                         style={[styles.toggleBtn, billingCycle === 'yearly' && { backgroundColor: colors.primary }]}
                     >
-                        <Text style={[styles.toggleText, { color: billingCycle === 'yearly' ? '#000' : colors.textMuted }]}>Yearly</Text>
+                        <Text style={[styles.toggleText, { color: billingCycle === 'yearly' ? '#000' : colors.textMuted }]}>{t('plans.yearly')}</Text>
                         {billingCycle !== 'yearly' && (
                             <View style={styles.saveBadge}>
-                                <Text style={styles.saveText}>-20%</Text>
+                                <Text style={styles.saveText}>{t('plans.save_badge')}</Text>
                             </View>
                         )}
                     </TouchableOpacity>
@@ -200,7 +202,7 @@ export default function PlansScreen() {
                             {plan.popular && (
                                 <View style={[styles.popularTag, { backgroundColor: colors.primary }]}>
                                     <MaterialCommunityIcons name="star" size={12} color="#000" />
-                                    <Text style={styles.popularTagText}>MOST POPULAR</Text>
+                                    <Text style={styles.popularTagText}>{t('plans.most_popular')}</Text>
                                 </View>
                             )}
 
@@ -247,7 +249,7 @@ export default function PlansScreen() {
                                             <ActivityIndicator color={plan.popular ? '#000' : colors.textMain} size="small" />
                                         ) : (
                                             <Text style={[styles.actionBtnText, { color: plan.popular ? '#000' : colors.textMain }]}>
-                                                {plan.price === 'Custom' ? 'Contact Sales' : 'Get Started'}
+                                                {plan.price === 'Custom' ? t('plans.contact_sales') : t('plans.get_started')}
                                             </Text>
                                         )}
                                     </LinearGradient>
@@ -259,13 +261,13 @@ export default function PlansScreen() {
 
                 {/* Trust Section */}
                 <View style={styles.trustSection}>
-                    <Text style={[styles.trustTitle, { color: colors.textMuted }]}>POWERING INFRASTRUCTURE TEAMS WORLDWIDE</Text>
+                    <Text style={[styles.trustTitle, { color: colors.textMuted }]}>{t('plans.trust_title')}</Text>
                     <View style={styles.trustIcons}>
                         <MaterialCommunityIcons name="shield-check" size={24} color={colors.success} />
                         <MaterialCommunityIcons name="lock" size={24} color={colors.textMuted} />
                         <MaterialCommunityIcons name="credit-card-check" size={24} color={colors.textMuted} />
                     </View>
-                    <Text style={[styles.trustText, { color: colors.textMuted }]}>SSL Encrypted • Safe & Secure • Auto-renewing</Text>
+                    <Text style={[styles.trustText, { color: colors.textMuted }]}>{t('plans.trust_text')}</Text>
                 </View>
             </ScrollView>
         </View>

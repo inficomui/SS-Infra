@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetWalletQuery } from '@/redux/apis/walletApi';
@@ -10,6 +11,7 @@ import { useFocusEffect } from 'expo-router';
 export default function TransactionsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
     const [page, setPage] = useState(1);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -54,7 +56,7 @@ export default function TransactionsScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Transactions</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.history')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -69,9 +71,9 @@ export default function TransactionsScreen() {
                 ) : transactions.length === 0 ? (
                     <View style={styles.emptyState}>
                         <MaterialCommunityIcons name="history" size={64} color={colors.textMuted} />
-                        <Text style={[styles.emptyText, { color: colors.textMuted }]}>No transactions yet</Text>
+                        <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('wallet.no_transactions')}</Text>
                         <Text style={[styles.emptySubtext, { color: colors.textMuted }]}>
-                            Your transaction history will appear here
+                            {t('wallet.no_transactions_sub')}
                         </Text>
                     </View>
                 ) : (
@@ -102,7 +104,7 @@ export default function TransactionsScreen() {
                                     <MaterialCommunityIcons name="chevron-left" size={24} color={colors.textMain} />
                                 </TouchableOpacity>
                                 <Text style={[styles.pageText, { color: colors.textMain }]}>
-                                    Page {page} of {totalPages}
+                                    {t('fuel_management.page')} {page} {t('fuel_management.of')} {totalPages}
                                 </Text>
                                 <TouchableOpacity
                                     disabled={page === totalPages || isFetching}

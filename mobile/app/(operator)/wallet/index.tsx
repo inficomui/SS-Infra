@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
@@ -8,6 +9,7 @@ import { useGetWalletQuery } from '@/redux/apis/walletApi';
 import { useFocusEffect } from 'expo-router';
 
 export default function WalletScreen() {
+    const { t } = useTranslation();
     const router = useRouter();
     const { colors } = useAppTheme();
     const [refreshing, setRefreshing] = useState(false);
@@ -40,7 +42,7 @@ export default function WalletScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>My Wallet</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('wallet.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -58,7 +60,7 @@ export default function WalletScreen() {
                         <View style={[styles.balanceCard, { backgroundColor: colors.primary }]}>
                             <View style={styles.balanceHeader}>
                                 <MaterialCommunityIcons name="wallet" size={32} color="#FFF" />
-                                <Text style={styles.balanceLabel}>Available Balance</Text>
+                                <Text style={styles.balanceLabel}>{t('wallet.available_balance')}</Text>
                             </View>
                             <Text style={styles.balanceAmount}>₹{parseFloat(balance).toFixed(2)}</Text>
 
@@ -69,7 +71,7 @@ export default function WalletScreen() {
                                 activeOpacity={0.8}
                             >
                                 <MaterialCommunityIcons name="bank-transfer" size={20} color={colors.primary} />
-                                <Text style={[styles.withdrawButtonText, { color: colors.primary }]}>Withdraw</Text>
+                                <Text style={[styles.withdrawButtonText, { color: colors.primary }]}>{t('wallet.withdraw')}</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -84,9 +86,9 @@ export default function WalletScreen() {
                                     <MaterialCommunityIcons name="cash-multiple" size={28} color={colors.success} />
                                 </View>
                                 <View style={styles.actionContent}>
-                                    <Text style={[styles.actionTitle, { color: colors.textMain }]}>Payment History</Text>
+                                    <Text style={[styles.actionTitle, { color: colors.textMain }]}>{t('payments.history_title')}</Text>
                                     <Text style={[styles.actionDescription, { color: colors.textMuted }]}>
-                                        View salary & bonuses
+                                        {t('wallet.view_salary_bonuses')}
                                     </Text>
                                 </View>
                                 <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
@@ -101,9 +103,9 @@ export default function WalletScreen() {
                                     <MaterialCommunityIcons name="history" size={28} color={colors.primary} />
                                 </View>
                                 <View style={styles.actionContent}>
-                                    <Text style={[styles.actionTitle, { color: colors.textMain }]}>Transactions</Text>
+                                    <Text style={[styles.actionTitle, { color: colors.textMain }]}>{t('owner.history')}</Text>
                                     <Text style={[styles.actionDescription, { color: colors.textMuted }]}>
-                                        View all transactions
+                                        {t('wallet.view_all_transactions')}
                                     </Text>
                                 </View>
                                 <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
@@ -115,14 +117,14 @@ export default function WalletScreen() {
                             <View style={[styles.infoCard, { backgroundColor: colors.success + '10', borderColor: colors.success + '30' }]}>
                                 <MaterialCommunityIcons name="information" size={20} color={colors.success} />
                                 <Text style={[styles.infoText, { color: colors.success }]}>
-                                    Your wallet balance includes all payments received from owners
+                                    {t('wallet.wallet_info_msg')}
                                 </Text>
                             </View>
 
                             <View style={[styles.infoCard, { backgroundColor: colors.warning + '10', borderColor: colors.warning + '30' }]}>
                                 <MaterialCommunityIcons name="alert-circle" size={20} color={colors.warning} />
                                 <Text style={[styles.infoText, { color: colors.warning }]}>
-                                    Withdrawals are processed within 1-2 business days
+                                    {t('wallet.withdrawal_info_msg')}
                                 </Text>
                             </View>
                         </View>

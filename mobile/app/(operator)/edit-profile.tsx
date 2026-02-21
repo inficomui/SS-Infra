@@ -15,11 +15,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/slices/authSlice';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 export default function OperatorEditProfileScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const user = useSelector(selectCurrentUser);
+    const { t } = useTranslation();
 
     const [formData, setFormData] = useState({
         name: user?.name || '',
@@ -35,7 +37,7 @@ export default function OperatorEditProfileScreen() {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            Alert.alert('Success', 'Profile updated. Inform your owner for any major changes.');
+            Alert.alert(t('edit_profile_screen.update_success'), t('edit_profile_screen.update_success_msg'));
             router.back();
         }, 1500);
     };
@@ -46,7 +48,7 @@ export default function OperatorEditProfileScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Operator Profile</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('edit_profile_screen.operator_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -68,14 +70,14 @@ export default function OperatorEditProfileScreen() {
 
                     <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <InputField
-                            label="Operator Name"
+                            label={t('edit_profile_screen.operator_name')}
                             icon="account-hard-hat"
                             value={formData.name}
                             onChange={(text: string) => setFormData({ ...formData, name: text })}
                             colors={colors}
                         />
                         <InputField
-                            label="Mobile Number"
+                            label={t('edit_profile_screen.mobile_number')}
                             icon="phone"
                             value={formData.mobile}
                             onChange={(text: string) => setFormData({ ...formData, mobile: text })}
@@ -84,7 +86,7 @@ export default function OperatorEditProfileScreen() {
                             disabled // Often mobile isn't editable for operators directly
                         />
                         <InputField
-                            label="Experience"
+                            label={t('edit_profile_screen.experience')}
                             icon="briefcase-outline"
                             value={formData.experience}
                             onChange={(text: string) => setFormData({ ...formData, experience: text })}
@@ -93,7 +95,7 @@ export default function OperatorEditProfileScreen() {
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="District"
+                                    label={t('edit_profile_screen.district')}
                                     icon="map-marker"
                                     value={formData.district}
                                     onChange={(text: string) => setFormData({ ...formData, district: text })}
@@ -102,7 +104,7 @@ export default function OperatorEditProfileScreen() {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="Taluka"
+                                    label={t('edit_profile_screen.taluka')}
                                     icon="map"
                                     value={formData.taluka}
                                     onChange={(text: string) => setFormData({ ...formData, taluka: text })}
@@ -122,7 +124,7 @@ export default function OperatorEditProfileScreen() {
                             {loading ? <ActivityIndicator color="#000" /> : (
                                 <>
                                     <MaterialCommunityIcons name="check-circle-outline" size={20} color="#000" />
-                                    <Text style={styles.saveText}>Update Profile</Text>
+                                    <Text style={styles.saveText}>{t('edit_profile_screen.update_btn')}</Text>
                                 </>
                             )}
                         </LinearGradient>

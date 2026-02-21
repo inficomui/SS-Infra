@@ -18,6 +18,7 @@ import {
     Searchbar,
     Snackbar
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -28,6 +29,7 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
 
 export default function StartWorkForm() {
+    const { t } = useTranslation();
     const router = useRouter();
     const { colors, isDark } = useAppTheme();
     const [startWork, { isLoading: isSubmitting }] = useStartWorkMutation();
@@ -76,7 +78,7 @@ export default function StartWorkForm() {
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert('Permission Denied', 'Location access is required for site tracking.');
+                Alert.alert(t('common.permission_denied'), t('operator.location_permission_msg'));
                 setIsLocating(false);
                 return;
             }
@@ -106,15 +108,15 @@ export default function StartWorkForm() {
                     .join(", ");
 
                 setNewLocation(formattedAddress);
-                Alert.alert("Location Found", `Site detected at: ${formattedAddress}`);
+                Alert.alert(t('operator.location_found'), t('operator.site_detected_at', { address: formattedAddress }));
             } else {
                 setNewLocation(`Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`);
-                Alert.alert("Location Found", "GPS coordinates captured successfully.");
+                Alert.alert(t('operator.location_found'), t('operator.gps_captured'));
             }
 
         } catch (error) {
             console.error("Location Fetch Error:", error);
-            Alert.alert("Error", "Failed to fetch live location.");
+            Alert.alert(t('common.error'), t('operator.loc_fetch_error'));
         } finally {
             setIsLocating(false);
         }
@@ -124,7 +126,7 @@ export default function StartWorkForm() {
         try {
             const { status } = await ImagePicker.requestCameraPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert('Permission Required', 'Camera access is needed to take site photos.');
+                Alert.alert(t('common.permission_denied'), t('owner.camera_permission'));
                 return;
             }
 
@@ -139,7 +141,7 @@ export default function StartWorkForm() {
                 setPhotoUri(result.assets[0].uri);
             }
         } catch (error) {
-            Alert.alert("Camera Error", "Could not open camera.");
+            Alert.alert(t('common.error'), t('operator.camera_error'));
         }
     };
 
@@ -150,7 +152,7 @@ export default function StartWorkForm() {
         try {
             if (isNewClient) {
                 if (!newClientName || !clientNumber || !district || !tq) {
-                    Alert.alert("Missing Details", "Please fill all new client details.");
+                    Alert.alert(t('common.error'), t('operator.missing_details_msg'));
                     return;
                 }
                 const newClientRes = await createClient({
@@ -159,28 +161,27 @@ export default function StartWorkForm() {
                     district: district,
                     taluka: tq
                 }).unwrap();
-                console.log("New Client Registered Successfully:", JSON.stringify(newClientRes, null, 2));
                 clientIdToSend = newClientRes.client.id.toString();
                 clientNameToSend = newClientRes.client.name;
             } else {
                 if (!selectedClient) {
-                    Alert.alert("Select Client", "Please select a client from the list.");
+                    Alert.alert(t('common.error'), t('operator.select_client_msg'));
                     return;
                 }
             }
 
             if (!selectedMachine) {
-                Alert.alert("Machine Required", "Please go back to the dashboard and select a machine.");
+                Alert.alert(t('common.error'), t('operator.machine_required_msg'));
                 return;
             }
 
             if (!newLocation) {
-                Alert.alert("Location Missing", "Please detect site location using GPS.");
+                Alert.alert(t('common.error'), t('operator.location_missing_msg'));
                 return;
             }
 
             if (!photoUri) {
-                Alert.alert("Photo Required", "Please capture a site photo.");
+                Alert.alert(t('common.error'), t('operator.photo_required_msg'));
                 return;
             }
 
@@ -189,7 +190,6 @@ export default function StartWorkForm() {
             formData.append('siteAddress', newLocation);
 
             if (selectedMachine?.id) {
-                // Backend expects machineId (camelCase) based on validation errors
                 formData.append('machineId', selectedMachine.id.toString());
             }
 
@@ -204,14 +204,6 @@ export default function StartWorkForm() {
             const startedAt = new Date().toISOString();
             formData.append('startedAt', startedAt);
 
-            console.log("--- FORM DATA PREVIEW ---");
-            console.log("Client ID:", clientIdToSend);
-            console.log("Client Name:", clientNameToSend);
-            console.log("Site Address:", newLocation);
-            console.log("Coords:", JSON.stringify(coords));
-            console.log("Photo URI:", photoUri);
-
-            // Handle Photo upload properly for React Native FormData
             const filename = photoUri.split('/').pop() || 'start_work_photo.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
@@ -222,19 +214,10 @@ export default function StartWorkForm() {
                 type: type
             } as any);
 
-            console.log("Image Data Prepared:", { uri: photoUri, name: filename, type: type });
-
-            console.log("Submitting Work Data to Server...");
-
-
-            // Explicitly unwrap to catch error status codes
             const response = await startWork(formData).unwrap();
-
-            console.log("Start Work API Success:", JSON.stringify(response, null, 2));
-
             const session = response.workSession;
             if (!session) {
-                throw new Error("Backend failed to return session details.");
+                throw new Error(t('operator.session_error'));
             }
 
             router.replace({
@@ -249,17 +232,9 @@ export default function StartWorkForm() {
             });
 
         } catch (error: any) {
-            console.error("--- START WORK ERROR LOG ---");
-            // Enhanced error logging to see the actual response body
-            if (error?.data) {
-                console.error("Error Data:", JSON.stringify(error.data, null, 2));
-            } else {
-                console.error("Error Object:", JSON.stringify(error, null, 2));
-            }
-
-            const msg = error?.data?.message || error?.message || "Failed to start work session.";
+            const msg = error?.data?.message || error?.message || t('common.error');
             setErrorMsg(msg);
-            Alert.alert("Process Failed", msg);
+            Alert.alert(t('common.error'), msg);
         }
     };
 
@@ -275,7 +250,7 @@ export default function StartWorkForm() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Session Setup</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('operator.session_setup')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -289,14 +264,14 @@ export default function StartWorkForm() {
                         <View style={{ marginBottom: 24, padding: 12, borderRadius: 4, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primary + '10', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                             <MaterialCommunityIcons name="excavator" size={28} color={colors.primary} />
                             <View>
-                                <Text style={{ color: colors.primary, fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5 }}>Active Equipment</Text>
+                                <Text style={{ color: colors.primary, fontSize: 10, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('operator.active_equipment')}</Text>
                                 <Text style={{ color: colors.textMain, fontSize: 16, fontWeight: '900' }}>{selectedMachine.name}</Text>
-                                <Text style={{ color: colors.textMuted, fontSize: 12, fontWeight: '700' }}>{selectedMachine.registration_number || selectedMachine.registrationNumber || 'No REG'}</Text>
+                                <Text style={{ color: colors.textMuted, fontSize: 12, fontWeight: '700' }}>{selectedMachine.registration_number || selectedMachine.registrationNumber || t('operator.no_reg')}</Text>
                             </View>
                         </View>
                     )}
 
-                    <Text style={[styles.sectionTitle, { color: colors.primary }]}>Step 1: Assign Client</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.primary }]}>{t('operator.step_1_assign_client')}</Text>
 
                     <TouchableOpacity
                         style={[styles.selectorBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
@@ -307,10 +282,10 @@ export default function StartWorkForm() {
                         </View>
                         <View style={{ flex: 1, marginLeft: 12 }}>
                             <Text style={[styles.selectorLabel, { color: colors.textMuted }]}>
-                                {isNewClient ? "Creating New Client Profile" : "Selected Client"}
+                                {isNewClient ? t('operator.creating_new_client') : t('operator.selected_client')}
                             </Text>
                             <Text style={[styles.selectorValue, { color: colors.textMain }]}>
-                                {isNewClient ? "Register New Client" : (selectedClient ? selectedClient.name : "Tap to Select Client")}
+                                {isNewClient ? t('operator.register_new_client') : (selectedClient ? selectedClient.name : t('operator.tap_to_select_client'))}
                             </Text>
                         </View>
                         <MaterialCommunityIcons name="chevron-down" size={24} color={colors.textMuted} />
@@ -323,14 +298,14 @@ export default function StartWorkForm() {
                             contentContainerStyle={[styles.modalContainer, { backgroundColor: colors.background }]}
                         >
                             <View style={styles.modalHeader}>
-                                <Text style={[styles.modalTitle, { color: colors.textMain }]}>Select Client</Text>
+                                <Text style={[styles.modalTitle, { color: colors.textMain }]}>{t('operator.select_client_modal_title')}</Text>
                                 <TouchableOpacity onPress={() => setShowClientModal(false)}>
                                     <MaterialCommunityIcons name="close" size={24} color={colors.textMuted} />
                                 </TouchableOpacity>
                             </View>
 
                             <Searchbar
-                                placeholder="Search client or mobile..."
+                                placeholder={t('operator.search_client_placeholder')}
                                 onChangeText={setSearchQuery}
                                 value={searchQuery}
                                 style={styles.searchBar}
@@ -351,7 +326,7 @@ export default function StartWorkForm() {
                                     <View style={[styles.clientIcon, { backgroundColor: colors.primary + '15' }]}>
                                         <MaterialCommunityIcons name="account-plus" size={22} color={colors.primary} />
                                     </View>
-                                    <Text style={[styles.clientName, { color: colors.primary }]}>Register New Client</Text>
+                                    <Text style={[styles.clientName, { color: colors.primary }]}>{t('operator.register_new_client')}</Text>
                                 </TouchableOpacity>
 
                                 {isLoadingClients ? (
@@ -387,35 +362,35 @@ export default function StartWorkForm() {
                     {isNewClient && (
                         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 16, gap: 12 }]}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Text style={[styles.subHeader, { color: colors.textMuted }]}>New Client Information</Text>
+                                <Text style={[styles.subHeader, { color: colors.textMuted }]}>{t('operator.new_client_info')}</Text>
                                 <TouchableOpacity onPress={() => setIsNewClient(false)}>
-                                    <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '800' }}>BACK TO LIST</Text>
+                                    <Text style={{ color: colors.primary, fontSize: 11, fontWeight: '800' }}>{t('operator.back_to_list')}</Text>
                                 </TouchableOpacity>
                             </View>
-                            <StyledInput label="Client/Company Name" icon="account" value={newClientName} onChangeText={setNewClientName} colors={colors} />
-                            <StyledInput label="Phone Number" icon="phone" value={clientNumber} onChangeText={setClientNumber} keyboardType="phone-pad" colors={colors} />
+                            <StyledInput label={t('operator.client_name_label')} icon="account" value={newClientName} onChangeText={setNewClientName} colors={colors} />
+                            <StyledInput label={t('operator.phone_number_label')} icon="phone" value={clientNumber} onChangeText={setClientNumber} keyboardType="phone-pad" colors={colors} />
                             <View style={{ flexDirection: 'row', gap: 10 }}>
-                                <View style={{ flex: 1 }}><StyledInput label="District" icon="map-marker" value={district} onChangeText={setDistrict} colors={colors} /></View>
-                                <View style={{ flex: 1 }}><StyledInput label="Taluka" icon="map" value={tq} onChangeText={setTq} colors={colors} /></View>
+                                <View style={{ flex: 1 }}><StyledInput label={t('owner.district')} icon="map-marker" value={district} onChangeText={setDistrict} colors={colors} /></View>
+                                <View style={{ flex: 1 }}><StyledInput label={t('owner.taluka')} icon="map" value={tq} onChangeText={setTq} colors={colors} /></View>
                             </View>
                         </View>
                     )}
 
-                    <Text style={[styles.sectionTitle, { color: colors.primary, marginTop: 30 }]}>Step 2: Site Location (GPS Tracking)</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.primary, marginTop: 30 }]}>{t('operator.step_2_site_location')}</Text>
                     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border, paddingVertical: 15 }]}>
                         <Text style={[styles.cardSub, { color: colors.textMuted, marginBottom: 12, fontSize: 12 }]}>
-                            Tap the target icon to capture your current work site address.
+                            {t('operator.site_location_desc')}
                         </Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                             <View style={{ flex: 1 }}>
                                 <StyledInput
-                                    label="Current Site Location"
+                                    label={t('operator.current_site_location')}
                                     icon="map-marker-radius"
                                     value={newLocation}
                                     onChangeText={setNewLocation}
                                     disabled={isLocating}
                                     colors={colors}
-                                    placeholder="Click target to detect site..."
+                                    placeholder={t('operator.click_target_detect')}
                                 />
                             </View>
                             <TouchableOpacity
@@ -428,7 +403,7 @@ export default function StartWorkForm() {
                         </View>
                     </View>
 
-                    <Text style={[styles.sectionTitle, { color: colors.primary, marginTop: 30 }]}>Step 3: Initial Documentation</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.primary, marginTop: 30 }]}>{t('operator.step_3_documentation')}</Text>
                     <TouchableOpacity onPress={handleCapturePhoto} activeOpacity={0.8}>
                         <View style={[
                             styles.photoBox,
@@ -441,7 +416,7 @@ export default function StartWorkForm() {
                                     <View style={[styles.iconCircle, { backgroundColor: colors.background }]}>
                                         <MaterialCommunityIcons name="camera" size={36} color={colors.primary} />
                                     </View>
-                                    <Text style={[styles.photoText, { color: colors.textMuted }]}>Capture Before-Work Photo</Text>
+                                    <Text style={[styles.photoText, { color: colors.textMuted }]}>{t('operator.capture_before_photo')}</Text>
                                 </View>
                             )}
                             {photoUri && (
@@ -462,7 +437,7 @@ export default function StartWorkForm() {
                         {isSubmitting || isCreatingClient ? <ActivityIndicator color="#000" /> : (
                             <>
                                 <MaterialCommunityIcons name="play-circle-outline" size={26} color="#000" />
-                                <Text style={styles.submitText}>INITIATE WORK</Text>
+                                <Text style={styles.submitText}>{t('operator.initiate_work')}</Text>
                             </>
                         )}
                     </LinearGradient>
@@ -473,7 +448,7 @@ export default function StartWorkForm() {
                 visible={!!errorMsg}
                 onDismiss={() => setErrorMsg(null)}
                 action={{
-                    label: 'OK',
+                    label: t('common.ok') || 'OK',
                     onPress: () => setErrorMsg(null),
                 }}
                 style={{ backgroundColor: colors.danger }}

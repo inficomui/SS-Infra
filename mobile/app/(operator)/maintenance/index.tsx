@@ -4,6 +4,7 @@ import { Text, ActivityIndicator, Searchbar, IconButton, Menu } from 'react-nati
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 import { useGetMaintenanceRecordsQuery } from '@/redux/apis/maintenanceApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
@@ -13,6 +14,7 @@ import { Image } from 'react-native';
 export default function OperatorMaintenanceRecordsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // Filters & Pagination
     const [page, setPage] = useState(1);
@@ -73,7 +75,7 @@ export default function OperatorMaintenanceRecordsScreen() {
                         )}
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || 'Machine #' + record.machine_id}</Text>
+                        <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || t('maintenance_records.unknown_machine')}</Text>
                         <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.service_date)}</Text>
                     </View>
                 </View>
@@ -82,16 +84,16 @@ export default function OperatorMaintenanceRecordsScreen() {
 
             <View style={[styles.statsRow, { borderColor: colors.border }]}>
                 <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>Service</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.service_type')}</Text>
                     <Text style={[styles.statValue, { color: colors.textMain }]}>{record.service_type}</Text>
                 </View>
                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
                 <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>Photos</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
                         {record.service_image_url && <MaterialCommunityIcons name="camera" size={16} color={colors.success} />}
                         {record.invoice_image_url && <MaterialCommunityIcons name="file-document" size={16} color={colors.success} />}
-                        {!record.service_image_url && !record.invoice_image_url && <Text style={{ fontSize: 10, color: colors.textMuted }}>None</Text>}
+                        {!record.service_image_url && !record.invoice_image_url && <Text style={{ fontSize: 10, color: colors.textMuted }}>{t('maintenance_records.no_photo')}</Text>}
                     </View>
                 </View>
             </View>
@@ -104,7 +106,7 @@ export default function OperatorMaintenanceRecordsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Machine Health</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('maintenance_records.title')}</Text>
                 <TouchableOpacity
                     onPress={() => router.push('/(operator)/maintenance/add' as any)}
                     style={[styles.addButton, { backgroundColor: colors.primary }]}
@@ -115,7 +117,7 @@ export default function OperatorMaintenanceRecordsScreen() {
 
             <View style={styles.searchContainer}>
                 <Searchbar
-                    placeholder="Search Machine..."
+                    placeholder={t('maintenance_records.search_placeholder')}
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     style={[styles.searchBar, { backgroundColor: colors.card }]}
@@ -151,7 +153,7 @@ export default function OperatorMaintenanceRecordsScreen() {
                     !isLoading ? (
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="hammer-wrench" size={64} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 16 }}>No history found.</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 16 }}>{t('maintenance_records.no_records')}</Text>
                         </View>
                     ) : null
                 }
@@ -162,7 +164,7 @@ export default function OperatorMaintenanceRecordsScreen() {
                     totalPages > 1 ? (
                         <View style={styles.pagination}>
                             <IconButton icon="chevron-left" disabled={page === 1} onPress={() => setPage(page - 1)} />
-                            <Text style={{ color: colors.textMain }}>{page} / {totalPages}</Text>
+                            <Text style={{ color: colors.textMain }}>{t('fuel_management.page')} {page} {t('fuel_management.of')} {totalPages}</Text>
                             <IconButton icon="chevron-right" disabled={page === totalPages} onPress={() => setPage(page + 1)} />
                         </View>
                     ) : null

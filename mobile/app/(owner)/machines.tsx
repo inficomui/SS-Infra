@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Dimensions, Image } from 'react-native';
 import { Text, ActivityIndicator, Searchbar } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGetMachinesQuery, useDeleteMachineMutation, useGetOperatorsQuery } from '@/redux/apis/ownerApi';
@@ -14,6 +15,7 @@ const { width } = Dimensions.get('window');
 
 export default function MachinesListScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { colors, isDark } = useAppTheme();
     const { data: machinesData, isLoading, refetch } = useGetMachinesQuery();
     const { data: operatorsData } = useGetOperatorsQuery();
@@ -38,9 +40,9 @@ export default function MachinesListScreen() {
         setRefreshing(true);
         try {
             await refetch();
-            Toast.show({ type: 'success', text1: 'Updated', text2: 'Fleet list refreshed successfully.' });
+            Toast.show({ type: 'success', text1: t('owner.fleet.refreshed_success'), text2: t('owner.fleet.refreshed_msg') });
         } catch (e) {
-            Toast.show({ type: 'error', text1: 'Network Error', text2: 'Could not refresh data.' });
+            Toast.show({ type: 'error', text1: t('owner.fleet.network_error'), text2: t('owner.fleet.network_error_msg') });
         }
         setRefreshing(false);
     };
@@ -58,15 +60,15 @@ export default function MachinesListScreen() {
             await deleteMachine(machineToDelete.id).unwrap();
             Toast.show({
                 type: 'success',
-                text1: 'Equipment Deleted',
-                text2: `${machineToDelete.name} has been removed from fleet.`
+                text1: t('owner.fleet.delete_success'),
+                text2: t('owner.fleet.delete_success_msg', { name: machineToDelete.name })
             });
             setMachineToDelete(null);
         } catch (error) {
             Toast.show({
                 type: 'error',
-                text1: 'Action Failed',
-                text2: 'Could not delete machine. Please try again.'
+                text1: t('owner.fleet.delete_error'),
+                text2: t('owner.fleet.delete_error_msg')
             });
         }
     };
@@ -94,7 +96,7 @@ export default function MachinesListScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Fleet Network</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.fleet.title')}</Text>
                 <TouchableOpacity onPress={() => router.push('/(owner)/add-machine' as any)} style={[styles.iconButton, { backgroundColor: colors.primary }]}>
                     <MaterialCommunityIcons name="plus" size={24} color="#000" />
                 </TouchableOpacity>
@@ -102,7 +104,7 @@ export default function MachinesListScreen() {
 
             <View style={styles.searchWrapper}>
                 <Searchbar
-                    placeholder="Search serial or name..."
+                    placeholder={t('owner.fleet.search_placeholder')}
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}
@@ -114,10 +116,10 @@ export default function MachinesListScreen() {
 
             <View style={styles.filtersWrapper}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContent}>
-                    <FilterChip label="All Fleet" active={statusFilter === 'all'} onPress={() => setStatusFilter('all')} colors={colors} />
-                    <FilterChip label="Online" active={statusFilter === 'available'} onPress={() => setStatusFilter('available')} colors={colors} />
-                    <FilterChip label="In Use" active={statusFilter === 'in_use'} onPress={() => setStatusFilter('in_use')} colors={colors} />
-                    <FilterChip label="Under Service" active={statusFilter === 'maintenance'} onPress={() => setStatusFilter('maintenance')} colors={colors} />
+                    <FilterChip label={t('owner.fleet.all_fleet')} active={statusFilter === 'all'} onPress={() => setStatusFilter('all')} colors={colors} />
+                    <FilterChip label={t('owner.fleet.online')} active={statusFilter === 'available'} onPress={() => setStatusFilter('available')} colors={colors} />
+                    <FilterChip label={t('owner.fleet.active')} active={statusFilter === 'in_use'} onPress={() => setStatusFilter('in_use')} colors={colors} />
+                    <FilterChip label={t('owner.fleet.under_service')} active={statusFilter === 'maintenance'} onPress={() => setStatusFilter('maintenance')} colors={colors} />
                 </ScrollView>
             </View>
 
@@ -131,7 +133,7 @@ export default function MachinesListScreen() {
                 ) : filteredMachines.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <MaterialCommunityIcons name="truck-outline" size={80} color={colors.border} />
-                        <Text style={[styles.emptyText, { color: colors.textMuted }]}>No machines found</Text>
+                        <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('owner.fleet.no_machines')}</Text>
                     </View>
                 ) : (
                     filteredMachines.map((machine: any) => (
@@ -150,12 +152,12 @@ export default function MachinesListScreen() {
 
             <ConfirmationModal
                 visible={modalVisible}
-                title="Delete Equipment?"
-                message={`Are you sure you want to remove ${machineToDelete?.name} (${machineToDelete?.registrationNumber})? This action cannot be undone.`}
+                title={t('owner.fleet.delete_title')}
+                message={t('owner.fleet.delete_confirm', { name: machineToDelete?.name, reg: machineToDelete?.registrationNumber })}
                 onConfirm={handleActualDelete}
                 onCancel={() => setModalVisible(false)}
-                confirmText="Delete"
-                cancelText="Keep"
+                confirmText={t('owner.fleet.delete')}
+                cancelText={t('owner.fleet.keep')}
                 type="danger"
             />
         </View>
@@ -179,10 +181,11 @@ function FilterChip({ label, active, onPress, colors }: any) {
 
 function MachineListItem({ machine, colors, currentOperator, onEdit, onDelete }: any) {
     const router = useRouter();
+    const { t } = useTranslation();
     const statusConfig: any = {
-        available: { color: colors.success, label: 'Online', icon: 'check-circle' },
-        in_use: { color: colors.warning, label: 'On Site', icon: 'play-circle' },
-        maintenance: { color: colors.danger, label: 'At Service', icon: 'alert-circle' },
+        available: { color: colors.success, label: t('owner.fleet.online'), icon: 'check-circle' },
+        in_use: { color: colors.warning, label: t('owner.fleet.on_site'), icon: 'play-circle' },
+        maintenance: { color: colors.at_service, label: t('owner.fleet.at_service'), icon: 'alert-circle' },
     };
     const status = statusConfig[machine.status || 'available'];
 
@@ -219,11 +222,11 @@ function MachineListItem({ machine, colors, currentOperator, onEdit, onDelete }:
                     </View>
                 </View>
                 <View style={styles.snWrapper}>
-                    <Text style={[styles.snLabel, { color: colors.textMuted }]}>REG:</Text>
+                    <Text style={[styles.snLabel, { color: colors.textMuted }]}>{t('owner.fleet.reg_label')}</Text>
                     <Text style={[styles.machineReg, { color: colors.textMain }]}>{machine.registration_number || 'N/A'}</Text>
                 </View>
 
-                {status.label === 'On Site' && currentOperator && (
+                {machine.status === 'in_use' && currentOperator && (
                     <View style={styles.operatorRow}>
                         <MaterialCommunityIcons name="account-hard-hat" size={14} color={colors.primary} />
                         <Text style={[styles.operatorName, { color: colors.textMain }]}>{currentOperator.name}</Text>

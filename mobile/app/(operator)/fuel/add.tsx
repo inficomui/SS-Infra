@@ -8,10 +8,12 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAddFuelLogMutation } from '@/redux/apis/fuelApi';
 import { useGetMachinesQuery } from '@/redux/apis/ownerApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTranslation } from 'react-i18next';
 
 export default function AddFuelLogScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // Form State
     const [machineId, setMachineId] = useState('');
@@ -42,7 +44,7 @@ export default function AddFuelLogScreen() {
 
     const handleSubmit = async () => {
         if (!machineId || !fuelLiters || !amount) {
-            Alert.alert("Error", "Please fill all required fields.");
+            Alert.alert(t('common.error'), t('fuel_management.error_fill_fields'));
             return;
         }
 
@@ -80,10 +82,10 @@ export default function AddFuelLogScreen() {
 
         try {
             await addFuelLog(formData).unwrap();
-            Alert.alert("Success", "Fuel log added successfully!");
+            Alert.alert(t('common.success'), t('fuel_management.success_msg'));
             router.back();
         } catch (error: any) {
-            Alert.alert("Error", error?.data?.message || "Failed to add fuel log.");
+            Alert.alert(t('common.error'), error?.data?.message || t('fuel_management.error_add_failed'));
         }
     };
 
@@ -96,14 +98,14 @@ export default function AddFuelLogScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Add Fuel Log</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('fuel_management.add_log_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
                 {/* Machine Selector (Simple Scroll) */}
-                <Text style={[styles.label, { color: colors.textMuted }]}>Select Machine</Text>
+                <Text style={[styles.label, { color: colors.textMuted }]}>{t('common.select_machine')}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.machineScroll}>
                     {machinesData?.machines?.map((m) => (
                         <TouchableOpacity
@@ -133,9 +135,9 @@ export default function AddFuelLogScreen() {
                 </ScrollView>
 
                 <View style={[styles.inputGroup, { marginTop: 24 }]}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>Fuel Details</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('fuel_management.transaction_details')}</Text>
                     <TextInput
-                        label="Liters"
+                        label={t('fuel_management.liters_label')}
                         value={fuelLiters}
                         onChangeText={setFuelLiters}
                         keyboardType="numeric"
@@ -145,7 +147,7 @@ export default function AddFuelLogScreen() {
                         activeOutlineColor={colors.primary}
                     />
                     <TextInput
-                        label="Amount (₹)"
+                        label={t('fuel_management.amount_label')}
                         value={amount}
                         onChangeText={setAmount}
                         keyboardType="numeric"
@@ -157,7 +159,7 @@ export default function AddFuelLogScreen() {
                 </View>
 
                 <View style={styles.inputGroup}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>Date</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('fuel_management.date')}</Text>
                     <TouchableOpacity onPress={() => setShowDatePicker(true)} style={[styles.dateInput, { borderColor: colors.border }]}>
                         <Text style={{ color: colors.textMain }}>{logDate.toLocaleDateString()}</Text>
                         <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
@@ -166,7 +168,7 @@ export default function AddFuelLogScreen() {
 
                 {/* Image Uploads */}
                 <View style={styles.inputGroup}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>Meter Readings (Optional)</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('fuel_management.meter_readings_opt')}</Text>
 
                     <View style={styles.imageRow}>
                         <TouchableOpacity style={[styles.imageUpload, { borderColor: colors.border }]} onPress={() => pickImage('before')}>
@@ -175,7 +177,7 @@ export default function AddFuelLogScreen() {
                             ) : (
                                 <View style={{ alignItems: 'center' }}>
                                     <MaterialCommunityIcons name="camera-plus" size={24} color={colors.textMuted} />
-                                    <Text style={{ fontSize: 10, marginTop: 4, color: colors.textMuted }}>Before</Text>
+                                    <Text style={{ fontSize: 10, marginTop: 4, color: colors.textMuted }}>{t('fuel_management.before_filling')}</Text>
                                 </View>
                             )}
                         </TouchableOpacity>
@@ -186,7 +188,7 @@ export default function AddFuelLogScreen() {
                             ) : (
                                 <View style={{ alignItems: 'center' }}>
                                     <MaterialCommunityIcons name="camera-plus" size={24} color={colors.textMuted} />
-                                    <Text style={{ fontSize: 10, marginTop: 4, color: colors.textMuted }}>After</Text>
+                                    <Text style={{ fontSize: 10, marginTop: 4, color: colors.textMuted }}>{t('fuel_management.after_filling')}</Text>
                                 </View>
                             )}
                         </TouchableOpacity>
@@ -201,7 +203,7 @@ export default function AddFuelLogScreen() {
                     style={{ marginTop: 32, borderRadius: 8, paddingVertical: 6 }}
                     buttonColor={colors.primary}
                 >
-                    Submit Log
+                    {t('fuel_management.submit_btn')}
                 </Button>
 
             </ScrollView>

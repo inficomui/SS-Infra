@@ -17,6 +17,7 @@ import { selectCurrentUser, updateUser } from '@/redux/slices/authSlice';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Toast from 'react-native-toast-message';
 import { useUpdateProfileMutation } from '@/redux/apis/authApi';
+import { useTranslation } from 'react-i18next';
 
 export default function EditProfileScreen() {
     const router = useRouter();
@@ -24,6 +25,7 @@ export default function EditProfileScreen() {
     const dispatch = useDispatch();
     const user = useSelector(selectCurrentUser);
     const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+    const { t } = useTranslation();
 
     const [formData, setFormData] = useState({
         name: user?.name || '',
@@ -44,8 +46,8 @@ export default function EditProfileScreen() {
 
             Toast.show({
                 type: 'success',
-                text1: 'Profile Updated',
-                text2: result.message || 'Your changes have been saved.'
+                text1: t('owner.edit_profile_screen.profile_updated'),
+                text2: result.message || t('owner.edit_profile_screen.profile_updated_msg')
             });
 
             setTimeout(() => router.back(), 1000);
@@ -53,8 +55,8 @@ export default function EditProfileScreen() {
             console.error('Update Profile Error:', error);
             Toast.show({
                 type: 'error',
-                text1: 'Update Failed',
-                text2: error?.data?.message || 'Could not update profile details.'
+                text1: t('owner.edit_profile_screen.update_failed'),
+                text2: error?.data?.message || t('owner.edit_profile_screen.update_failed_msg')
             });
         }
     };
@@ -65,7 +67,7 @@ export default function EditProfileScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Update Profile</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.edit_profile_screen.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -87,14 +89,14 @@ export default function EditProfileScreen() {
 
                     <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <InputField
-                            label="Full Name"
+                            label={t('owner.edit_profile_screen.full_name')}
                             icon="account-outline"
                             value={formData.name}
                             onChange={(text: string) => setFormData({ ...formData, name: text })}
                             colors={colors}
                         />
                         <InputField
-                            label="Email Address"
+                            label={t('owner.edit_profile_screen.email_address')}
                             icon="email-outline"
                             value={formData.email}
                             onChange={(text: string) => setFormData({ ...formData, email: text })}
@@ -102,7 +104,7 @@ export default function EditProfileScreen() {
                             colors={colors}
                         />
                         <InputField
-                            label="Mobile Number"
+                            label={t('owner.edit_profile_screen.mobile_number')}
                             icon="phone-outline"
                             value={formData.mobile}
                             onChange={(text: string) => setFormData({ ...formData, mobile: text })}
@@ -112,7 +114,7 @@ export default function EditProfileScreen() {
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="District"
+                                    label={t('owner.edit_profile_screen.district')}
                                     icon="map-marker-outline"
                                     value={formData.district}
                                     onChange={(text: string) => setFormData({ ...formData, district: text })}
@@ -121,7 +123,7 @@ export default function EditProfileScreen() {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="Taluka"
+                                    label={t('owner.edit_profile_screen.taluka')}
                                     icon="map-outline"
                                     value={formData.taluka}
                                     onChange={(text: string) => setFormData({ ...formData, taluka: text })}
@@ -133,7 +135,7 @@ export default function EditProfileScreen() {
 
                     <TouchableOpacity onPress={handleUpdate} disabled={isLoading} style={styles.saveButton}>
                         <LinearGradient
-                            colors={[colors.primary, colors.secondary]}
+                            colors={[colors.primary, colors.primary]}
                             style={styles.gradient}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
@@ -141,7 +143,7 @@ export default function EditProfileScreen() {
                             {isLoading ? <ActivityIndicator color="#000" /> : (
                                 <>
                                     <MaterialCommunityIcons name="content-save-check-outline" size={20} color="#000" />
-                                    <Text style={styles.saveText}>Save Changes</Text>
+                                    <Text style={styles.saveText}>{t('owner.edit_profile_screen.save_changes')}</Text>
                                 </>
                             )}
                         </LinearGradient>

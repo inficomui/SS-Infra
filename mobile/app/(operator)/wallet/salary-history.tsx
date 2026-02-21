@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, FlatList, Platform } from 'react-native';
 import { Text, ActivityIndicator, IconButton, Divider, Chip } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetMyPaymentsQuery } from '@/redux/apis/walletApi';
@@ -19,6 +20,7 @@ const formatLocalDate = (date: Date): string => {
 export default function SalaryHistoryScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // State
     const [page, setPage] = useState(1);
@@ -152,7 +154,7 @@ export default function SalaryHistoryScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Earnings</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('payments.total_earnings')}</Text>
                 <View style={styles.rangeContainer}>
                     <TouchableOpacity
                         onPress={() => setShowStartPicker(true)}
@@ -181,7 +183,7 @@ export default function SalaryHistoryScreen() {
                 <View style={[styles.todaySummary, { backgroundColor: colors.success + '10', borderColor: colors.success + '30' }]}>
                     <MaterialCommunityIcons name="cash-multiple" size={20} color={colors.success} />
                     <Text style={[styles.todaySummaryText, { color: colors.success }]}>
-                        Total Today: ₹{sectionedPayments.todayTotal}
+                        {t('payments.today_total', { amount: sectionedPayments.todayTotal })}
                     </Text>
                 </View>
             )}
@@ -195,7 +197,7 @@ export default function SalaryHistoryScreen() {
                         style={[styles.filterChip, activeFilter === 'all' && { backgroundColor: colors.primary }]}
                         textStyle={[styles.filterChipText, activeFilter === 'all' && { color: '#000' }]}
                     >
-                        All Transactions
+                        {t('payments.all_transactions')}
                     </Chip>
                     <Chip
                         selected={activeFilter === 'salary'}
@@ -203,7 +205,7 @@ export default function SalaryHistoryScreen() {
                         style={[styles.filterChip, activeFilter === 'salary' && { backgroundColor: colors.primary }]}
                         textStyle={[styles.filterChipText, activeFilter === 'salary' && { color: '#000' }]}
                     >
-                        Monthly Salary
+                        {t('payments.monthly_salary')}
                     </Chip>
                     <Chip
                         selected={activeFilter === 'bonus'}
@@ -211,16 +213,16 @@ export default function SalaryHistoryScreen() {
                         style={[styles.filterChip, activeFilter === 'bonus' && { backgroundColor: colors.primary }]}
                         textStyle={[styles.filterChipText, activeFilter === 'bonus' && { color: '#000' }]}
                     >
-                        Bonus Credits
+                        {t('payments.bonus_credits')}
                     </Chip>
                 </ScrollView>
             </View>
 
             <FlatList
                 data={[
-                    ...(sectionedPayments.today.length > 0 ? [{ type: 'header', title: 'TODAY', isToday: true }] : []),
+                    ...(sectionedPayments.today.length > 0 ? [{ type: 'header', title: t('payments.today'), isToday: true }] : []),
                     ...sectionedPayments.today.map(p => ({ ...p, type: 'item' })),
-                    ...(sectionedPayments.earlier.length > 0 ? [{ type: 'header', title: 'PREVIOUS', isToday: false }] : []),
+                    ...(sectionedPayments.earlier.length > 0 ? [{ type: 'header', title: t('payments.previous'), isToday: false }] : []),
                     ...sectionedPayments.earlier.map(p => ({ ...p, type: 'item' }))
                 ]}
                 renderItem={({ item }: any) => {
@@ -244,9 +246,9 @@ export default function SalaryHistoryScreen() {
                             <View style={[styles.emptyIconCircle, { backgroundColor: colors.card }]}>
                                 <MaterialCommunityIcons name="cash-multiple" size={48} color={colors.border} />
                             </View>
-                            <Text style={[styles.emptyTitle, { color: colors.textMain }]}>No records found</Text>
+                            <Text style={[styles.emptyTitle, { color: colors.textMain }]}>{t('common.no_records_found') || t('payments.no_payments')}</Text>
                             <Text style={[styles.emptySub, { color: colors.textMuted }]}>
-                                No records found for the selected period.
+                                {t('payments.no_payments')}
                             </Text>
                         </View>
                     ) : null
@@ -255,7 +257,7 @@ export default function SalaryHistoryScreen() {
                     isLoading ? (
                         <View style={styles.loaderContainer}>
                             <ActivityIndicator color={colors.primary} size="small" />
-                            <Text style={[styles.loaderText, { color: colors.textMuted }]}>Loading history...</Text>
+                            <Text style={[styles.loaderText, { color: colors.textMuted }]}>{t('common.loading')}</Text>
                         </View>
                     ) : null
                 }
@@ -268,8 +270,8 @@ export default function SalaryHistoryScreen() {
                                 onPress={() => setPage(p => p - 1)}
                             />
                             <View style={[styles.pageIndicator, { backgroundColor: colors.card }]}>
-                                <Text style={{ color: colors.textMain, fontWeight: '800' }}>{page}</Text>
-                                <Text style={{ color: colors.textMuted }}> / {totalPages}</Text>
+                                <Text style={{ color: colors.textMain, fontWeight: '800' }}>{t('fuel_management.page')} {page}</Text>
+                                <Text style={{ color: colors.textMuted }}> {t('fuel_management.of')} {totalPages}</Text>
                             </View>
                             <IconButton
                                 icon="chevron-right"

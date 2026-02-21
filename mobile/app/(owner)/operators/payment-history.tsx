@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { Text, ActivityIndicator, Divider, Avatar } from 'react-native-paper';
+
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetPaymentHistoryQuery } from '@/redux/apis/ownerApi';
@@ -13,6 +15,7 @@ export default function OperatorPaymentHistoryScreen() {
     const operatorId = Number(params.operatorId);
     const operatorName = params.operatorName as string;
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     const [page, setPage] = useState(1);
     const { data, isLoading, isFetching, refetch } = useGetPaymentHistoryQuery({ operatorId, page });
@@ -56,7 +59,7 @@ export default function OperatorPaymentHistoryScreen() {
             <Divider style={{ backgroundColor: colors.border, marginVertical: 12 }} />
 
             <View style={styles.cardFooter}>
-                <Text style={{ fontSize: 11, color: colors.textMuted, fontWeight: '700' }}>PAID BY</Text>
+                <Text style={{ fontSize: 11, color: colors.textMuted, fontWeight: '700' }}>{t('owner.payments.paid_by')}</Text>
                 <Text style={{ fontSize: 12, color: colors.textMain, fontWeight: '800' }}>{item.owner?.name}</Text>
             </View>
         </View>
@@ -69,7 +72,7 @@ export default function OperatorPaymentHistoryScreen() {
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
                 <View style={{ flex: 1, paddingLeft: 16 }}>
-                    <Text style={[styles.headerTitle, { color: colors.textMain }]} numberOfLines={1}>Payment History</Text>
+                    <Text style={[styles.headerTitle, { color: colors.textMain }]} numberOfLines={1}>{t('owner.payments.history_title')}</Text>
                     <Text style={[styles.subTitle, { color: colors.textMuted }]}>{operatorName}</Text>
                 </View>
             </View>
@@ -86,8 +89,8 @@ export default function OperatorPaymentHistoryScreen() {
                     !isLoading ? (
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="cash-multiple" size={64} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16, fontWeight: '600' }}>No payments recorded</Text>
-                            <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>Salary and bonus payments will appear here.</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16, fontWeight: '600' }}>{t('owner.payments.no_payments')}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t('owner.payments.no_payments_sub')}</Text>
                         </View>
                     ) : (
                         <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />

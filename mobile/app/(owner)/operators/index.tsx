@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Linking } from 'react-native';
 import { Text, ActivityIndicator, Searchbar, Avatar } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGetOperatorsQuery } from '@/redux/apis/ownerApi';
@@ -9,6 +10,7 @@ import Toast from 'react-native-toast-message';
 
 export default function OperatorsListScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { colors } = useAppTheme();
     const { data: operatorsData, isLoading, refetch } = useGetOperatorsQuery();
     const [searchQuery, setSearchQuery] = useState('');
@@ -20,9 +22,9 @@ export default function OperatorsListScreen() {
         setRefreshing(true);
         try {
             await refetch();
-            Toast.show({ type: 'success', text1: 'Updated', text2: 'Operator list refreshed.' });
+            Toast.show({ type: 'success', text1: t('owner.refreshed_success'), text2: t('owner.refreshed_msg') || 'Operator list refreshed.' });
         } catch (error) {
-            Toast.show({ type: 'error', text1: 'Error', text2: 'Could not refresh data.' });
+            Toast.show({ type: 'error', text1: t('common.error'), text2: t('owner.network_error_msg') });
         }
         setRefreshing(false);
     };
@@ -43,7 +45,7 @@ export default function OperatorsListScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Operator Fleet</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.operator_fleet')}</Text>
                 <TouchableOpacity onPress={() => router.push('/(owner)/add-operator' as any)} style={[styles.iconButton, { backgroundColor: colors.primary }]}>
                     <MaterialCommunityIcons name="account-plus" size={24} color="#000" />
                 </TouchableOpacity>
@@ -51,7 +53,7 @@ export default function OperatorsListScreen() {
 
             <View style={styles.searchWrapper}>
                 <Searchbar
-                    placeholder="Search name or mobile..."
+                    placeholder={t('owner.search_operators')}
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}
@@ -68,7 +70,7 @@ export default function OperatorsListScreen() {
             >
                 <View style={styles.summaryBar}>
                     <Text style={[styles.summaryText, { color: colors.textMuted }]}>
-                        Total Registered: <Text style={{ color: colors.primary, fontWeight: '900' }}>{operators.length}</Text>
+                        {t('owner.total_registered')} <Text style={{ color: colors.primary, fontWeight: '900' }}>{operators.length}</Text>
                     </Text>
                 </View>
 
@@ -77,7 +79,7 @@ export default function OperatorsListScreen() {
                 ) : filteredOperators.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <MaterialCommunityIcons name="account-off-outline" size={80} color={colors.border} />
-                        <Text style={[styles.emptyText, { color: colors.textMuted }]}>No operators found</Text>
+                        <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('owner.no_operators_found')}</Text>
                     </View>
                 ) : (
                     filteredOperators.map((operator: any) => (

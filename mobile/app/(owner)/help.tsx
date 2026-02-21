@@ -5,10 +5,12 @@ import { Text, List } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 export default function HelpScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -16,50 +18,50 @@ export default function HelpScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Help Center</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.help.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
                 <List.AccordionGroup>
                     <List.Accordion
-                        title="How to manage operators?"
+                        title={t('owner.help.faq_1_title')}
                         id="1"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title="Add, remove, or update operator details easily from the Operators tab." titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
+                        <List.Item title={t('owner.help.faq_1_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
                     </List.Accordion>
 
                     <List.Accordion
-                        title="Billing & Invoicing"
+                        title={t('owner.help.faq_2_title')}
                         id="2"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title="Generate invoices for completed tasks and track payments." titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
+                        <List.Item title={t('owner.help.faq_2_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
                     </List.Accordion>
 
                     <List.Accordion
-                        title="Can I track machines in real-time?"
+                        title={t('owner.help.faq_3_title')}
                         id="3"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title="Yes, enable GPS tracking on machine details to see real-time location updates." titleStyle={{ color: colors.textMuted }} titleNumberOfLines={3} />
+                        <List.Item title={t('owner.help.faq_3_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={3} />
                     </List.Accordion>
 
                     <List.Accordion
-                        title="Contact Support"
+                        title={t('owner.help.faq_4_title')}
                         id="4"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title="Reach out to us at support@ssinfra.com or call our hotline." titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
+                        <List.Item title={t('owner.help.faq_4_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
                     </List.Accordion>
                 </List.AccordionGroup>
             </ScrollView>

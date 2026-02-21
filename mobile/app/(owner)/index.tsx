@@ -9,6 +9,8 @@ import {
     Image,
 } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -18,10 +20,12 @@ import { useGetNotificationsQuery, Notification as ApiNotification } from '@/red
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
 import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
+import { t } from 'i18next';
 
 const { width } = Dimensions.get('window');
 
 export default function OwnerDashboard() {
+    const { t } = useTranslation();
     const router = useRouter();
     const { colors, isDark } = useAppTheme();
     const user = useSelector((state: any) => state.auth.user);
@@ -44,9 +48,9 @@ export default function OwnerDashboard() {
 
     const getGreeting = () => {
         const hour = new Date().getHours();
-        if (hour < 12) return 'Good Morning';
-        if (hour < 17) return 'Good Afternoon';
-        return 'Good Evening';
+        if (hour < 12) return t('owner.good_morning');
+        if (hour < 17) return t('owner.good_afternoon');
+        return t('owner.good_evening');
     };
 
     const allNotifications = notificationsData?.notifications || notificationsData?.data || [];
@@ -71,6 +75,7 @@ export default function OwnerDashboard() {
                     </View>
                 </View>
                 <View style={styles.headerRight}>
+
                     <TouchableOpacity
                         onPress={() => router.push('/(owner)/notifications' as any)}
                         style={[styles.profileCircle, { backgroundColor: colors.card, borderColor: colors.border, marginRight: 12 }]}
@@ -109,7 +114,7 @@ export default function OwnerDashboard() {
                         <StatCard
                             onPress={() => router.push('/(owner)/operators' as any)}
                             icon="account-hard-hat"
-                            label="Operators"
+                            label={t('owner.operators')}
                             value={activeOperators.toString()}
                             color={colors.primary}
                             loading={loadingOperators}
@@ -118,7 +123,7 @@ export default function OwnerDashboard() {
                         <StatCard
                             onPress={() => router.push('/(owner)/machines' as any)}
                             icon="crane"
-                            label="Total Fleet"
+                            label={t('owner.total_fleet')}
                             value={machines.length.toString()}
                             color={colors.primary}
                             loading={loadingMachines}
@@ -126,74 +131,74 @@ export default function OwnerDashboard() {
                         />
                     </View>
                     <View style={[styles.miniStatsRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <MiniStat label="Available" value={availableMachines} icon="check-circle" color={colors.success} colors={colors} />
-                        <MiniStat label="In Use" value={machinesInUse} icon="play-circle" color={colors.warning} colors={colors} />
-                        <MiniStat label="Service" value={machinesInMaintenance} icon="alert-circle" color={colors.danger} colors={colors} />
+                        <MiniStat label={t('owner.available')} value={availableMachines} icon="check-circle" color={colors.success} colors={colors} />
+                        <MiniStat label={t('owner.in_use')} value={machinesInUse} icon="play-circle" color={colors.warning} colors={colors} />
+                        <MiniStat label={t('owner.service')} value={machinesInMaintenance} icon="alert-circle" color={colors.danger} colors={colors} />
                     </View>
                 </View>
 
                 {/* Management Quick Actions */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Management</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('owner.management')}</Text>
                     <View style={styles.actionsGrid}>
                         <ActionButton
                             icon="account-plus"
-                            label="New Operator"
+                            label={t('owner.new_operator')}
                             onPress={() => router.push('/(owner)/add-operator' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
                         />
                         <ActionButton
                             icon="truck-plus"
-                            label="New Machine"
+                            label={t('owner.new_machine')}
                             onPress={() => router.push('/(owner)/add-machine' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
                         />
                         <ActionButton
                             icon="account-group"
-                            label="Operators"
+                            label={t('owner.operators')}
                             onPress={() => router.push('/(owner)/operators' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
                         />
                         <ActionButton
                             icon="format-list-bulleted"
-                            label="Fleet List"
+                            label={t('owner.fleet_list')}
                             onPress={() => router.push('/(owner)/machines' as any)}
                             colors={colors}
                         />
                         <ActionButton
                             icon="wallet-outline"
-                            label="Wallet"
+                            label={t('overview.wallet')}
                             onPress={() => router.push('/(owner)/wallet' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
                         />
                         <ActionButton
                             icon="finance"
-                            label="Salary Report"
+                            label={t('owner.salary_report')}
                             onPress={() => router.push('/(owner)/salary-report' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
                         />
                         <ActionButton
                             icon="gas-station"
-                            label="Fuel Logs"
+                            label={t('owner.fuel_logs')}
                             onPress={() => router.push('/(owner)/fuel' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
                         />
                         <ActionButton
                             icon="wrench"
-                            label="Maintenance"
+                            label={t('owner.maintenance')}
                             onPress={() => router.push('/(owner)/maintenance' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
                         />
                         <ActionButton
                             icon="star-outline"
-                            label="Our Plans"
+                            label={t('owner.our_plans')}
                             onPress={() => router.push('/(common)/plans' as any)}
                             colors={colors}
                         />
@@ -203,15 +208,15 @@ export default function OwnerDashboard() {
                 {/* Recent Operators */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Recent Operators</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('owner.recent_operators')}</Text>
                         <TouchableOpacity onPress={() => router.push('/(owner)/operators' as any)}>
-                            <Text style={[styles.viewAll, { color: colors.primary }]}>View All</Text>
+                            <Text style={[styles.viewAll, { color: colors.primary }]}>{t('owner.view_all')}</Text>
                         </TouchableOpacity>
                     </View>
                     {loadingOperators ? (
                         <ActivityIndicator color={colors.primary} />
                     ) : operators.length === 0 ? (
-                        <EmptyState icon="account-off" text="No operators registered" colors={colors} />
+                        <EmptyState icon="account-off" text={t('owner.no_operators')} colors={colors} />
                     ) : (
                         operators.slice(0, 3).map((operator: any) => (
                             <OperatorCard
@@ -230,15 +235,15 @@ export default function OwnerDashboard() {
                 {/* Recent Machines */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Recent Machines</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('owner.recent_machines')}</Text>
                         <TouchableOpacity onPress={() => router.push('/(owner)/machines' as any)}>
-                            <Text style={[styles.viewAll, { color: colors.primary }]}>View All</Text>
+                            <Text style={[styles.viewAll, { color: colors.primary }]}>{t('owner.view_all')}</Text>
                         </TouchableOpacity>
                     </View>
                     {loadingMachines ? (
                         <ActivityIndicator color={colors.primary} />
                     ) : machines.length === 0 ? (
-                        <EmptyState icon="truck" text="No machines in fleet" colors={colors} />
+                        <EmptyState icon="truck" text={t('owner.no_fleet')} colors={colors} />
                     ) : (
                         machines.slice(0, 3).map((machine: any) => {
                             const currentOperator = machine.current_operator_id ? operators.find((o: any) => o.id === machine.current_operator_id) : null;
@@ -266,6 +271,7 @@ export default function OwnerDashboard() {
 
 // Sub-components
 function MiniStat({ label, value, icon, color, colors }: any) {
+    const { t } = useTranslation();
     return (
         <View style={styles.miniStat}>
             <MaterialCommunityIcons name={icon} size={14} color={color} />
@@ -276,6 +282,7 @@ function MiniStat({ label, value, icon, color, colors }: any) {
 }
 
 function EmptyState({ icon, text, colors }: any) {
+    const { t } = useTranslation();
     return (
         <View style={[styles.emptyState, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <MaterialCommunityIcons name={icon} size={40} color={colors.border} />
@@ -285,6 +292,7 @@ function EmptyState({ icon, text, colors }: any) {
 }
 
 function StatCard({ icon, label, value, color, loading, colors }: any) {
+    const { t } = useTranslation();
     return (
         <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.statHeader}>
@@ -303,6 +311,7 @@ function StatCard({ icon, label, value, color, loading, colors }: any) {
 }
 
 function ActionButton({ icon, label, onPress, gradient, dark, colors }: any) {
+    const { t } = useTranslation();
     return (
         <TouchableOpacity onPress={onPress} style={styles.actionButton}>
             <View style={[
@@ -318,6 +327,7 @@ function ActionButton({ icon, label, onPress, gradient, dark, colors }: any) {
 }
 
 function OperatorCard({ operator, colors, onPress }: any) {
+    const { t } = useTranslation();
     return (
         <TouchableOpacity
             style={[styles.listCard, { backgroundColor: colors.card, borderColor: colors.border }]}
@@ -336,6 +346,7 @@ function OperatorCard({ operator, colors, onPress }: any) {
 }
 
 function MachineCard({ machine, colors, onPress }: any) {
+    const { t } = useTranslation();
     const statusColors: Record<string, string> = {
         available: colors.success,
         in_use: colors.warning,
@@ -343,9 +354,9 @@ function MachineCard({ machine, colors, onPress }: any) {
     };
 
     const statusLabels: Record<string, string> = {
-        available: 'Online',
-        in_use: 'Active',
-        maintenance: 'Service',
+        available: t('owner.status_online'),
+        in_use: t('owner.status_active'),
+        maintenance: t('owner.status_service'),
     };
 
     const status = (machine.status || 'available') as string;

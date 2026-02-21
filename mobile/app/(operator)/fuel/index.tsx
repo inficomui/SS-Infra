@@ -4,6 +4,7 @@ import { Text, ActivityIndicator, Searchbar, IconButton, Menu, Divider } from 'r
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDate } from '../../../utils/formatters';
@@ -11,6 +12,7 @@ import { formatDate } from '../../../utils/formatters';
 export default function FuelLogsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // Filters & Pagination
     const [page, setPage] = useState(1);
@@ -82,7 +84,7 @@ export default function FuelLogsScreen() {
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>
-                            {log.machine?.name || 'Unknown Machine'}
+                            {log.machine?.name || t('fuel_management.unknown_machine')}
                         </Text>
                         <Text style={[styles.dateText, { color: colors.textMuted }]}>
                             {formatDate(log.log_date)}
@@ -98,7 +100,7 @@ export default function FuelLogsScreen() {
             <View style={[styles.statsRow, { borderTopColor: colors.border + '30' }]}>
                 <View style={styles.statItem}>
                     <MaterialCommunityIcons name="beaker-outline" size={16} color={colors.textMuted} style={{ marginBottom: 4 }} />
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>Volume</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.volume')}</Text>
                     <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuel_liters} L</Text>
                 </View>
 
@@ -106,7 +108,7 @@ export default function FuelLogsScreen() {
 
                 <View style={styles.statItem}>
                     <MaterialCommunityIcons name="image-multiple-outline" size={16} color={colors.textMuted} style={{ marginBottom: 4 }} />
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>Photos</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.photos')}</Text>
                     <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
                         <MaterialCommunityIcons
                             name={log.reading_before_url ? "check-circle" : "minus-circle-outline"}
@@ -139,7 +141,7 @@ export default function FuelLogsScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Fuel Log System</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('fuel_management.title')}</Text>
                 <TouchableOpacity
                     onPress={() => router.push('/(operator)/fuel/add' as any)}
                     style={[styles.addButton, { backgroundColor: colors.primary }]}
@@ -150,7 +152,7 @@ export default function FuelLogsScreen() {
 
             <View style={styles.searchContainer}>
                 <Searchbar
-                    placeholder="Search Machine/Operator..."
+                    placeholder={t('fuel_management.search_placeholder')}
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     style={[styles.searchBar, { backgroundColor: colors.card }]}
@@ -165,12 +167,12 @@ export default function FuelLogsScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollContent}>
                     <TouchableOpacity onPress={() => setShowStartPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-import" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>From: {formatDate(startDate)}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('fuel_management.from')} {formatDate(startDate)}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => setShowEndPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-export" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>To: {formatDate(endDate)}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('fuel_management.to')} {formatDate(endDate)}</Text>
                     </TouchableOpacity>
 
                     <Menu
@@ -183,13 +185,13 @@ export default function FuelLogsScreen() {
                             >
                                 <MaterialCommunityIcons name="sort-variant" size={16} color={colors.primary} />
                                 <Text style={[styles.filterText, { color: colors.textMain }]}>
-                                    Sort: {sortBy === 'newest' ? 'Newest' : 'Oldest'}
+                                    {t('fuel_management.sort', { sort: t(`fuel_management.${sortBy}`) })}
                                 </Text>
                             </TouchableOpacity>
                         }
                     >
-                        <Menu.Item onPress={() => { setSortBy('newest'); setShowSortMenu(false); }} title="Newest First" />
-                        <Menu.Item onPress={() => { setSortBy('oldest'); setShowSortMenu(false); }} title="Oldest First" />
+                        <Menu.Item onPress={() => { setSortBy('newest'); setShowSortMenu(false); }} title={t('fuel_management.newest_first')} />
+                        <Menu.Item onPress={() => { setSortBy('oldest'); setShowSortMenu(false); }} title={t('fuel_management.oldest_first')} />
                     </Menu>
                 </ScrollView>
             </View>
@@ -206,7 +208,7 @@ export default function FuelLogsScreen() {
                     !isLoading ? (
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="gas-station-off" size={64} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16 }}>No fuel logs found.</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16 }}>{t('fuel_management.no_logs')}</Text>
                         </View>
                     ) : null
                 }
@@ -221,7 +223,7 @@ export default function FuelLogsScreen() {
                                 disabled={page === 1}
                                 onPress={() => setPage(page - 1)}
                             />
-                            <Text style={{ color: colors.textMain }}>Page {page} of {totalPages}</Text>
+                            <Text style={{ color: colors.textMain }}>{t('fuel_management.page')} {page} {t('fuel_management.of')} {totalPages}</Text>
                             <IconButton
                                 icon="chevron-right"
                                 disabled={page === totalPages}

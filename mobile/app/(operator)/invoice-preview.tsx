@@ -8,10 +8,12 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useRecordPaymentMutation } from '@/redux/apis/workApi';
 import { formatDate, formatDuration } from '../../utils/formatters';
+import { useTranslation } from 'react-i18next';
 
 export default function InvoicePreviewScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
     const params = useLocalSearchParams();
 
     // Safe extraction of params with defaults
@@ -39,25 +41,17 @@ export default function InvoicePreviewScreen() {
 
     const handleShare = async () => {
         try {
-            const message = `
-INVOICE: ${invoiceNumber}
-Date: ${date}
-
-Client: ${clientName}
-
-Work Details:
-Hours: ${totalHours} hrs
-Rate: ₹${hourlyRate}/hr
-----------------------
-TOTAL: ₹${totalAmount}
-PAID: ₹${paidAmount}
-BALANCE: ₹${parseFloat(totalAmount) - paidAmount}
-----------------------
-
-${description ? `Notes: ${description}` : ''}
-
-Sent via SS Infra App
-            `;
+            const message = t('invoice_preview_screen.share_msg_template', {
+                invoice: invoiceNumber,
+                date: date,
+                client: clientName,
+                hours: totalHours,
+                rate: hourlyRate,
+                total: totalAmount,
+                paid: paidAmount,
+                balance: parseFloat(totalAmount) - paidAmount,
+                notes: description ? `${t('invoice_preview_screen.notes')}: ${description}` : ''
+            });
 
             await Share.share({
                 message: message.trim(),
@@ -74,7 +68,11 @@ Sent via SS Infra App
 
     const handlePaymentReminder = async () => {
         const balance = parseFloat(totalAmount) - paidAmount;
-        const message = `Hello ${clientName}, this is a reminder regarding Invoice #${invoiceNumber} for ₹${balance}. Please arrange payment at your earliest convenience. Thank you. - SS Infra`;
+        const message = t('invoice_preview_screen.reminder_msg', {
+            client: clientName,
+            invoice: invoiceNumber,
+            balance: balance
+        });
         const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
 
         try {
@@ -87,24 +85,24 @@ Sent via SS Infra App
                 await Linking.openURL(smsUrl);
             }
         } catch (error) {
-            Alert.alert("Error", "Could not open messaging app");
+            Alert.alert(t('finish_work_screen.error'), t('invoice_preview_screen.error_app_open'));
         }
     };
 
     const handleRecordPayment = async () => {
         if (!invoiceId) {
-            Alert.alert("Error", "Invoice ID is missing. Cannot record payment.");
+            Alert.alert(t('finish_work_screen.error'), t('invoice_preview_screen.error_invoice_id'));
             return;
         }
 
         const amount = parseFloat(paymentAmount);
         if (isNaN(amount) || amount <= 0) {
-            Alert.alert("Invalid Amount", "Please enter a valid payment amount.");
+            Alert.alert(t('create_bill_screen.invalid_amount'), t('invoice_preview_screen.invalid_amount_msg'));
             return;
         }
 
         if (amount > (parseFloat(totalAmount) - paidAmount)) {
-            Alert.alert("Invalid Amount", "Payment amount cannot exceed the remaining balance.");
+            Alert.alert(t('create_bill_screen.invalid_amount'), t('invoice_preview_screen.amount_exceeds_msg'));
             return;
         }
 
@@ -133,12 +131,12 @@ Sent via SS Infra App
                 }
             }
 
-            Alert.alert("Success", "Payment recorded successfully!");
+            Alert.alert(t('create_bill_screen.success'), t('invoice_preview_screen.payment_success'));
             setPaymentNotes('');
 
         } catch (error: any) {
             console.error("Payment Error:", error);
-            Alert.alert("Error", error?.data?.message || "Failed to record payment.");
+            Alert.alert(t('finish_work_screen.error'), error?.data?.message || t('invoice_preview_screen.payment_failed'));
         }
     };
 
@@ -152,9 +150,9 @@ Sent via SS Infra App
 
     const getStatusText = () => {
         switch (paymentStatus) {
-            case 'paid': return 'PAID';
-            case 'partially_paid': return 'PARTIALLY PAID';
-            default: return 'UNPAID';
+            case 'paid': return t('invoice_preview_screen.status_paid');
+            case 'partially_paid': return t('invoice_preview_screen.status_partially_paid');
+            default: return t('invoice_preview_screen.status_unpaid');
         }
     };
 
@@ -164,7 +162,7 @@ Sent via SS Infra App
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Invoice Details</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('invoice_preview_screen.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -173,13 +171,13 @@ Sent via SS Infra App
                 {/* Invoice Card */}
                 <View style={[styles.invoiceCard, { backgroundColor: '#fff' }]}>
                     <LinearGradient
-                        colors={[colors.primary, colors.secondary]}
+                        colors={[colors.primary, colors.primary]}
                         style={styles.invoiceHeader}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                     >
                         <View>
-                            <Text style={styles.invoiceTitle}>INVOICE</Text>
+                            <Text style={styles.invoiceTitle}>{t('invoice_preview_screen.invoice_heading')}</Text>
                             <Text style={styles.invoiceNumber}>#{invoiceNumber}</Text>
                         </View>
                         <View style={[styles.statusBadge, { backgroundColor: '#fff' }]}>
@@ -190,11 +188,11 @@ Sent via SS Infra App
                     <View style={styles.invoiceBody}>
                         <View style={styles.row}>
                             <View>
-                                <Text style={styles.label}>Billed To</Text>
+                                <Text style={styles.label}>{t('invoice_preview_screen.billed_to')}</Text>
                                 <Text style={styles.value}>{clientName}</Text>
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={styles.label}>Date</Text>
+                                <Text style={styles.label}>{t('invoice_preview_screen.date')}</Text>
                                 <Text style={styles.value}>{formatDate(date)}</Text>
                             </View>
                         </View>
@@ -202,27 +200,27 @@ Sent via SS Infra App
                         <View style={styles.divider} />
 
                         <View style={styles.lineItem}>
-                            <Text style={styles.itemText}>Machine Work ({formatDuration(Number(totalHours))} @ ₹{hourlyRate}/hr)</Text>
+                            <Text style={styles.itemText}>{t('invoice_preview_screen.machine_work')} ({formatDuration(Number(totalHours))} @ ₹{hourlyRate}/hr)</Text>
                             <Text style={styles.itemTotal}>₹{totalAmount}</Text>
                         </View>
 
                         <View style={styles.divider} />
 
                         <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>Grand Total</Text>
+                            <Text style={styles.totalLabel}>{t('invoice_preview_screen.grand_total')}</Text>
                             <Text style={styles.totalAmount}>₹ {totalAmount}</Text>
                         </View>
 
                         {paidAmount > 0 && (
                             <View style={[styles.totalRow, { marginTop: 8 }]}>
-                                <Text style={[styles.totalLabel, { fontSize: 14, color: colors.success }]}>Paid Amount</Text>
+                                <Text style={[styles.totalLabel, { fontSize: 14, color: colors.success }]}>{t('invoice_preview_screen.paid_amount')}</Text>
                                 <Text style={[styles.totalAmount, { fontSize: 18, color: colors.success }]}>- ₹ {paidAmount}</Text>
                             </View>
                         )}
 
                         {(parseFloat(totalAmount) - paidAmount) > 0 && (
                             <View style={[styles.totalRow, { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#eee' }]}>
-                                <Text style={[styles.totalLabel, { color: colors.danger }]}>Balance Due</Text>
+                                <Text style={[styles.totalLabel, { color: colors.danger }]}>{t('invoice_preview_screen.balance_due')}</Text>
                                 <Text style={[styles.totalAmount, { color: colors.danger }]}>₹ {parseFloat(totalAmount) - paidAmount}</Text>
                             </View>
                         )}
@@ -237,7 +235,7 @@ Sent via SS Infra App
                     </View>
 
                     <View style={[styles.footerInfo, { backgroundColor: '#f9f9f9' }]}>
-                        <Text style={styles.footerText}>Thank you for your business!</Text>
+                        <Text style={styles.footerText}>{t('invoice_preview_screen.footer_msg')}</Text>
                         <Text style={styles.footerSubText}>SS Infra Structure</Text>
                     </View>
                 </View>
@@ -245,7 +243,7 @@ Sent via SS Infra App
                 {/* Photo Proof Section - If available */}
                 {photoUri && (
                     <View style={[styles.proofCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Work Proof</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('invoice_preview_screen.work_proof')}</Text>
                         <View style={styles.imageContainer}>
                             <Image
                                 source={{ uri: photoUri }}
@@ -254,7 +252,7 @@ Sent via SS Infra App
                             />
                             <View style={styles.verifiedBadge}>
                                 <MaterialCommunityIcons name="check-decagram" size={16} color="#fff" />
-                                <Text style={styles.verifiedText}>VERIFIED</Text>
+                                <Text style={styles.verifiedText}>{t('invoice_preview_screen.verified')}</Text>
                             </View>
                         </View>
                     </View>
@@ -269,7 +267,7 @@ Sent via SS Infra App
                             onPress={handlePaymentReminder}
                         >
                             <MaterialCommunityIcons name="whatsapp" size={24} color="#fff" />
-                            <Text style={styles.paymentBtnText}>SEND REMINDER</Text>
+                            <Text style={styles.paymentBtnText}>{t('invoice_preview_screen.send_reminder')}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -277,7 +275,7 @@ Sent via SS Infra App
                             onPress={() => setShowPaymentModal(true)}
                         >
                             <MaterialCommunityIcons name="cash-register" size={24} color="#fff" />
-                            <Text style={styles.paymentBtnText}>RECORD PAYMENT</Text>
+                            <Text style={styles.paymentBtnText}>{t('invoice_preview_screen.record_payment')}</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -288,7 +286,7 @@ Sent via SS Infra App
                         onPress={handleHome}
                     >
                         <MaterialCommunityIcons name="home-outline" size={24} color={colors.textMain} />
-                        <Text style={[styles.actionText, { color: colors.textMain }]}>Home</Text>
+                        <Text style={[styles.actionText, { color: colors.textMain }]}>{t('invoice_preview_screen.home')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -302,7 +300,7 @@ Sent via SS Infra App
                             end={{ x: 1, y: 0 }}
                         >
                             <MaterialCommunityIcons name="share-variant-outline" size={24} color="#000" />
-                            <Text style={styles.primaryBtnText}>SHARE INVOICE</Text>
+                            <Text style={styles.primaryBtnText}>{t('invoice_preview_screen.share_invoice')}</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>
@@ -318,7 +316,7 @@ Sent via SS Infra App
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
                         <View style={styles.modalHeader}>
-                            <Text style={[styles.modalTitle, { color: colors.textMain }]}>Record Payment</Text>
+                            <Text style={[styles.modalTitle, { color: colors.textMain }]}>{t('invoice_preview_screen.record_payment_title')}</Text>
                             <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
                                 <MaterialCommunityIcons name="close" size={24} color={colors.textMuted} />
                             </TouchableOpacity>
@@ -326,7 +324,7 @@ Sent via SS Infra App
 
                         <ScrollView style={{ maxHeight: 400 }}>
                             <View style={styles.inputGroup}>
-                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Amount Received (₹)</Text>
+                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('invoice_preview_screen.amount_received')}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card }]}
                                     value={paymentAmount}
@@ -338,7 +336,7 @@ Sent via SS Infra App
                             </View>
 
                             <View style={styles.inputGroup}>
-                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Payment Date</Text>
+                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('invoice_preview_screen.payment_date')}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card }]}
                                     value={paymentDate}
@@ -349,7 +347,7 @@ Sent via SS Infra App
                             </View>
 
                             <View style={styles.inputGroup}>
-                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Next Payment Date (Optional)</Text>
+                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('invoice_preview_screen.next_payment_date')}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card }]}
                                     value={nextPaymentDate}
@@ -358,17 +356,17 @@ Sent via SS Infra App
                                     placeholderTextColor={colors.textMuted}
                                 />
                                 <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 4 }}>
-                                    Set this if payment is partial.
+                                    {t('invoice_preview_screen.partial_pay_hint')}
                                 </Text>
                             </View>
 
                             <View style={styles.inputGroup}>
-                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Notes</Text>
+                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('invoice_preview_screen.notes')}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card, height: 80, textAlignVertical: 'top' }]}
                                     value={paymentNotes}
                                     onChangeText={setPaymentNotes}
-                                    placeholder="Check number, transaction ID, etc."
+                                    placeholder={t('invoice_preview_screen.notes_placeholder')}
                                     placeholderTextColor={colors.textMuted}
                                     multiline
                                 />
@@ -383,7 +381,7 @@ Sent via SS Infra App
                             {isRecording ? (
                                 <ActivityIndicator color="#000" />
                             ) : (
-                                <Text style={styles.confirmBtnText}>CONFIRM PAYMENT</Text>
+                                <Text style={styles.confirmBtnText}>{t('invoice_preview_screen.confirm_payment')}</Text>
                             )}
                         </TouchableOpacity>
                     </View>

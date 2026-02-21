@@ -4,6 +4,7 @@ import { Text, Avatar } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, logout } from '@/redux/slices/authSlice';
 import { toggleTheme, selectThemeMode } from '@/redux/slices/themeSlice';
@@ -13,6 +14,7 @@ import { Machine } from '@/redux/apis/ownerApi';
 
 export default function OperatorProfileScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const { colors, isDark } = useAppTheme();
     const user = useSelector(selectCurrentUser);
@@ -61,7 +63,7 @@ export default function OperatorProfileScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Operator Hub</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('profile.operator_hub')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -89,27 +91,27 @@ export default function OperatorProfileScreen() {
                     </View>
 
                     <View style={[styles.statsRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
-                        <StatItem label="Rating" value="4.9" icon="star" color="#FACC15" colors={colors} />
+                        <StatItem label={t('profile.rating')} value="4.9" icon="star" color="#FACC15" colors={colors} />
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-                        <StatItem label="Hours" value="1.2k" icon="clock-outline" color={colors.primary} colors={colors} />
+                        <StatItem label={t('profile.hours')} value="1.2k" icon="clock-outline" color={colors.primary} colors={colors} />
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-                        <StatItem label="Jobs" value="48" icon="briefcase-check" color={colors.success} colors={colors} />
+                        <StatItem label={t('profile.jobs')} value="48" icon="briefcase-check" color={colors.success} colors={colors} />
                     </View>
                 </LinearGradient>
 
                 {/* Settings Section */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Preferences</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.preferences')}</Text>
                     <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MenuRow
                             icon="account-edit-outline"
-                            label="Edit Profile"
+                            label={t('profile.edit_profile')}
                             colors={colors}
                             onPress={() => router.push('/(operator)/edit-profile' as any)}
                         />
                         <MenuRow
                             icon="theme-light-dark"
-                            label="Dark Mode"
+                            label={t('profile.dark_mode')}
                             colors={colors}
                             right={
                                 <Switch
@@ -122,20 +124,26 @@ export default function OperatorProfileScreen() {
                         />
                         <MenuRow
                             icon="bell-outline"
-                            label="Notifications"
+                            label={t('profile.notifications')}
                             colors={colors}
                             right={<Switch value={true} onValueChange={() => { }} trackColor={{ true: colors.primary }} />}
+                        />
+                        <MenuRow
+                            icon="translate"
+                            label={t('common.change_language') || "Change Language"}
+                            colors={colors}
+                            onPress={() => router.push('/language-selection')}
                         />
                     </View>
                 </View>
 
                 {/* Equipment Section */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Equipment Assignment</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.equipment')}</Text>
                     <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MenuRow
                             icon="excavator"
-                            label={assignedMachine ? `${assignedMachine.name} (${assignedMachine.registration_number || assignedMachine.registrationNumber})` : "No Machine Assigned"}
+                            label={assignedMachine ? `${assignedMachine.name} (${assignedMachine.registration_number || assignedMachine.registrationNumber})` : t('profile.no_machine')}
                             colors={colors}
                             onPress={() => { }} // Disabled for now, or could link to selector
                             right={assignedMachine ? <MaterialCommunityIcons name="check-circle" size={20} color={colors.success} /> : null}
@@ -145,25 +153,25 @@ export default function OperatorProfileScreen() {
 
                 {/* Info Section */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Information</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.information')}</Text>
                     <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MenuRow
                             icon="shield-check-outline"
-                            label="Privacy Policy"
+                            label={t('profile.privacy_policy')}
                             colors={colors}
                             onPress={() => router.push('/(operator)/privacy-policy' as any)}
                         />
                         <MenuRow
                             icon="information-outline"
-                            label="About Us"
+                            label={t('profile.about_us')}
                             colors={colors}
                             onPress={() => router.push('/(operator)/about' as any)}
                         />
                         <MenuRow
                             icon="help-circle-outline"
-                            label="Support"
+                            label={t('profile.support')}
                             colors={colors}
-                            onPress={() => { }}
+                            onPress={() => router.push('/(operator)/support' as any)}
                         />
                     </View>
                 </View>
@@ -177,7 +185,7 @@ export default function OperatorProfileScreen() {
                         end={{ x: 1, y: 0 }}
                     >
                         <MaterialCommunityIcons name="logout" size={20} color="#FFF" />
-                        <Text style={styles.logoutText}>Log Out</Text>
+                        <Text style={styles.logoutText}>{t('profile.logout')}</Text>
                     </LinearGradient>
                 </TouchableOpacity>
 

@@ -10,8 +10,11 @@ const THEME = {
     textMuted: '#9CA3AF',
 };
 
+import { useTranslation } from 'react-i18next';
+
 export default function MachineInfoScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
 
     return (
         <View style={styles.container}>
@@ -21,8 +24,8 @@ export default function MachineInfoScreen() {
 
             <View style={styles.content}>
                 <MaterialCommunityIcons name="engine" size={80} color={THEME.primary} />
-                <Text style={styles.title}>Machine Info</Text>
-                <Text style={styles.subtitle}>Detailed machine specs coming soon.</Text>
+                <Text style={styles.title}>{t('machine_info.title')}</Text>
+                <Text style={styles.subtitle}>{t('machine_info.subtitle')}</Text>
             </View>
         </View>
     );

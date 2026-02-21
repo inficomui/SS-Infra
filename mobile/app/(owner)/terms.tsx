@@ -5,10 +5,12 @@ import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 export default function TermsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -16,33 +18,33 @@ export default function TermsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Terms & Privacy</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.terms.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={[styles.heading, { color: colors.textMain }]}>1. Terms of Use</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_1_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    By accessing this application, you agree to be bound by these terms. This app is designed for fleet management purposes only. Misuse or unauthorized access is prohibited.
+                    {t('owner.terms.section_1_text')}
                 </Text>
 
-                <Text style={[styles.heading, { color: colors.textMain }]}>2. Privacy Policy</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_2_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    We value your privacy. Your data, including location and fleet details, is securely stored and used exclusively for service optimization. We do not share personal information with third parties without consent.
+                    {t('owner.terms.section_2_text')}
                 </Text>
 
-                <Text style={[styles.heading, { color: colors.textMain }]}>3. Data Security</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_3_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    We implement industry-standard security measures to protect your data. However, no method of transmission over the internet is 100% secure.
+                    {t('owner.terms.section_3_text')}
                 </Text>
 
-                <Text style={[styles.heading, { color: colors.textMain }]}>4. Changes to Policy</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_4_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    This policy may be updated periodically. Continued use of the app signifies acceptance of any changes.
+                    {t('owner.terms.section_4_text')}
                 </Text>
 
                 <View style={styles.footer}>
-                    <Text style={[styles.footerText, { color: colors.textMuted }]}>Last updated: Feb 2026</Text>
+                    <Text style={[styles.footerText, { color: colors.textMuted }]}>{t('owner.terms.last_updated')}</Text>
                 </View>
             </ScrollView>
         </View>

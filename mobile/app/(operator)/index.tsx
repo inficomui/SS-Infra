@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert, Platform } from 'react-native';
-import { Text, Badge, ActivityIndicator, Modal, Portal } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert, Platform, Modal as RNModal } from 'react-native';
+import { Text, Badge, ActivityIndicator, Modal, Portal, Menu, IconButton } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+
+import i18n from '@/utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
@@ -22,10 +25,10 @@ const formatTime = (totalSeconds: number) => {
 };
 
 export default function OperatorOverview() {
+    const { t } = useTranslation();
     const router = useRouter();
     const { colors, isDark } = useAppTheme();
     const params = useLocalSearchParams();
-
     // Local Pause Logic
     const [isPaused, setIsPaused] = useState(false);
     const [pauseStartTime, setPauseStartTime] = useState<number | null>(null);
@@ -220,7 +223,7 @@ export default function OperatorOverview() {
             setIsPaused(true);
             setWorkStatus('paused');
         } catch (error) {
-            Alert.alert("Error", "Failed to pause work locally.");
+            Alert.alert(t('common.error'), t('overview.error_pause'));
         }
     };
 
@@ -239,18 +242,18 @@ export default function OperatorOverview() {
             setIsPaused(false);
             setWorkStatus('running');
         } catch (error) {
-            Alert.alert("Error", "Failed to resume work locally.");
+            Alert.alert(t('common.error'), t('overview.error_resume'));
         }
     };
 
     const handleFinish = async () => {
         Alert.alert(
-            "Finish Work?",
-            "End your current work session and submit logs?",
+            t('overview.finish_work_title'),
+            t('overview.finish_work_msg'),
             [
-                { text: "Cancel", style: "cancel" },
+                { text: t('common.cancel'), style: "cancel" },
                 {
-                    text: "Finish",
+                    text: t('overview.finish_work'),
                     style: "destructive",
                     onPress: async () => {
                         // Cleanup storage for this session
@@ -282,19 +285,23 @@ export default function OperatorOverview() {
             await storage.setItem('selected_machine', JSON.stringify(machine));
             setShowMachineModal(false);
         } catch (error) {
-            Alert.alert("Error", "Failed to save machine selection.");
+            Alert.alert(t('common.error'), t('overview.error_machine'));
         }
     };
+
+    // changeLanguage function removed (Managed in LanguageSwitcher)
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Header */}
             <View style={styles.header}>
-                <View>
-                    <Text style={[styles.greeting, { color: colors.textMain }]}>Performance Hub</Text>
-                    <Text style={[styles.subtitle, { color: colors.textMuted }]}>Tracking your daily milestones</Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={[styles.greeting, { color: colors.textMain }]}>{t('overview.title')}</Text>
+                    <Text style={[styles.subtitle, { color: colors.textMuted }]}>{t('overview.subtitle')}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
+
+
                     <TouchableOpacity onPress={() => router.push('/(operator)/notifications' as any)}>
                         <View style={[styles.profileCircle, { backgroundColor: colors.card, borderColor: colors.border }]}>
                             <MaterialCommunityIcons name="bell-outline" size={26} color={colors.textMain} />
@@ -314,16 +321,15 @@ export default function OperatorOverview() {
 
             <ScrollView style={styles.scrollBody} showsVerticalScrollIndicator={false}>
 
-                {/* Status Card */}
                 <LinearGradient
                     colors={isDark ? ['#1A1A1A', '#000000'] : ['#FFFFFF', '#F3F4F6']}
                     style={[styles.statusCard, { borderColor: colors.border, borderWidth: 1 }]}
                 >
                     <View style={styles.statusHeader}>
                         <View>
-                            <Text style={[styles.statusLabel, { color: colors.textMuted }]}>Current Session</Text>
+                            <Text style={[styles.statusLabel, { color: colors.textMuted }]}>{t('overview.current_session')}</Text>
                             <Text style={[styles.statusValue, { color: colors.textMain }]}>
-                                {workStatus === 'idle' ? 'No Active Task' : (currentClient?.clientName || 'SS Infra Site')}
+                                {workStatus === 'idle' ? t('overview.no_active_task') : (currentClient?.clientName || t('overview.ss_infra_site'))}
                             </Text>
                         </View>
                         <View
@@ -334,7 +340,7 @@ export default function OperatorOverview() {
                         >
                             <View style={[styles.statusIndicatorDot, { backgroundColor: workStatus === 'running' ? colors.success : (workStatus === 'paused' ? colors.warning : colors.textMuted) }]} />
                             <Text style={[styles.statusBadgeText, { color: workStatus === 'running' ? colors.success : (workStatus === 'paused' ? colors.warning : colors.textMuted) }]}>
-                                {workStatus.toUpperCase()}
+                                {t(`overview.${workStatus}`).toUpperCase()}
                             </Text>
                         </View>
                     </View>
@@ -342,19 +348,19 @@ export default function OperatorOverview() {
                     {workStatus !== 'idle' ? (
                         <View style={styles.timerContainer}>
                             <Text style={[styles.timerValue, { color: colors.primary }]}>{formatTime(elapsedSeconds)}</Text>
-                            <Text style={[styles.timerSub, { color: colors.textMuted }]}>TRACKING ACTIVE DURATION</Text>
+                            <Text style={[styles.timerSub, { color: colors.textMuted }]}>{t('overview.tracking_duration')}</Text>
                         </View>
                     ) : (
                         <View style={styles.idleState}>
                             <MaterialCommunityIcons name="lightning-bolt" size={40} color={colors.primary} />
-                            <Text style={[styles.idleText, { color: colors.textMuted }]}>Ready to pick up new work?</Text>
+                            <Text style={[styles.idleText, { color: colors.textMuted }]}>{t('overview.ready_to_work')}</Text>
                         </View>
                     )}
 
                     <View style={[styles.statsRow, { borderTopColor: colors.border }]}>
                         <StatItem
                             icon="clock-check"
-                            label="Today's Hours"
+                            label={t('overview.today_hours')}
                             value={formatDuration(totalTodayHours)}
                             colors={colors}
                             loading={isLoadingStats}
@@ -362,15 +368,14 @@ export default function OperatorOverview() {
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
                         <StatItem
                             icon="map-marker-path"
-                            label="Tasks Done"
-                            value={`${tasksDoneCount} Sites`}
+                            label={t('overview.tasks_done')}
+                            value={`${tasksDoneCount} ${t('overview.sites')}`}
                             colors={colors}
                             loading={isLoadingStats}
                         />
                     </View>
                 </LinearGradient>
 
-                {/* Machine Selection Card */}
                 <TouchableOpacity
                     style={[styles.machineCard, { backgroundColor: colors.card, borderColor: selectedMachine ? colors.primary : colors.border }]}
                     onPress={() => setShowMachineModal(true)}
@@ -379,55 +384,55 @@ export default function OperatorOverview() {
                         <MaterialCommunityIcons name="excavator" size={24} color={selectedMachine ? colors.primary : colors.textMuted} />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.machineLabel, { color: colors.textMuted }]}>Current Machine</Text>
+                        <Text style={[styles.machineLabel, { color: colors.textMuted }]}>{t('overview.current_machine')}</Text>
                         <Text style={[styles.machineValue, { color: selectedMachine ? colors.textMain : colors.textMuted }]}>
-                            {selectedMachine ? `${selectedMachine?.name || 'Unknown Machine'} (${selectedMachine?.registration_number || selectedMachine.registrationNumber || "No Reg Number"})` : 'Tap to assign machine'}
+                            {selectedMachine ? `${selectedMachine?.name || t('operator.unknown_machine')} (${selectedMachine?.registration_number || selectedMachine.registrationNumber || t('operator.no_reg_number')})` : t('overview.tap_to_assign')}
                         </Text>
                     </View>
                     <MaterialCommunityIcons name="chevron-down" size={24} color={colors.textMuted} />
                 </TouchableOpacity>
 
                 {/* Grid Menu */}
-                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Operations</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('overview.operations')}</Text>
                 <View style={styles.menuGrid}>
                     <MenuIconButton
                         icon="account-multiple-plus"
-                        label="Clients"
+                        label={t('overview.clients')}
                         onPress={() => router.push('/(operator)/add-client')}
                         color="#3B82F6"
                         colors={colors}
                     />
                     <MenuIconButton
                         icon="chart-timeline-variant"
-                        label="Work Log"
+                        label={t('overview.work_log')}
                         onPress={() => router.push('/(operator)/work-log')}
                         color={colors.success}
                         colors={colors}
                     />
                     <MenuIconButton
                         icon="wallet-outline"
-                        label="Wallet"
+                        label={t('overview.wallet')}
                         onPress={() => router.push('/(operator)/wallet' as any)}
                         color={colors.primary}
                         colors={colors}
                     />
                     <MenuIconButton
                         icon="gas-station"
-                        label="Fuel"
+                        label={t('overview.fuel')}
                         onPress={() => router.push('/(operator)/fuel' as any)}
                         color={colors.warning}
                         colors={colors}
                     />
                     <MenuIconButton
                         icon="hammer-wrench"
-                        label="Maintenance"
+                        label={t('overview.maintenance')}
                         onPress={() => router.push('/(operator)/maintenance' as any)}
                         color={colors.primary}
                         colors={colors}
                     />
                     <MenuIconButton
                         icon="star-outline"
-                        label="Plans"
+                        label={t('overview.plans')}
                         onPress={() => router.push('/(common)/plans' as any)}
                         color={colors.warning}
                         colors={colors}
@@ -441,13 +446,14 @@ export default function OperatorOverview() {
             </ScrollView>
 
             <Portal>
+                {/* Machine Selection Modal */}
                 <Modal
                     visible={showMachineModal}
                     onDismiss={() => setShowMachineModal(false)}
                     contentContainerStyle={[styles.modalContainer, { backgroundColor: colors.background }]}
                 >
                     <View style={styles.modalHeader}>
-                        <Text style={[styles.modalTitle, { color: colors.textMain }]}>Select Machine</Text>
+                        <Text style={[styles.modalTitle, { color: colors.textMain }]}>{t('common.select_machine')}</Text>
                         <TouchableOpacity onPress={() => setShowMachineModal(false)}>
                             <MaterialCommunityIcons name="close" size={24} color={colors.textMuted} />
                         </TouchableOpacity>
@@ -456,7 +462,7 @@ export default function OperatorOverview() {
                     <ScrollView style={{ maxHeight: 400 }}>
                         {isLoadingMachines ? (
                             <ActivityIndicator color={colors.primary} style={{ margin: 20 }} />
-                        ) : machinesData?.machines?.map((machine) => (
+                        ) : machinesData?.machines?.map((machine: any) => (
                             <TouchableOpacity
                                 key={machine.id}
                                 style={[
@@ -481,7 +487,7 @@ export default function OperatorOverview() {
                             </TouchableOpacity>
                         ))}
                         {machinesData?.success && machinesData.machines.length === 0 && (
-                            <Text style={{ textAlign: 'center', padding: 20, color: colors.textMuted }}>No machines found.</Text>
+                            <Text style={{ textAlign: 'center', padding: 20, color: colors.textMuted }}>{t('common.no_machines')}</Text>
                         )}
                     </ScrollView>
                 </Modal>
@@ -493,7 +499,7 @@ export default function OperatorOverview() {
                     <TouchableOpacity style={styles.startBtn} onPress={() => router.push('/(operator)/start-work-form')}>
                         <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                             <MaterialCommunityIcons name="play" size={28} color="#000" />
-                            <Text style={styles.startBtnText}>START NEW SESSION</Text>
+                            <Text style={styles.startBtnText}>{t('overview.start_new_session')}</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                 ) : (
@@ -503,19 +509,20 @@ export default function OperatorOverview() {
                             onPress={workStatus === 'running' ? handlePause : handleResume}
                         >
                             <MaterialCommunityIcons name={workStatus === 'running' ? "pause" : "play"} size={26} color={colors.warning} />
-                            <Text style={[styles.controlText, { color: colors.warning }]}>{workStatus === 'running' ? 'PAUSE' : 'RESUME'}</Text>
+                            <Text style={[styles.controlText, { color: colors.warning }]}>{t(`overview.${workStatus === 'running' ? 'pause' : 'resume'}`)}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.finishBtn} onPress={handleFinish}>
                             <LinearGradient colors={[colors.danger, '#B91C1C']} style={styles.gradient}>
                                 <MaterialCommunityIcons name="stop" size={26} color="#FFF" />
-                                <Text style={[styles.startBtnText, { color: '#FFF' }]}>FINISH WORK</Text>
+                                <Text style={[styles.startBtnText, { color: '#FFF' }]}>{t('overview.finish_work')}</Text>
                             </LinearGradient>
                         </TouchableOpacity>
                     </View>
-                )}
-            </View>
-        </View>
+                )
+                }
+            </View >
+        </View >
     );
 }
 
@@ -537,6 +544,7 @@ function StatItem({ icon, label, value, colors, loading }: any) {
 
 
 function RecentActivity({ router, colors }: any) {
+    const { t } = useTranslation();
     const { data, isLoading, refetch } = useGetWorkHistoryQuery({ page: 1, limit: 1 });
     const latestWork = data?.workSessions?.[0];
 
@@ -549,9 +557,9 @@ function RecentActivity({ router, colors }: any) {
     return (
         <View>
             <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Recent Activity</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('overview.recent_activity')}</Text>
                 <TouchableOpacity onPress={() => router.push('/(operator)/work-log')}>
-                    <Text style={{ color: colors.primary, fontWeight: '700' }}>View All</Text>
+                    <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('overview.view_all')}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -573,14 +581,14 @@ function RecentActivity({ router, colors }: any) {
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.activityTitle, { color: colors.textMain }]}>{latestWork.clientName}</Text>
                         <Text style={[styles.activityTime, { color: colors.textMuted }]}>
-                            {formatDate(latestWork.createdAt)} • {formatDuration(latestWork.totalHours || 0)} Logged
+                            {formatDate(latestWork.createdAt)} • {formatDuration(latestWork.totalHours || 0)} {t('operator.logged')}
                         </Text>
                     </View>
                     <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
                 </TouchableOpacity>
             ) : (
                 <View style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border, padding: 24, justifyContent: 'center' }]}>
-                    <Text style={{ color: colors.textMuted, textAlign: 'center' }}>No recent activity found.</Text>
+                    <Text style={{ color: colors.textMuted, textAlign: 'center' }}>{t('overview.no_recent_activity')}</Text>
                 </View>
             )}
         </View>
@@ -653,5 +661,8 @@ const styles = StyleSheet.create({
     machineItem: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 4, marginBottom: 8, borderWidth: 1, gap: 12 },
     machineItemIcon: { width: 40, height: 40, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
     machineItemName: { fontSize: 14, fontWeight: '800' },
-    machineItemSub: { fontSize: 12 }
+    machineItemSub: { fontSize: 12 },
+    // Language Item Styles
+    langItem: { padding: 16, borderRadius: 4, borderWidth: 1, borderColor: 'transparent', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+    langText: { fontSize: 16, fontWeight: '700' }
 });

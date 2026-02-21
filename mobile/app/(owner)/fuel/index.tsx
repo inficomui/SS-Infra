@@ -7,10 +7,12 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDate } from '../../../utils/formatters';
+import { useTranslation } from 'react-i18next';
 
 export default function OwnerFuelLogsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     // Filters & Pagination
     const { operatorName } = useLocalSearchParams();
@@ -95,7 +97,7 @@ export default function OwnerFuelLogsScreen() {
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>
-                            {log.machine?.name || 'Unknown Machine'}
+                            {log.machine?.name || t('owner.fuel_management.unknown_machine')}
                         </Text>
                         <Text style={[styles.dateText, { color: colors.textMuted }]}>
                             {formatDate(log.log_date)}
@@ -104,14 +106,14 @@ export default function OwnerFuelLogsScreen() {
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={[styles.amountText, { color: colors.textMain }]}>₹{log.amount}</Text>
-                    <Text style={[styles.operatorSubText, { color: colors.textMuted }]}>{log.operator?.name || 'Unknown'}</Text>
+                    <Text style={[styles.operatorSubText, { color: colors.textMuted }]}>{log.operator?.name || t('owner.fuel_management.unknown')}</Text>
                 </View>
             </View>
 
             <View style={[styles.statsRow, { borderTopColor: colors.border + '30' }]}>
                 <View style={styles.statItem}>
                     <MaterialCommunityIcons name="beaker-outline" size={16} color={colors.textMuted} style={{ marginBottom: 4 }} />
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>Volume</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('owner.fuel_management.volume')}</Text>
                     <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuel_liters} L</Text>
                 </View>
 
@@ -119,7 +121,7 @@ export default function OwnerFuelLogsScreen() {
 
                 <View style={styles.statItem}>
                     <MaterialCommunityIcons name="image-multiple-outline" size={16} color={colors.textMuted} style={{ marginBottom: 4 }} />
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>Photos</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('owner.fuel_management.photos')}</Text>
                     <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
                         <MaterialCommunityIcons
                             name={(log.reading_before_url || log.reading_before || log.before_reading_url) ? "check-circle" : "minus-circle-outline"}
@@ -152,13 +154,13 @@ export default function OwnerFuelLogsScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Fuel Management</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.fuel_management.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <View style={styles.searchContainer}>
                 <Searchbar
-                    placeholder="Search Machine or Operator..."
+                    placeholder={t('owner.fuel_management.search_placeholder')}
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     style={[styles.searchBar, { backgroundColor: colors.card }]}
@@ -173,12 +175,12 @@ export default function OwnerFuelLogsScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollContent}>
                     <TouchableOpacity onPress={() => setShowStartPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-import" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>From: {formatDate(startDate)}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('owner.fuel_management.from')} {formatDate(startDate)}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => setShowEndPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-export" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>To: {formatDate(endDate)}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('owner.fuel_management.to')} {formatDate(endDate)}</Text>
                     </TouchableOpacity>
 
                     <Menu
@@ -191,13 +193,13 @@ export default function OwnerFuelLogsScreen() {
                             >
                                 <MaterialCommunityIcons name="sort-variant" size={16} color={colors.primary} />
                                 <Text style={[styles.filterText, { color: colors.textMain }]}>
-                                    {sortBy === 'newest' ? 'Newest' : 'Oldest'}
+                                    {sortBy === 'newest' ? t('owner.fuel_management.newest') : t('owner.fuel_management.oldest')}
                                 </Text>
                             </TouchableOpacity>
                         }
                     >
-                        <Menu.Item onPress={() => { setSortBy('newest'); setShowSortMenu(false); }} title="Newest First" />
-                        <Menu.Item onPress={() => { setSortBy('oldest'); setShowSortMenu(false); }} title="Oldest First" />
+                        <Menu.Item onPress={() => { setSortBy('newest'); setShowSortMenu(false); }} title={t('owner.fuel_management.newest_first')} />
+                        <Menu.Item onPress={() => { setSortBy('oldest'); setShowSortMenu(false); }} title={t('owner.fuel_management.oldest_first')} />
                     </Menu>
                 </ScrollView>
             </View>
@@ -214,7 +216,7 @@ export default function OwnerFuelLogsScreen() {
                     !isLoading ? (
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="gas-station-off" size={64} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16 }}>No fuel logs found.</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16 }}>{t('owner.fuel_management.no_logs')}</Text>
                         </View>
                     ) : null
                 }
@@ -229,7 +231,7 @@ export default function OwnerFuelLogsScreen() {
                                 disabled={page === 1}
                                 onPress={() => { setPage(page - 1); }}
                             />
-                            <Text style={{ color: colors.textMain }}>Page {page} of {totalPages}</Text>
+                            <Text style={{ color: colors.textMain }}>{t('owner.fuel_management.page')} {page} {t('owner.fuel_management.of')} {totalPages}</Text>
                             <IconButton
                                 icon="chevron-right"
                                 disabled={page === totalPages}

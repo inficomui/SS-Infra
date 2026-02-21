@@ -4,10 +4,12 @@ import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 export default function AboutScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -15,7 +17,7 @@ export default function AboutScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>About Us</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('operator_about.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -24,31 +26,31 @@ export default function AboutScreen() {
                     <View style={[styles.logoPlaceholder, { backgroundColor: colors.primary + '20' }]}>
                         <MaterialCommunityIcons name="excavator" size={48} color={colors.primary} />
                     </View>
-                    <Text style={[styles.brandName, { color: colors.textMain }]}>SS INFRA</Text>
-                    <Text style={[styles.brandSub, { color: colors.textMuted }]}>Construction Equipment Management</Text>
+                    <Text style={[styles.brandName, { color: colors.textMain }]}>{t('operator_about.brand_name')}</Text>
+                    <Text style={[styles.brandSub, { color: colors.textMuted }]}>{t('operator_about.brand_sub')}</Text>
                 </View>
 
                 <View style={styles.infoSection}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Our Mission</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('operator_about.mission_title')}</Text>
                     <Text style={[styles.paragraph, { color: colors.textMain }]}>
-                        To streamline construction logistics and empower operators with transparent, efficient tools for managing work sessions and equipment health.
+                        {t('operator_about.mission_text')}
                     </Text>
                 </View>
 
                 <View style={styles.infoSection}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Version</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('operator_about.version')}</Text>
                     <Text style={[styles.paragraph, { color: colors.textMain }]}>v1.0.0 (Beta)</Text>
                 </View>
 
                 <View style={styles.infoSection}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Support</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('operator_about.support_title')}</Text>
                     <Text style={[styles.paragraph, { color: colors.textMain }]}>
-                        For assistance, contact our support team at support@ssinfra.com or call our helpline.
+                        {t('operator_about.support_text')}
                     </Text>
                 </View>
 
                 <View style={{ height: 40 }} />
-                <Text style={[styles.copyright, { color: colors.textMuted }]}>© 2024 SS Infra Structure. All rights reserved.</Text>
+                <Text style={[styles.copyright, { color: colors.textMuted }]}>{t('operator_about.copyright')}</Text>
             </ScrollView>
         </View>
     );

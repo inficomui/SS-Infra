@@ -8,6 +8,7 @@ import {
     Platform,
 } from 'react-native';
 import { Text, TextInput as PaperInput, ActivityIndicator, HelperText } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,6 +18,7 @@ import Toast from 'react-native-toast-message';
 
 export default function AddOperatorScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { colors } = useAppTheme();
     const [addOperator, { isLoading: isAdding }] = useAddOperatorMutation();
     const [updateSalaryConfig, { isLoading: isUpdatingSalary }] = useUpdateSalaryConfigMutation();
@@ -35,17 +37,17 @@ export default function AddOperatorScreen() {
 
     const validateForm = () => {
         const newErrors: any = {};
-        if (!formData.name.trim()) newErrors.name = 'Name is required';
+        if (!formData.name.trim()) newErrors.name = t('owner.name_required_msg');
         if (!formData.mobile.trim()) {
-            newErrors.mobile = 'Mobile number is required';
+            newErrors.mobile = t('owner.mobile_required_msg');
         } else if (!/^\d{10}$/.test(formData.mobile)) {
-            newErrors.mobile = 'Enter a valid 10-digit number';
+            newErrors.mobile = t('owner.invalid_mobile_msg');
         }
-        if (!formData.district.trim()) newErrors.district = 'District is required';
-        if (!formData.taluka.trim()) newErrors.taluka = 'Taluka is required';
+        if (!formData.district.trim()) newErrors.district = t('owner.district_required_msg');
+        if (!formData.taluka.trim()) newErrors.taluka = t('owner.taluka_required_msg');
 
         if (formData.salaryType !== 'none' && !formData.salaryAmount) {
-            newErrors.salaryAmount = 'Salary amount is required';
+            newErrors.salaryAmount = t('owner.salary_required_msg');
         }
 
         setErrors(newErrors);
@@ -77,8 +79,8 @@ export default function AddOperatorScreen() {
 
             Toast.show({
                 type: 'success',
-                text1: 'Operator Registered',
-                text2: `New operator ${formData.name} added successfully.`
+                text1: t('owner.op_registered_success'),
+                text2: t('owner.op_added_success_msg', { name: formData.name })
             });
 
             setTimeout(() => router.back(), 1500);
@@ -87,8 +89,8 @@ export default function AddOperatorScreen() {
 
             Toast.show({
                 type: 'error',
-                text1: 'Registration Failed',
-                text2: error?.data?.message || 'Failed to add operator'
+                text1: t('owner.reg_failed'),
+                text2: error?.data?.message || t('owner.failed_add_op')
             });
         }
     };
@@ -101,7 +103,7 @@ export default function AddOperatorScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>New Operator</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.new_operator_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -111,28 +113,28 @@ export default function AddOperatorScreen() {
                         <View style={[styles.mainIcon, { backgroundColor: colors.primary + '15' }]}>
                             <MaterialCommunityIcons name="account-plus-outline" size={40} color={colors.primary} />
                         </View>
-                        <Text style={[styles.formTitle, { color: colors.textMain }]}>Register Operator</Text>
-                        <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>Add a certified professional to your machine operations</Text>
+                        <Text style={[styles.formTitle, { color: colors.textMain }]}>{t('owner.register_operator')}</Text>
+                        <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>{t('owner.certified_pro_desc')}</Text>
                     </View>
 
                     <View style={[styles.formSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <InputField
-                            label="Legal Full Name"
+                            label={t('owner.legal_full_name')}
                             icon="account-outline"
                             value={formData.name}
                             onChange={(text: string) => setFormData({ ...formData, name: text })}
                             error={errors.name}
-                            placeholder="e.g. Rahul Sharma"
+                            placeholder={t('owner.rahul_sharma')}
                             colors={colors}
                         />
 
                         <InputField
-                            label="Contact Number"
+                            label={t('owner.contact_number')}
                             icon="phone-outline"
                             value={formData.mobile}
                             onChange={(text: string) => setFormData({ ...formData, mobile: text.replace(/[^0-9]/g, '') })}
                             error={errors.mobile}
-                            placeholder="10-digit mobile number"
+                            placeholder={t('owner.mobile_hint')}
                             keyboardType="phone-pad"
                             maxLength={10}
                             colors={colors}
@@ -141,7 +143,7 @@ export default function AddOperatorScreen() {
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="District"
+                                    label={t('owner.district')}
                                     icon="map-marker-outline"
                                     value={formData.district}
                                     onChange={(text: string) => setFormData({ ...formData, district: text })}
@@ -152,7 +154,7 @@ export default function AddOperatorScreen() {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label="Taluka / TQ"
+                                    label={t('owner.taluka')}
                                     icon="map-outline"
                                     value={formData.taluka}
                                     onChange={(text: string) => setFormData({ ...formData, taluka: text })}
@@ -165,10 +167,10 @@ export default function AddOperatorScreen() {
                     </View>
 
                     <View style={[styles.formSection, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 20 }]}>
-                        <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Salary Configuration</Text>
+                        <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>{t('owner.salary_config')}</Text>
 
                         <View style={styles.salaryTypeContainer}>
-                            <Text style={[styles.inputLabel, { color: colors.textMuted, marginBottom: 12 }]}>Salary Type</Text>
+                            <Text style={[styles.inputLabel, { color: colors.textMuted, marginBottom: 12 }]}>{t('owner.salary_type')}</Text>
                             <View style={styles.row}>
                                 {['none', 'monthly', 'daily'].map((type) => (
                                     <TouchableOpacity
@@ -185,7 +187,7 @@ export default function AddOperatorScreen() {
                                             { color: colors.textMuted },
                                             formData.salaryType === type && { color: colors.primary, fontWeight: '800' }
                                         ]}>
-                                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                                            {t(`owner.${type}`)}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}
@@ -194,7 +196,7 @@ export default function AddOperatorScreen() {
 
                         {formData.salaryType !== 'none' && (
                             <InputField
-                                label={formData.salaryType === 'monthly' ? "Monthly Amount (₹)" : "Daily Wage Rate (₹)"}
+                                label={formData.salaryType === 'monthly' ? t('owner.monthly_amount') : t('owner.daily_wage')}
                                 icon="cash-multiple"
                                 value={formData.salaryAmount}
                                 onChange={(text: string) => setFormData({ ...formData, salaryAmount: text.replace(/[^0-9]/g, '') })}
@@ -207,11 +209,11 @@ export default function AddOperatorScreen() {
                     </View>
 
                     <TouchableOpacity onPress={handleSubmit} disabled={isProcessing} style={styles.submitButton}>
-                        <LinearGradient colors={[colors.primary, colors.secondary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                        <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                             {isProcessing ? <ActivityIndicator color="#000" /> : (
                                 <>
                                     <MaterialCommunityIcons name="account-check-outline" size={20} color="#000" />
-                                    <Text style={styles.submitText}>Save & Register Operator</Text>
+                                    <Text style={styles.submitText}>{t('owner.save_register_op')}</Text>
                                 </>
                             )}
                         </LinearGradient>

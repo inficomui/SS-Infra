@@ -5,12 +5,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGenerateBillMutation } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 export default function CreateBillScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const params = useLocalSearchParams();
     const [generateBill, { isLoading: isSubmitting }] = useGenerateBillMutation();
+    const { t } = useTranslation();
 
     const initialSeconds = Number(params.elapsedSeconds) || 0;
     const clientName = params.clientName as string || 'SS Infra Site';
@@ -30,22 +32,22 @@ export default function CreateBillScreen() {
 
     const handleSubmit = async () => {
         if (!totalAmount || parseFloat(totalAmount) <= 0) {
-            Alert.alert("Invalid Amount", "Please ensure the total amount is correct.");
+            Alert.alert(t('create_bill_screen.invalid_amount'), t('create_bill_screen.invalid_amount_msg'));
             return;
         }
 
         if (!workId) {
-            Alert.alert("Error", "Work ID missing.");
+            Alert.alert(t('finish_work_screen.error'), t('create_bill_screen.work_id_missing'));
             return;
         }
 
         Alert.alert(
-            "Confirm Invoice",
-            `Generate final bill for ₹${totalAmount}?`,
+            t('create_bill_screen.confirm_invoice'),
+            t('create_bill_screen.generate_msg', { amount: totalAmount }),
             [
-                { text: "Cancel", style: "cancel" },
+                { text: t('create_bill_screen.cancel'), style: "cancel" },
                 {
-                    text: "Confirm",
+                    text: t('create_bill_screen.confirm'),
                     onPress: async () => {
                         try {
                             // Store result to access invoice details
@@ -57,9 +59,9 @@ export default function CreateBillScreen() {
                                 description: description
                             }).unwrap();
 
-                            Alert.alert("Success", "Invoice generated successfully!", [
+                            Alert.alert(t('create_bill_screen.success'), t('create_bill_screen.invoice_success'), [
                                 {
-                                    text: "View Invoice",
+                                    text: t('create_bill_screen.view_invoice'),
                                     onPress: () => {
                                         router.replace({
                                             pathname: '/(operator)/invoice-preview',
@@ -80,8 +82,8 @@ export default function CreateBillScreen() {
                             ]);
                         } catch (error: any) {
                             const errData = error?.data || error;
-                            const msg = errData?.message || "The billing service is currently unavailable. Please notify the backend developer.";
-                            Alert.alert("Submission Failed", msg);
+                            const msg = errData?.message || t('create_bill_screen.billing_unavailable');
+                            Alert.alert(t('create_bill_screen.submission_failed'), msg);
                         }
                     }
                 }
@@ -95,7 +97,7 @@ export default function CreateBillScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Final Invoice</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('create_bill_screen.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -107,7 +109,7 @@ export default function CreateBillScreen() {
                             <MaterialCommunityIcons name="account-tie" size={28} color={colors.primary} />
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.cardLabel, { color: colors.textMuted }]}>Recipient</Text>
+                            <Text style={[styles.cardLabel, { color: colors.textMuted }]}>{t('create_bill_screen.recipient')}</Text>
                             <Text style={[styles.cardValue, { color: colors.textMain }]}>{clientName}</Text>
                             <Text style={[styles.cardSubValue, { color: colors.textMuted }]}>{clientLocation}</Text>
                         </View>
@@ -118,18 +120,18 @@ export default function CreateBillScreen() {
                     <View style={[styles.photoStatus, { backgroundColor: colors.success + '10', borderColor: colors.success + '30' }]}>
                         <Image source={{ uri: params.afterWorkPhoto as string }} style={styles.photoThumb} />
                         <View>
-                            <Text style={[styles.statusTitle, { color: colors.success }]}>Work Verified</Text>
-                            <Text style={[styles.statusSub, { color: colors.textMuted }]}>Photo proof attached to logs</Text>
+                            <Text style={[styles.statusTitle, { color: colors.success }]}>{t('create_bill_screen.work_verified')}</Text>
+                            <Text style={[styles.statusSub, { color: colors.textMuted }]}>{t('create_bill_screen.proof_attached')}</Text>
                         </View>
                         <MaterialCommunityIcons name="check-decagram" size={24} color={colors.success} style={{ marginLeft: 'auto' }} />
                     </View>
                 )}
 
-                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Billing Computation</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('create_bill_screen.billing_computation')}</Text>
 
                 <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Total Duration (Hours)</Text>
+                        <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('create_bill_screen.total_duration')}</Text>
                         <View style={[styles.inputWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}>
                             <TextInput
                                 value={hours}
@@ -138,12 +140,12 @@ export default function CreateBillScreen() {
                                 style={[styles.input, { color: colors.textMain }]}
                                 placeholderTextColor={colors.textMuted}
                             />
-                            <Text style={[styles.unitText, { color: colors.textMuted }]}>HRS</Text>
+                            <Text style={[styles.unitText, { color: colors.textMuted }]}>{t('create_bill_screen.hrs')}</Text>
                         </View>
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Hourly Labor Rate (₹)</Text>
+                        <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('create_bill_screen.hourly_rate')}</Text>
                         <View style={[styles.inputWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}>
                             <Text style={[styles.currency, { color: colors.textMain }]}>₹</Text>
                             <TextInput
@@ -159,12 +161,12 @@ export default function CreateBillScreen() {
                     <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
                     <View style={styles.totalRow}>
-                        <Text style={[styles.totalLabel, { color: colors.textMain }]}>Total Payable</Text>
+                        <Text style={[styles.totalLabel, { color: colors.textMain }]}>{t('create_bill_screen.total_payable')}</Text>
                         <Text style={[styles.totalValue, { color: colors.primary }]}>₹ {totalAmount}</Text>
                     </View>
                 </View>
 
-                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Additional Remarks</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('create_bill_screen.additional_remarks')}</Text>
                 <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <TextInput
                         value={description}
@@ -172,7 +174,7 @@ export default function CreateBillScreen() {
                         multiline
                         numberOfLines={3}
                         style={[styles.input, { height: 80, textAlignVertical: 'top', color: colors.textMain }]}
-                        placeholder="Add specific details about the work performed..."
+                        placeholder={t('create_bill_screen.remarks_placeholder')}
                         placeholderTextColor={colors.textMuted}
                     />
                 </View>
@@ -191,7 +193,7 @@ export default function CreateBillScreen() {
                     ) : (
                         <View style={styles.btnContent}>
                             <MaterialCommunityIcons name="send-circle" size={26} color="#000" />
-                            <Text style={styles.btnText}>DISPATCH INVOICE</Text>
+                            <Text style={styles.btnText}>{t('create_bill_screen.dispatch_invoice')}</Text>
                         </View>
                     )}
                 </TouchableOpacity>

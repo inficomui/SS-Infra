@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGetWorkDetailsQuery } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 import { resolveImageUrl } from '../../utils/imageHelpers';
 import { formatDuration, formatDate } from '@/utils/formatters';
 
@@ -14,6 +15,7 @@ export default function WorkDetailsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const { id } = useLocalSearchParams();
+    const { t } = useTranslation();
 
     // Fetch detailed work session data
     const { data, isLoading, error } = useGetWorkDetailsQuery(Number(id));
@@ -62,9 +64,9 @@ export default function WorkDetailsScreen() {
         return (
             <View style={[styles.centered, { backgroundColor: colors.background }]}>
                 <MaterialCommunityIcons name="alert-circle-outline" size={48} color={colors.danger} />
-                <Text style={{ color: colors.textMuted, marginTop: 16 }}>Failed to load work details.</Text>
+                <Text style={{ color: colors.textMuted, marginTop: 16 }}>{t('operator.failed_load_work')}</Text>
                 <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-                    <Text style={{ color: colors.primary, fontWeight: '700' }}>Go Back</Text>
+                    <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('operator.go_back')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -76,7 +78,7 @@ export default function WorkDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Work Details #{workSession.id}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('operator.work_details_title')} #{workSession.id}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -85,32 +87,32 @@ export default function WorkDetailsScreen() {
                 {/* Status Card */}
                 <View style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={styles.statusRow}>
-                        <Text style={[styles.label, { color: colors.textMuted }]}>Status</Text>
+                        <Text style={[styles.label, { color: colors.textMuted }]}>{t('operator.status_label')}</Text>
                         <View style={[styles.badge, { backgroundColor: workSession.status === 'completed' ? colors.success + '20' : colors.primary + '20' }]}>
                             <Text style={[styles.badgeText, { color: workSession.status === 'completed' ? colors.success : colors.primary }]}>
-                                {workSession.status.toUpperCase()}
+                                {(t(`overview.${workSession.status}`) || workSession.status).toUpperCase()}
                             </Text>
                         </View>
                     </View>
                     <View style={styles.divider} />
                     <View style={styles.timeRow}>
                         <View>
-                            <Text style={[styles.label, { color: colors.textMuted }]}>Date</Text>
+                            <Text style={[styles.label, { color: colors.textMuted }]}>{t('operator.date_label')}</Text>
                             <Text style={[styles.value, { color: colors.textMain }]}>
                                 {formatDate(workSession.createdAt)}
                             </Text>
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={[styles.label, { color: colors.textMuted }]}>Duration</Text>
+                            <Text style={[styles.label, { color: colors.textMuted }]}>{t('operator.duration_label')}</Text>
                             <Text style={[styles.value, { color: colors.textMain }]}>
-                                {workSession.totalHours ? formatDuration(workSession.totalHours) : 'In Progress'}
+                                {workSession.totalHours ? formatDuration(workSession.totalHours) : t('overview.in_progress')}
                             </Text>
                         </View>
                     </View>
                 </View>
 
                 {/* Client Details */}
-                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Client Information</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('operator.client_info_title')}</Text>
                 <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={styles.clientHeader}>
                         <View style={[styles.avatar, { backgroundColor: colors.primary + '20' }]}>
@@ -135,7 +137,7 @@ export default function WorkDetailsScreen() {
                         <MaterialCommunityIcons name="map-marker" size={20} color={colors.danger} />
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.locationText, { color: colors.textMain }]}>
-                                {workSession.siteAddress || workSession.clientDistrict || 'Location not specified'}
+                                {workSession.siteAddress || workSession.clientDistrict || t('operator.loc_not_specified')}
                             </Text>
                             {workSession.siteLatitude && (
                                 <Text style={[styles.coordText, { color: colors.textMuted }]}>
@@ -150,13 +152,13 @@ export default function WorkDetailsScreen() {
                 {/* Photos */}
                 {(workSession.beforePhotoUrl || workSession.afterPhotoUrl) && (
                     <>
-                        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Site Photos</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('operator.site_photos_title')}</Text>
                         <View style={styles.photosRow}>
                             {workSession.beforePhotoUrl && (
                                 <View style={[styles.photoContainer, { borderColor: colors.border }]}>
                                     <Image source={{ uri: resolveImageUrl(workSession.beforePhotoUrl) }} style={styles.photo} />
                                     <View style={styles.photoLabel}>
-                                        <Text style={styles.photoLabelText}>BEFORE</Text>
+                                        <Text style={styles.photoLabelText}>{t('operator.before')}</Text>
                                     </View>
                                 </View>
                             )}
@@ -164,7 +166,7 @@ export default function WorkDetailsScreen() {
                                 <View style={[styles.photoContainer, { borderColor: colors.border }]}>
                                     <Image source={{ uri: resolveImageUrl(workSession.afterPhotoUrl) }} style={styles.photo} />
                                     <View style={[styles.photoLabel, { backgroundColor: 'rgba(34, 197, 94, 0.8)' }]}>
-                                        <Text style={styles.photoLabelText}>AFTER</Text>
+                                        <Text style={styles.photoLabelText}>{t('operator.after')}</Text>
                                     </View>
                                 </View>
                             )}
@@ -182,7 +184,7 @@ export default function WorkDetailsScreen() {
                                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                             >
                                 <MaterialCommunityIcons name="file-document-outline" size={24} color="#000" />
-                                <Text style={styles.btnText}>VIEW INVOICE / BILL</Text>
+                                <Text style={styles.btnText}>{t('operator.view_invoice_btn')}</Text>
                             </LinearGradient>
                         </TouchableOpacity>
                     </View>

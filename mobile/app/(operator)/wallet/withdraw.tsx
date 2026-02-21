@@ -4,12 +4,14 @@ import { Text, TextInput as PaperInput } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 import { useRequestWithdrawalMutation } from '@/redux/apis/walletApi';
 import Toast from 'react-native-toast-message';
 
 export default function WithdrawalRequestScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
     const [requestWithdrawal, { isLoading }] = useRequestWithdrawalMutation();
 
     const [amount, setAmount] = useState('');
@@ -24,11 +26,11 @@ export default function WithdrawalRequestScreen() {
 
     const validate = () => {
         const newErrors: any = {};
-        if (!amount || Number(amount) <= 0) newErrors.amount = 'Enter a valid amount';
-        if (!bankDetails.accountNumber) newErrors.accountNumber = 'Account Number is required';
-        if (!bankDetails.ifsc) newErrors.ifsc = 'IFSC Code is required';
-        if (!bankDetails.bankName) newErrors.bankName = 'Bank Name is required';
-        if (!bankDetails.holderName) newErrors.holderName = 'Account Holder Name is required';
+        if (!amount || Number(amount) <= 0) newErrors.amount = t('wallet.enter_valid_amount');
+        if (!bankDetails.accountNumber) newErrors.accountNumber = t('wallet.account_number_required');
+        if (!bankDetails.ifsc) newErrors.ifsc = t('wallet.ifsc_required');
+        if (!bankDetails.bankName) newErrors.bankName = t('wallet.bank_name_required');
+        if (!bankDetails.holderName) newErrors.holderName = t('wallet.holder_name_required');
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -45,16 +47,16 @@ export default function WithdrawalRequestScreen() {
 
             Toast.show({
                 type: 'success',
-                text1: 'Request Submitted',
-                text2: 'Withdrawal request sent successfully'
+                text1: t('wallet.request_submitted'),
+                text2: t('wallet.request_success')
             });
 
             setTimeout(() => router.back(), 1500);
         } catch (error: any) {
             Toast.show({
                 type: 'error',
-                text1: 'Submission Failed',
-                text2: error?.data?.message || 'Failed to submit request'
+                text1: t('wallet.submission_failed'),
+                text2: error?.data?.message || t('wallet.failed_submit')
             });
         }
     };
@@ -68,15 +70,15 @@ export default function WithdrawalRequestScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Withdraw Funds</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('wallet.withdraw_funds')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
-                <SectionHeader title="Amount" colors={colors} />
+                <SectionHeader title={t('wallet.amount')} colors={colors} />
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <PaperInput
-                        label="Amount (₹)"
+                        label={t('wallet.amount_label')}
                         value={amount}
                         onChangeText={text => setAmount(text.replace(/[^0-9]/g, ''))}
                         keyboardType="numeric"
@@ -90,10 +92,10 @@ export default function WithdrawalRequestScreen() {
                     {errors.amount && <Text style={{ color: colors.danger, fontSize: 12, marginTop: 4 }}>{errors.amount}</Text>}
                 </View>
 
-                <SectionHeader title="Bank Details" colors={colors} />
+                <SectionHeader title={t('wallet.bank_details')} colors={colors} />
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border, gap: 16 }]}>
                     <Input
-                        label="Account Holder Name"
+                        label={t('wallet.holder_name')}
                         value={bankDetails.holderName}
                         onChangeText={(t: string) => setBankDetails({ ...bankDetails, holderName: t })}
                         error={errors.holderName}
@@ -101,7 +103,7 @@ export default function WithdrawalRequestScreen() {
                         icon="account"
                     />
                     <Input
-                        label="Bank Name"
+                        label={t('wallet.bank_name')}
                         value={bankDetails.bankName}
                         onChangeText={(t: string) => setBankDetails({ ...bankDetails, bankName: t })}
                         error={errors.bankName}
@@ -109,7 +111,7 @@ export default function WithdrawalRequestScreen() {
                         icon="bank"
                     />
                     <Input
-                        label="Account Number"
+                        label={t('wallet.account_number')}
                         value={bankDetails.accountNumber}
                         onChangeText={(t: string) => setBankDetails({ ...bankDetails, accountNumber: t.replace(/[^0-9]/g, '') })}
                         error={errors.accountNumber}
@@ -118,7 +120,7 @@ export default function WithdrawalRequestScreen() {
                         keyboardType="numeric"
                     />
                     <Input
-                        label="IFSC Code"
+                        label={t('wallet.ifsc_code')}
                         value={bankDetails.ifsc}
                         onChangeText={(t: string) => setBankDetails({ ...bankDetails, ifsc: t.toUpperCase() })}
                         error={errors.ifsc}
@@ -134,7 +136,7 @@ export default function WithdrawalRequestScreen() {
                     style={[styles.submitButton, { backgroundColor: colors.primary, opacity: isLoading ? 0.7 : 1 }]}
                 >
                     {isLoading ? <ActivityIndicator color="#FFF" /> : (
-                        <Text style={styles.submitText}>Submit Request</Text>
+                        <Text style={styles.submitText}>{t('wallet.submit_request')}</Text>
                     )}
                 </TouchableOpacity>
             </ScrollView>

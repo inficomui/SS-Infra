@@ -4,9 +4,11 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import './../utils/i18n';
 import { Provider as ReduxProvider, useSelector } from 'react-redux';
 import { PaperProvider, MD3LightTheme, MD3DarkTheme, adaptNavigationTheme } from 'react-native-paper';
 import { store, persistor } from '../redux/store';
+import { storage } from '../redux/storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { PersistGate } from 'redux-persist/integration/react';
 import { useEffect, useState } from 'react';
@@ -42,8 +44,21 @@ function RootLayoutNav() {
   const { role, isAuthenticated, user } = useSelector((state: any) => state.auth);
   const { isLoading: isValidatingSession } = useGetMeQuery(undefined, { skip: !isAuthenticated });
   const [mounted, setMounted] = useState(false);
+  const [isCheckingLanguage, setIsCheckingLanguage] = useState(true);
+  const [hasLanguage, setHasLanguage] = useState(false);
 
   useEffect(() => {
+    const checkLang = async () => {
+      try {
+        const lang = await storage.getItem('user-language');
+        if (lang) setHasLanguage(true);
+      } catch (e) {
+        // ignore
+      } finally {
+        setIsCheckingLanguage(false);
+      }
+    };
+    checkLang();
     setMounted(true);
   }, []);
 
@@ -53,8 +68,24 @@ function RootLayoutNav() {
   useEffect(() => {
     if (!mounted || (isAuthenticated && isValidatingSession)) return;
 
+    if (!hasLanguage && segments[0] !== 'language-selection') {
+      router.replace('/language-selection');
+      return;
+    }
+
+    if (segments[0] === 'language-selection') {
+      // Let the selection screen handle navigation or if language is now set (needs reload or context update ideally but simpler for now)
+      if (hasLanguage) {
+        // If somehow we have language, maybe redirect to login/home
+        // But normally we stay here until user picks.
+        // Actually if hasLanguage is true, we should fall through to auth checks.
+      } else {
+        return;
+      }
+    }
+
     if (!isAuthenticated) {
-      if (segments[0] !== 'login') {
+      if (segments[0] !== 'login' && segments[0] !== 'language-selection') {
         router.replace('/login');
       }
     } else if (isAuthenticated && user) {
@@ -66,9 +97,9 @@ function RootLayoutNav() {
         }
       }
     }
-  }, [isAuthenticated, role, segments, user, mounted, isValidatingSession]);
+  }, [isAuthenticated, role, segments, user, mounted, isValidatingSession, isCheckingLanguage, hasLanguage]);
 
-  if (!mounted || (isAuthenticated && isValidatingSession)) {
+  if (!mounted || (isAuthenticated && isValidatingSession) || isCheckingLanguage) {
     return <SplashScreen />;
   }
 
@@ -82,6 +113,7 @@ function RootLayoutNav() {
       <ThemeProvider value={isDark ? NavDarkTheme : LightTheme}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="login" />
+          <Stack.Screen name="language-selection" options={{ headerShown: false }} />
           <Stack.Screen name="(operator)" options={{ headerShown: false }} />
           <Stack.Screen name="(owner)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

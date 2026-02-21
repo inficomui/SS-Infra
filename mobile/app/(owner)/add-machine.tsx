@@ -12,6 +12,7 @@ import {
     Modal
 } from 'react-native';
 import { Text, TextInput as PaperInput, ActivityIndicator } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -24,6 +25,7 @@ import Toast from 'react-native-toast-message';
 
 export default function AddMachineScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const params = useLocalSearchParams();
     console.log("Add/Edit Machine Params:", JSON.stringify(params, null, 2));
 
@@ -80,7 +82,7 @@ export default function AddMachineScreen() {
     const handleTakePhoto = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert('Permission Denied', 'Camera permission is required to capture machine photo.');
+            Alert.alert(t('owner.fleet.permission_denied'), t('owner.fleet.camera_permission'));
             return;
         }
 
@@ -100,7 +102,7 @@ export default function AddMachineScreen() {
     const handlePickPhoto = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert('Permission Denied', 'Gallery permission is required to select machine photo.');
+            Alert.alert(t('owner.fleet.permission_denied'), t('owner.fleet.gallery_permission'));
             return;
         }
 
@@ -119,9 +121,9 @@ export default function AddMachineScreen() {
 
     const validateForm = () => {
         const newErrors: any = {};
-        if (!formData.name.trim()) newErrors.name = 'Machine name is required';
-        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = 'Serial number is required';
-        if (!photoUri && !isEditMode) newErrors.photo = 'Machine photo is required';
+        if (!formData.name.trim()) newErrors.name = t('owner.fleet.name_required');
+        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = t('owner.fleet.serial_required');
+        if (!photoUri && !isEditMode) newErrors.photo = t('owner.fleet.photo_required');
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -159,8 +161,8 @@ export default function AddMachineScreen() {
 
                 Toast.show({
                     type: 'success',
-                    text1: 'Equipment Updated',
-                    text2: 'Machine details have been successfully updated.'
+                    text1: t('owner.fleet.update_success'),
+                    text2: t('owner.fleet.update_success_msg')
                 });
 
                 setTimeout(() => router.back(), 1500);
@@ -170,8 +172,8 @@ export default function AddMachineScreen() {
 
                 Toast.show({
                     type: 'success',
-                    text1: 'New Equipment Added',
-                    text2: `${formData.name} is now part of your fleet.`
+                    text1: t('owner.fleet.add_success'),
+                    text2: t('owner.fleet.add_success_msg', { name: formData.name })
                 });
 
                 setTimeout(() => router.back(), 1500);
@@ -179,11 +181,11 @@ export default function AddMachineScreen() {
 
         } catch (error: any) {
             console.error('Machine Operation Error:', error);
-            const serverMsg = error?.data?.message || error?.message || 'Operation failed';
+            const serverMsg = error?.data?.message || error?.message || t('owner.fleet.op_failed');
 
             Toast.show({
                 type: 'error',
-                text1: 'Action Failed',
+                text1: t('owner.fleet.delete_error'),
                 text2: serverMsg
             });
         }
@@ -196,7 +198,7 @@ export default function AddMachineScreen() {
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: colors.textMain }]}>
-                    {isEditMode ? 'Edit Equipment' : 'Register Equipment'}
+                    {isEditMode ? t('owner.fleet.edit_title') : t('owner.fleet.register_title')}
                 </Text>
                 <View style={{ width: 44 }} />
             </View>
@@ -244,43 +246,43 @@ export default function AddMachineScreen() {
                                     <View style={[styles.photoIconCircle, { backgroundColor: colors.primary + '20' }]}>
                                         <MaterialCommunityIcons name="truck-outline" size={32} color={colors.primary} />
                                     </View>
-                                    <Text style={[styles.photoLabel, { color: colors.textMuted }]}>Upload Machine Photo</Text>
+                                    <Text style={[styles.photoLabel, { color: colors.textMuted }]}>{t('owner.fleet.upload_photo')}</Text>
 
                                     <View style={styles.choiceButtons}>
                                         <TouchableOpacity onPress={handleTakePhoto} style={[styles.choiceBtn, { backgroundColor: colors.primary }]}>
                                             <MaterialCommunityIcons name="camera" size={18} color="#000" />
-                                            <Text style={styles.choiceBtnText}>CAMERA</Text>
+                                            <Text style={styles.choiceBtnText}>{t('owner.fleet.camera')}</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={handlePickPhoto} style={[styles.choiceBtn, { backgroundColor: colors.background, borderColor: colors.border, borderWidth: 1 }]}>
                                             <MaterialCommunityIcons name="image" size={18} color={colors.textMain} />
-                                            <Text style={[styles.choiceBtnText, { color: colors.textMain }]}>GALLERY</Text>
+                                            <Text style={[styles.choiceBtnText, { color: colors.textMain }]}>{t('owner.fleet.gallery')}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                             )}
                         </TouchableOpacity>
                         {errors.photo && <Text style={[styles.errorLabel, { color: colors.danger, textAlign: 'center', marginTop: 8 }]}>{errors.photo}</Text>}
-                        {photoUri && <Text style={[styles.hintText, { color: colors.textMuted }]}>Tap image to preview full screen</Text>}
+                        {photoUri && <Text style={[styles.hintText, { color: colors.textMuted }]}>{t('owner.fleet.tap_preview')}</Text>}
                     </View>
 
                     <View style={[styles.formSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <InputField
-                            label="Machine Name / Model"
+                            label={t('owner.fleet.name_label')}
                             icon="truck-outline"
                             value={formData.name}
                             onChange={(text: string) => setFormData({ ...formData, name: text })}
                             error={errors.name}
-                            placeholder="e.g. JCB 3DX Xtra"
+                            placeholder={t('owner.fleet.name_placeholder')}
                             colors={colors}
                         />
 
                         <InputField
-                            label="Registration / Serial No."
+                            label={t('owner.fleet.reg_label')}
                             icon="card-text-outline"
                             value={formData.registrationNumber}
                             onChange={(text: string) => setFormData({ ...formData, registrationNumber: text.toUpperCase() })}
                             error={errors.registrationNumber}
-                            placeholder="e.g. INF-MC-001"
+                            placeholder={t('owner.fleet.reg_placeholder')}
                             autoCapitalize="characters"
                             colors={colors}
                         />
@@ -289,7 +291,7 @@ export default function AddMachineScreen() {
                         <TouchableOpacity onPress={() => setShowDatePicker(true)} activeOpacity={0.8}>
                             <View pointerEvents="none">
                                 <InputField
-                                    label="Purchase Date (Optional)"
+                                    label={t('owner.fleet.purchase_date')}
                                     icon="calendar-outline"
                                     value={formData.purchaseDate}
                                     placeholder="YYYY-MM-DD"
@@ -313,11 +315,11 @@ export default function AddMachineScreen() {
                     </View>
 
                     <TouchableOpacity onPress={handleSubmit} disabled={isLoading} style={styles.submitButton}>
-                        <LinearGradient colors={[colors.primary, colors.secondary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                        <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                             {isLoading ? <ActivityIndicator color="#000" /> : (
                                 <>
                                     <MaterialCommunityIcons name={isEditMode ? "content-save-edit" : "check-decagram"} size={20} color="#000" />
-                                    <Text style={styles.submitText}>{isEditMode ? 'Update Details' : 'Save to Fleet Network'}</Text>
+                                    <Text style={styles.submitText}>{isEditMode ? t('owner.fleet.update_details') : t('owner.fleet.save_fleet')}</Text>
                                 </>
                             )}
                         </LinearGradient>

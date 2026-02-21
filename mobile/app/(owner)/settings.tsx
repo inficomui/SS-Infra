@@ -5,9 +5,11 @@ import { Text, List } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 export default function SettingsScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { colors } = useAppTheme();
     const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
     const [soundEnabled, setSoundEnabled] = React.useState(true);
@@ -19,16 +21,16 @@ export default function SettingsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Settings</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('settings.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={[styles.section, { borderBottomColor: colors.border }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>General</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.general')}</Text>
                     <List.Item
-                        title="Language"
-                        description="English (Default)"
+                        title={t('settings.language')}
+                        description="English / हिन्दी / मराठी"
                         left={() => <List.Icon icon="web" color={colors.primary} />}
                         right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />}
                         onPress={() => { }}
@@ -36,8 +38,8 @@ export default function SettingsScreen() {
                         descriptionStyle={{ color: colors.textMuted }}
                     />
                     <List.Item
-                        title="Notifications"
-                        description="Manage alerts and updates"
+                        title={t('settings.notifications')}
+                        description={t('settings.notifications_desc')}
                         left={() => <List.Icon icon="bell-outline" color={colors.primary} />}
                         right={() => <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} trackColor={{ false: '#767577', true: colors.primary }} thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'} />}
                         onPress={() => { }}
@@ -47,10 +49,10 @@ export default function SettingsScreen() {
                 </View>
 
                 <View style={[styles.section, { borderBottomColor: colors.border }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Preferences</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.preferences')}</Text>
                     <List.Item
-                        title="Sound Effects"
-                        description="Play sounds for actions"
+                        title={t('settings.sound_effects')}
+                        description={t('settings.sound_effects_desc')}
                         left={() => <List.Icon icon="volume-high" color={colors.primary} />}
                         right={() => <Switch value={soundEnabled} onValueChange={setSoundEnabled} trackColor={{ false: '#767577', true: colors.primary }} thumbColor={soundEnabled ? '#f4f3f4' : '#f4f3f4'} />}
                         onPress={() => { }}
@@ -58,8 +60,8 @@ export default function SettingsScreen() {
                         descriptionStyle={{ color: colors.textMuted }}
                     />
                     <List.Item
-                        title="Auto Sync"
-                        description="Sync data automatically"
+                        title={t('settings.auto_sync')}
+                        description={t('settings.auto_sync_desc')}
                         left={() => <List.Icon icon="sync" color={colors.primary} />}
                         right={() => <Switch value={autoSync} onValueChange={setAutoSync} trackColor={{ false: '#767577', true: colors.primary }} thumbColor={autoSync ? '#f4f3f4' : '#f4f3f4'} />}
                         onPress={() => { }}
@@ -69,20 +71,20 @@ export default function SettingsScreen() {
                 </View>
 
                 <View style={[styles.section, { borderBottomColor: 'transparent' }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Advanced</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.advanced')}</Text>
                     <List.Item
-                        title="Clear Cache"
-                        description="Free up space"
+                        title={t('settings.clear_cache')}
+                        description={t('settings.clear_cache_desc')}
                         left={() => <List.Icon icon="delete-sweep-outline" color={colors.danger} />}
-                        onPress={() => alert('Cache Cleared')}
+                        onPress={() => alert(t('settings.cache_cleared'))}
                         titleStyle={{ color: colors.textMain }}
                         descriptionStyle={{ color: colors.textMuted }}
                     />
                     <List.Item
-                        title="Factory Reset"
-                        description="Reset all settings to default"
+                        title={t('settings.factory_reset')}
+                        description={t('settings.factory_reset_desc')}
                         left={() => <List.Icon icon="restore" color={colors.danger} />}
-                        onPress={() => alert('Reset to Factory Settings')}
+                        onPress={() => alert(t('settings.reset_complete'))}
                         titleStyle={{ color: colors.textMain }}
                         descriptionStyle={{ color: colors.textMuted }}
                     />

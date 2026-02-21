@@ -6,10 +6,12 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Constants from 'expo-constants';
+import { useTranslation } from 'react-i18next';
 
 export default function AboutScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
     const version = Constants.expoConfig?.version || '1.0.0';
 
     return (
@@ -18,7 +20,7 @@ export default function AboutScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>About App</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.about.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -32,27 +34,27 @@ export default function AboutScreen() {
                 </View>
 
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={[styles.cardTitle, { color: colors.textMain }]}>Our Mission</Text>
+                    <Text style={[styles.cardTitle, { color: colors.textMain }]}>{t('owner.about.mission')}</Text>
                     <Text style={[styles.cardText, { color: colors.textMuted }]}>
-                        Empowering infrastructure owners with cutting-edge tools to manage fleets, track operators, and streamline billing operations effortlessly.
+                        {t('owner.about.mission_text')}
                     </Text>
                 </View>
 
                 <View style={[styles.section, { borderColor: colors.border }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Developer Info</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('owner.about.developer_info')}</Text>
                     <TouchableOpacity onPress={() => Linking.openURL('https://inficomsolutions.in')} style={[styles.linkRow, { borderBottomColor: colors.border }]}>
-                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>Developed By</Text>
+                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>{t('owner.about.developed_by')}</Text>
                         <Text style={[styles.linkValue, { color: colors.primary }]}>Inficom Solutions</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => Linking.openURL('mailto:support@ssinfra.com')} style={styles.linkRow}>
-                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>Contact Support</Text>
+                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>{t('owner.about.contact_support')}</Text>
                         <Text style={[styles.linkValue, { color: colors.textMain }]}>support@ssinfra.com</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.footer}>
                     <Text style={[styles.footerText, { color: colors.textMuted }]}>
-                        © 2025 SS Infrastructure. All rights reserved.
+                        {t('owner.about.rights_reserved')}
                     </Text>
                 </View>
             </ScrollView>

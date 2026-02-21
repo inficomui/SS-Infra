@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useGetNotificationsQuery, useMarkAsReadMutation, useDeleteNotificationMutation, Notification } from '@/redux/apis/notificationApi';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 const timeAgo = (dateStr: string) => {
     const now = new Date();
@@ -27,6 +28,7 @@ const timeAgo = (dateStr: string) => {
 export default function NotificationList({ basePath = '/(owner)' }: { basePath?: string }) {
     const { colors } = useAppTheme();
     const router = useRouter();
+    const { t } = useTranslation();
     const { data, isLoading, refetch, isError } = useGetNotificationsQuery();
     const [markAsRead] = useMarkAsReadMutation();
     const [deleteNotification] = useDeleteNotificationMutation();
@@ -135,7 +137,7 @@ export default function NotificationList({ basePath = '/(owner)' }: { basePath?:
         return (
             <View style={styles.center}>
                 <MaterialCommunityIcons name="bell-sleep" size={64} color={colors.border} />
-                <Text style={[styles.emptyText, { color: colors.textMuted }]}>No notifications yet</Text>
+                <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('common.no_notifications')}</Text>
             </View>
         );
     }

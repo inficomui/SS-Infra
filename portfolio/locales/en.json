@@ -1,0 +1,40 @@
+{
+  "common": {
+    "get_started": "Get Started",
+    "request_demo": "Request a Demo",
+    "see_features": "See Features",
+    "features": "Features",
+    "how_it_works": "How It Works",
+    "owners": "Owners",
+    "discovery": "Discovery",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "send_enquiry": "Send Enquiry",
+    "full_name": "Full Name",
+    "company_name": "Company Name",
+    "phone_number": "Phone Number",
+    "email_address": "Email Address",
+    "message": "Message",
+    "select_machine_range": "Select machine range",
+    "success_title": "Thank You!",
+    "success_desc": "We've received your enquiry. Our team will contact you within 24 hours.",
+    "send_another": "Send Another",
+    "login": "Login",
+    "search_near_me": "Search Near Me",
+    "available": "Available",
+    "unavailable": "Busy",
+    "book_now": "Book Now"
+  },
+  "hero": {
+    "title": "Manage Your",
+    "subtitle": "Infrastructure",
+    "desc": "SS-Infra is the all-in-one mobile platform built for construction & infrastructure businesses. Track operators, manage machines, monitor fuel, handle payroll — all from your phone.",
+    "badge": "Now Available on Android & iOS"
+  },
+  "stats": {
+    "active_operators": "Active Operators",
+    "uptime": "Uptime",
+    "machines_tracked": "Machines Tracked",
+    "sessions": "Work Sessions"
+  }
+}

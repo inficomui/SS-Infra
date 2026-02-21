@@ -6,10 +6,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 export default function SupportScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
 
     const handleCall = () => {
         Linking.openURL('tel:+919876543210');
@@ -20,7 +22,8 @@ export default function SupportScreen() {
     };
 
     const handleWhatsApp = () => {
-        Linking.openURL('whatsapp://send?phone=+919876543210&text=Hello, I need support.');
+        const message = t('support_screen.whatsapp_msg');
+        Linking.openURL(`whatsapp://send?phone=+919876543210&text=${message}`);
     };
 
     return (
@@ -29,7 +32,7 @@ export default function SupportScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Help & Support</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('support_screen.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -39,21 +42,21 @@ export default function SupportScreen() {
                     <View style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}>
                         <MaterialCommunityIcons name="headset" size={40} color={colors.primary} />
                     </View>
-                    <Text style={[styles.cardTitle, { color: colors.textMain }]}>How can we help you?</Text>
+                    <Text style={[styles.cardTitle, { color: colors.textMain }]}>{t('support_screen.how_can_we_help')}</Text>
                     <Text style={[styles.cardtext, { color: colors.textMuted }]}>
-                        Our support team is available Mon-Sat, 9am - 6pm to assist you with any issues related to the app or your work sessions.
+                        {t('support_screen.support_desc')}
                     </Text>
                 </View>
 
-                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Contact Options</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('support_screen.contact_options')}</Text>
 
                 <TouchableOpacity onPress={handleCall} style={[styles.optionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={[styles.optionIcon, { backgroundColor: '#e0f2fe' }]}>
                         <MaterialCommunityIcons name="phone" size={24} color="#0284c7" />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.optionTitle, { color: colors.textMain }]}>Call Support</Text>
-                        <Text style={[styles.optionSub, { color: colors.textMuted }]}>Speak directly with an agent</Text>
+                        <Text style={[styles.optionTitle, { color: colors.textMain }]}>{t('support_screen.call_support')}</Text>
+                        <Text style={[styles.optionSub, { color: colors.textMuted }]}>{t('support_screen.call_support_sub')}</Text>
                     </View>
                     <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
                 </TouchableOpacity>
@@ -63,8 +66,8 @@ export default function SupportScreen() {
                         <MaterialCommunityIcons name="whatsapp" size={24} color="#16a34a" />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.optionTitle, { color: colors.textMain }]}>WhatsApp Chat</Text>
-                        <Text style={[styles.optionSub, { color: colors.textMuted }]}>Quick answers via chat</Text>
+                        <Text style={[styles.optionTitle, { color: colors.textMain }]}>{t('support_screen.whatsapp_chat')}</Text>
+                        <Text style={[styles.optionSub, { color: colors.textMuted }]}>{t('support_screen.whatsapp_chat_sub')}</Text>
                     </View>
                     <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
                 </TouchableOpacity>
@@ -74,8 +77,8 @@ export default function SupportScreen() {
                         <MaterialCommunityIcons name="email-outline" size={24} color="#9333ea" />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.optionTitle, { color: colors.textMain }]}>Email Us</Text>
-                        <Text style={[styles.optionSub, { color: colors.textMuted }]}>Send detailed queries</Text>
+                        <Text style={[styles.optionTitle, { color: colors.textMain }]}>{t('support_screen.email_us')}</Text>
+                        <Text style={[styles.optionSub, { color: colors.textMuted }]}>{t('support_screen.email_us_sub')}</Text>
                     </View>
                     <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
                 </TouchableOpacity>

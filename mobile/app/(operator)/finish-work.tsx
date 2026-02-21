@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useFinishWorkMutation } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 
 const formatTime = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -22,13 +23,14 @@ export default function FinishWorkScreen() {
     const params = useLocalSearchParams();
     const { elapsedSeconds, clientName, location, workId } = params;
     const [finishWork, { isLoading: isSubmitting }] = useFinishWorkMutation();
+    const { t } = useTranslation();
 
     const [photoUri, setPhotoUri] = useState<string | null>(null);
 
     const handleTakePhoto = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert('Permission Denied', 'Camera permission is required.');
+            Alert.alert(t('finish_work_screen.permission_denied'), t('finish_work_screen.camera_permission'));
             return;
         }
 
@@ -47,7 +49,7 @@ export default function FinishWorkScreen() {
     const handlePickPhoto = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert('Permission Denied', 'Gallery permission is required.');
+            Alert.alert(t('finish_work_screen.permission_denied'), t('finish_work_screen.gallery_permission'));
             return;
         }
 
@@ -65,24 +67,24 @@ export default function FinishWorkScreen() {
 
     const handleCapturePhoto = () => {
         Alert.alert(
-            "Proof of Completion",
-            "How would you like to upload the photo?",
+            t('finish_work_screen.proof_of_completion'),
+            t('finish_work_screen.upload_method'),
             [
-                { text: "Camera", onPress: handleTakePhoto },
-                { text: "Gallery", onPress: handlePickPhoto },
-                { text: "Cancel", style: "cancel" }
+                { text: t('finish_work_screen.camera'), onPress: handleTakePhoto },
+                { text: t('finish_work_screen.gallery'), onPress: handlePickPhoto },
+                { text: t('finish_work_screen.cancel'), style: "cancel" }
             ]
         );
     };
 
     const handleFinish = async () => {
         if (!photoUri) {
-            Alert.alert("Photo Required", "Please upload a photo of the completed work site.");
+            Alert.alert(t('finish_work_screen.photo_required'), t('finish_work_screen.photo_required_msg'));
             return;
         }
 
         if (!workId) {
-            Alert.alert("Error", "Work ID missing.");
+            Alert.alert(t('finish_work_screen.error'), t('finish_work_screen.work_id_missing'));
             return;
         }
 
@@ -117,8 +119,8 @@ export default function FinishWorkScreen() {
             });
         } catch (error: any) {
             console.error("Finish Work Error:", error);
-            const msg = error?.data?.message || error?.message || "Failed to submit completion logs.";
-            Alert.alert("Error", msg);
+            const msg = error?.data?.message || error?.message || t('finish_work_screen.submission_failed');
+            Alert.alert(t('finish_work_screen.error'), msg);
         }
     };
 
@@ -129,20 +131,20 @@ export default function FinishWorkScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Final Logs</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('finish_work_screen.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
-                <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Session Summary</Text>
+                <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>{t('finish_work_screen.session_summary')}</Text>
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={styles.summaryRow}>
                         <View style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}>
                             <MaterialCommunityIcons name="timer-sand" size={32} color={colors.primary} />
                         </View>
                         <View>
-                            <Text style={[styles.label, { color: colors.textMuted }]}>Total Billed Time</Text>
+                            <Text style={[styles.label, { color: colors.textMuted }]}>{t('finish_work_screen.total_billed_time')}</Text>
                             <Text style={[styles.value, { color: colors.textMain }]}>{formatTime(Number(elapsedSeconds) || 0)}</Text>
                         </View>
                     </View>
@@ -150,15 +152,15 @@ export default function FinishWorkScreen() {
                     <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
                     <View style={styles.clientInfo}>
-                        <Text style={[styles.label, { color: colors.textMuted }]}>Project / Client</Text>
-                        <Text style={[styles.clientValue, { color: colors.textMain }]}>{clientName || 'SS Infra Site'}</Text>
+                        <Text style={[styles.label, { color: colors.textMuted }]}>{t('finish_work_screen.project_client')}</Text>
+                        <Text style={[styles.clientValue, { color: colors.textMain }]}>{clientName || t('overview.ss_infra_site')}</Text>
                         <Text style={[styles.subValue, { color: colors.textMuted }]}>
-                            <MaterialCommunityIcons name="map-marker" size={12} color={colors.primary} /> {location || 'Site Location'}
+                            <MaterialCommunityIcons name="map-marker" size={12} color={colors.primary} /> {location || t('finish_work_screen.site_location')}
                         </Text>
                     </View>
                 </View>
 
-                <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Completion Proof</Text>
+                <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>{t('finish_work_screen.completion_proof')}</Text>
                 <TouchableOpacity onPress={handleCapturePhoto} activeOpacity={0.8}>
                     <View style={[
                         styles.photoBox,
@@ -175,7 +177,7 @@ export default function FinishWorkScreen() {
                                 <View style={[styles.cameraCircle, { backgroundColor: colors.background }]}>
                                     <MaterialCommunityIcons name="camera-plus-outline" size={40} color={colors.primary} />
                                 </View>
-                                <Text style={[styles.placeholderText, { color: colors.textMuted }]}>Click After-Work Photo</Text>
+                                <Text style={[styles.placeholderText, { color: colors.textMuted }]}>{t('finish_work_screen.click_photo')}</Text>
                             </View>
                         )}
                         {photoUri && (
@@ -206,7 +208,7 @@ export default function FinishWorkScreen() {
                         ) : (
                             <>
                                 <MaterialCommunityIcons name="file-document-edit-outline" size={24} color="#000" />
-                                <Text style={styles.btnText}>GENERATE INVOICE</Text>
+                                <Text style={styles.btnText}>{t('finish_work_screen.generate_invoice')}</Text>
                             </>
                         )}
                     </LinearGradient>

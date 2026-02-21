@@ -4,11 +4,13 @@ import { Text, IconButton } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useTranslation } from 'react-i18next';
 import NotificationList from '@/components/NotificationList';
 import { useMarkAllAsReadMutation } from '@/redux/apis/notificationApi';
 
 export default function NotificationsScreen() {
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
     const router = useRouter();
     const [markAllAsRead] = useMarkAllAsReadMutation();
 
@@ -27,7 +29,7 @@ export default function NotificationsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Notifications</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.notifications_screen.title')}</Text>
                 <TouchableOpacity onPress={handleMarkAllRead}>
                     <MaterialCommunityIcons name="playlist-check" size={24} color={colors.primary} />
                 </TouchableOpacity>
