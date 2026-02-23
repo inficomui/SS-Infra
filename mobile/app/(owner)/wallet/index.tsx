@@ -37,7 +37,7 @@ export default function WalletScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.wallet.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('wallet.title')}</Text>
                 <TouchableOpacity
                     onPress={() => router.push('/(owner)/wallet/history' as any)}
                     style={[styles.historyButton, { backgroundColor: colors.primary + '15' }]}
@@ -55,7 +55,7 @@ export default function WalletScreen() {
                 {/* Balance Card */}
                 <View style={[styles.balanceCard, { backgroundColor: colors.primary }]}>
                     <View>
-                        <Text style={styles.balanceLabel}>{t('owner.wallet.available_balance')}</Text>
+                        <Text style={styles.balanceLabel}>{t('wallet.available_balance')}</Text>
                         <Text style={styles.balanceValue}>
                             {wallet?.currency || '₹'} {wallet?.balance || '0.00'}
                         </Text>
@@ -64,21 +64,21 @@ export default function WalletScreen() {
                         style={styles.withdrawButton}
                         onPress={() => router.push('/(owner)/wallet/withdraw' as any)}
                     >
-                        <Text style={styles.withdrawText}>{t('owner.wallet.withdraw')}</Text>
+                        <Text style={styles.withdrawText}>{t('wallet.withdraw')}</Text>
                         <MaterialCommunityIcons name="arrow-right" size={16} color={colors.primary} />
                     </TouchableOpacity>
                 </View>
 
                 {/* Transactions Section */}
-                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.wallet.recent_transactions')}</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('wallet.recent_transactions')}</Text>
 
                 {isLoading ? (
                     <ActivityIndicator style={{ marginTop: 20 }} color={colors.primary} />
                 ) : transactions.length === 0 ? (
                     <View style={styles.emptyState}>
                         <MaterialCommunityIcons name="wallet-giftcard" size={64} color={colors.textMuted} />
-                        <Text style={{ color: colors.textMuted, marginTop: 12, fontSize: 16, fontWeight: '600' }}>{t('owner.wallet.no_transactions')}</Text>
-                        <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t('owner.wallet.no_transactions_sub')}</Text>
+                        <Text style={{ color: colors.textMuted, marginTop: 12, fontSize: 16, fontWeight: '600' }}>{t('wallet.no_transactions')}</Text>
+                        <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t('wallet.no_transactions_sub')}</Text>
                     </View>
                 ) : (
                     <>

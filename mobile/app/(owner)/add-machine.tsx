@@ -82,7 +82,7 @@ export default function AddMachineScreen() {
     const handleTakePhoto = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert(t('owner.fleet.permission_denied'), t('owner.fleet.camera_permission'));
+            Alert.alert(t('fleet.permission_denied'), t('fleet.camera_permission'));
             return;
         }
 
@@ -102,7 +102,7 @@ export default function AddMachineScreen() {
     const handlePickPhoto = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert(t('owner.fleet.permission_denied'), t('owner.fleet.gallery_permission'));
+            Alert.alert(t('fleet.permission_denied'), t('fleet.gallery_permission'));
             return;
         }
 
@@ -121,9 +121,9 @@ export default function AddMachineScreen() {
 
     const validateForm = () => {
         const newErrors: any = {};
-        if (!formData.name.trim()) newErrors.name = t('owner.fleet.name_required');
-        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = t('owner.fleet.serial_required');
-        if (!photoUri && !isEditMode) newErrors.photo = t('owner.fleet.photo_required');
+        if (!formData.name.trim()) newErrors.name = t('fleet.name_required');
+        if (!formData.registrationNumber.trim()) newErrors.registrationNumber = t('fleet.serial_required');
+        if (!photoUri && !isEditMode) newErrors.photo = t('fleet.photo_required');
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -161,8 +161,8 @@ export default function AddMachineScreen() {
 
                 Toast.show({
                     type: 'success',
-                    text1: t('owner.fleet.update_success'),
-                    text2: t('owner.fleet.update_success_msg')
+                    text1: t('fleet.update_success'),
+                    text2: t('fleet.update_success_msg')
                 });
 
                 setTimeout(() => router.back(), 1500);
@@ -172,8 +172,8 @@ export default function AddMachineScreen() {
 
                 Toast.show({
                     type: 'success',
-                    text1: t('owner.fleet.add_success'),
-                    text2: t('owner.fleet.add_success_msg', { name: formData.name })
+                    text1: t('fleet.add_success'),
+                    text2: t('fleet.add_success_msg', { name: formData.name })
                 });
 
                 setTimeout(() => router.back(), 1500);
@@ -181,11 +181,11 @@ export default function AddMachineScreen() {
 
         } catch (error: any) {
             console.error('Machine Operation Error:', error);
-            const serverMsg = error?.data?.message || error?.message || t('owner.fleet.op_failed');
+            const serverMsg = error?.data?.message || error?.message || t('fleet.op_failed');
 
             Toast.show({
                 type: 'error',
-                text1: t('owner.fleet.delete_error'),
+                text1: t('fleet.delete_error'),
                 text2: serverMsg
             });
         }
@@ -198,7 +198,7 @@ export default function AddMachineScreen() {
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: colors.textMain }]}>
-                    {isEditMode ? t('owner.fleet.edit_title') : t('owner.fleet.register_title')}
+                    {isEditMode ? t('fleet.edit_title') : t('fleet.register_title')}
                 </Text>
                 <View style={{ width: 44 }} />
             </View>
@@ -246,43 +246,43 @@ export default function AddMachineScreen() {
                                     <View style={[styles.photoIconCircle, { backgroundColor: colors.primary + '20' }]}>
                                         <MaterialCommunityIcons name="truck-outline" size={32} color={colors.primary} />
                                     </View>
-                                    <Text style={[styles.photoLabel, { color: colors.textMuted }]}>{t('owner.fleet.upload_photo')}</Text>
+                                    <Text style={[styles.photoLabel, { color: colors.textMuted }]}>{t('fleet.upload_photo')}</Text>
 
                                     <View style={styles.choiceButtons}>
                                         <TouchableOpacity onPress={handleTakePhoto} style={[styles.choiceBtn, { backgroundColor: colors.primary }]}>
                                             <MaterialCommunityIcons name="camera" size={18} color="#000" />
-                                            <Text style={styles.choiceBtnText}>{t('owner.fleet.camera')}</Text>
+                                            <Text style={styles.choiceBtnText}>{t('fleet.camera')}</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={handlePickPhoto} style={[styles.choiceBtn, { backgroundColor: colors.background, borderColor: colors.border, borderWidth: 1 }]}>
                                             <MaterialCommunityIcons name="image" size={18} color={colors.textMain} />
-                                            <Text style={[styles.choiceBtnText, { color: colors.textMain }]}>{t('owner.fleet.gallery')}</Text>
+                                            <Text style={[styles.choiceBtnText, { color: colors.textMain }]}>{t('fleet.gallery')}</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                             )}
                         </TouchableOpacity>
                         {errors.photo && <Text style={[styles.errorLabel, { color: colors.danger, textAlign: 'center', marginTop: 8 }]}>{errors.photo}</Text>}
-                        {photoUri && <Text style={[styles.hintText, { color: colors.textMuted }]}>{t('owner.fleet.tap_preview')}</Text>}
+                        {photoUri && <Text style={[styles.hintText, { color: colors.textMuted }]}>{t('fleet.tap_preview')}</Text>}
                     </View>
 
                     <View style={[styles.formSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <InputField
-                            label={t('owner.fleet.name_label')}
+                            label={t('fleet.name_label')}
                             icon="truck-outline"
                             value={formData.name}
                             onChange={(text: string) => setFormData({ ...formData, name: text })}
                             error={errors.name}
-                            placeholder={t('owner.fleet.name_placeholder')}
+                            placeholder={t('fleet.name_placeholder')}
                             colors={colors}
                         />
 
                         <InputField
-                            label={t('owner.fleet.reg_label')}
+                            label={t('fleet.reg_label')}
                             icon="card-text-outline"
                             value={formData.registrationNumber}
                             onChange={(text: string) => setFormData({ ...formData, registrationNumber: text.toUpperCase() })}
                             error={errors.registrationNumber}
-                            placeholder={t('owner.fleet.reg_placeholder')}
+                            placeholder={t('fleet.reg_placeholder')}
                             autoCapitalize="characters"
                             colors={colors}
                         />
@@ -291,7 +291,7 @@ export default function AddMachineScreen() {
                         <TouchableOpacity onPress={() => setShowDatePicker(true)} activeOpacity={0.8}>
                             <View pointerEvents="none">
                                 <InputField
-                                    label={t('owner.fleet.purchase_date')}
+                                    label={t('fleet.purchase_date')}
                                     icon="calendar-outline"
                                     value={formData.purchaseDate}
                                     placeholder="YYYY-MM-DD"
@@ -319,7 +319,7 @@ export default function AddMachineScreen() {
                             {isLoading ? <ActivityIndicator color="#000" /> : (
                                 <>
                                     <MaterialCommunityIcons name={isEditMode ? "content-save-edit" : "check-decagram"} size={20} color="#000" />
-                                    <Text style={styles.submitText}>{isEditMode ? t('owner.fleet.update_details') : t('owner.fleet.save_fleet')}</Text>
+                                    <Text style={styles.submitText}>{isEditMode ? t('fleet.update_details') : t('fleet.save_fleet')}</Text>
                                 </>
                             )}
                         </LinearGradient>

@@ -80,7 +80,7 @@ export default function MaintenanceRecordsScreen() {
                         )}
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || t('owner.maintenance_records.unknown_machine')}</Text>
+                        <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || t('maintenance_records.unknown_machine')}</Text>
                         <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.service_date)}</Text>
                     </View>
                 </View>
@@ -89,12 +89,12 @@ export default function MaintenanceRecordsScreen() {
 
             <View style={[styles.statsRow, { borderColor: colors.border }]}>
                 <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('owner.maintenance_records.service_type')}</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.service_type')}</Text>
                     <Text style={[styles.statValue, { color: colors.textMain }]}>{record.service_type}</Text>
                 </View>
                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
                 <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('owner.maintenance_records.documents')}</Text>
+                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
                         {record.service_image_url ? (
                             <MaterialCommunityIcons name="camera" size={18} color={colors.success} />
@@ -127,7 +127,7 @@ export default function MaintenanceRecordsScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.maintenance_records.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('maintenance_records.title')}</Text>
                 <TouchableOpacity
                     onPress={() => router.push('/(owner)/maintenance/add' as any)}
                     style={[styles.addButton, { backgroundColor: colors.primary }]}
@@ -138,7 +138,7 @@ export default function MaintenanceRecordsScreen() {
 
             <View style={styles.searchContainer}>
                 <Searchbar
-                    placeholder={t('owner.maintenance_records.search_placeholder')}
+                    placeholder={t('maintenance_records.search_placeholder')}
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     style={[styles.searchBar, { backgroundColor: colors.card }]}
@@ -152,12 +152,12 @@ export default function MaintenanceRecordsScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollContent}>
                     <TouchableOpacity onPress={() => setShowStartPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-range" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('owner.maintenance_records.from')}: {formatDate(startDate)}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('maintenance_records.from')}: {formatDate(startDate)}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => setShowEndPicker(true)} style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}>
                         <MaterialCommunityIcons name="calendar-check" size={16} color={colors.primary} />
-                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('owner.maintenance_records.to')}: {formatDate(endDate)}</Text>
+                        <Text style={[styles.filterText, { color: colors.textMain }]}>{t('maintenance_records.to')}: {formatDate(endDate)}</Text>
                     </TouchableOpacity>
 
                     <Menu
@@ -169,12 +169,12 @@ export default function MaintenanceRecordsScreen() {
                                 style={[styles.filterChip, { borderColor: colors.border, backgroundColor: colors.card }]}
                             >
                                 <MaterialCommunityIcons name="sort" size={16} color={colors.primary} />
-                                <Text style={[styles.filterText, { color: colors.textMain }]}>{t('owner.maintenance_records.sort')}</Text>
+                                <Text style={[styles.filterText, { color: colors.textMain }]}>{t('maintenance_records.sort')}</Text>
                             </TouchableOpacity>
                         }
                     >
-                        <Menu.Item onPress={() => { setSortBy('newest'); setShowSortMenu(false); }} title={t('owner.fuel_management.newest')} />
-                        <Menu.Item onPress={() => { setSortBy('oldest'); setShowSortMenu(false); }} title={t('owner.fuel_management.oldest')} />
+                        <Menu.Item onPress={() => { setSortBy('newest'); setShowSortMenu(false); }} title={t('fuel_management.newest')} />
+                        <Menu.Item onPress={() => { setSortBy('oldest'); setShowSortMenu(false); }} title={t('fuel_management.oldest')} />
                     </Menu>
                 </ScrollView>
             </View>
@@ -191,7 +191,7 @@ export default function MaintenanceRecordsScreen() {
                     !isLoading ? (
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="toolbox-outline" size={64} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 16 }}>{t('owner.maintenance_records.no_records')}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 16 }}>{t('maintenance_records.no_records')}</Text>
                         </View>
                     ) : null
                 }

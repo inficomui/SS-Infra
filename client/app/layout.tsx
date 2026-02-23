@@ -1,20 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "./StoreProvider";
 import { ThemeProvider } from "./providers";
-// Toaster is already inside ThemeProvider in providers.tsx, so we don't need it here actually
-// But wait, my previous providers.tsx code had <Toaster /> inside it.
-// Let's check providers.tsx again to be sure. I wrote it to have Toaster.
-// So I don't need Toaster here.
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -31,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground transition-colors duration-300`}
+        className={`${outfit.variable} ${inter.variable} font-sans antialiased bg-background text-foreground transition-colors duration-300`}
       >
         <StoreProvider>
           <ThemeProvider>

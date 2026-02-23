@@ -19,9 +19,9 @@ export default function MachineDetailsScreen() {
     if (!machine) {
         return (
             <View style={[styles.container, { backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: colors.textMuted }}>{t('owner.fleet.no_data')}</Text>
+                <Text style={{ color: colors.textMuted }}>{t('fleet.no_data')}</Text>
                 <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-                    <Text style={{ color: colors.primary }}>{t('owner.fuel_management.go_back')}</Text>
+                    <Text style={{ color: colors.primary }}>{t('fuel_management.go_back')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -30,9 +30,9 @@ export default function MachineDetailsScreen() {
     const { name, registration_number, photo_url, status, purchase_date, current_operator } = machine;
 
     const statusConfig: any = {
-        available: { color: colors.success, label: t('owner.fleet.online'), icon: 'check-circle' },
-        in_use: { color: colors.warning, label: t('owner.fleet.on_site'), icon: 'play-circle' },
-        maintenance: { color: colors.danger, label: t('owner.fleet.at_service'), icon: 'alert-circle' },
+        available: { color: colors.success, label: t('fleet.online'), icon: 'check-circle' },
+        in_use: { color: colors.warning, label: t('fleet.on_site'), icon: 'play-circle' },
+        maintenance: { color: colors.danger, label: t('fleet.at_service'), icon: 'alert-circle' },
     };
     const currentStatus = statusConfig[status || 'available'];
 
@@ -42,7 +42,7 @@ export default function MachineDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.fleet.details_title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('fleet.details_title')}</Text>
                 <TouchableOpacity
                     onPress={() => router.push({ pathname: '/(owner)/add-machine', params: { id: machine.id, fullData: JSON.stringify(machine) } })}
                     style={[styles.iconButton, { backgroundColor: colors.primary }]}
@@ -73,13 +73,13 @@ export default function MachineDetailsScreen() {
                     <View style={styles.divider} />
 
                     <View style={styles.detailGrid}>
-                        <DetailItem icon="calendar" label={t('owner.fleet.purchase_date')} value={purchase_date || 'N/A'} colors={colors} />
+                        <DetailItem icon="calendar" label={t('fleet.purchase_date')} value={purchase_date || 'N/A'} colors={colors} />
                         <DetailItem icon="alert-circle-outline" label={t('profile.status') || 'Status'} value={currentStatus.label} colors={colors} valueColor={currentStatus.color} />
                     </View>
 
                     {current_operator && (
                         <View style={[styles.operatorSection, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                            <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.fleet.current_operator')}</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('fleet.current_operator')}</Text>
                             <View style={styles.operatorRow}>
                                 <Avatar.Text size={40} label={current_operator.name.substring(0, 2).toUpperCase()} style={{ backgroundColor: colors.primary }} />
                                 <View style={{ flex: 1 }}>
@@ -96,7 +96,7 @@ export default function MachineDetailsScreen() {
                             style={[styles.actionBtn, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}
                         >
                             <MaterialCommunityIcons name="wrench-outline" size={24} color={colors.primary} />
-                            <Text style={[styles.actionBtnText, { color: colors.textMain }]}>{t('owner.fleet.log_maintenance')}</Text>
+                            <Text style={[styles.actionBtnText, { color: colors.textMain }]}>{t('fleet.log_maintenance')}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -104,7 +104,7 @@ export default function MachineDetailsScreen() {
                             style={[styles.actionBtn, { backgroundColor: colors.warning + '15', borderColor: colors.warning }]}
                         >
                             <MaterialCommunityIcons name="gas-station-outline" size={24} color={colors.warning} />
-                            <Text style={[styles.actionBtnText, { color: colors.textMain }]}>{t('owner.fleet.fuel_logs')}</Text>
+                            <Text style={[styles.actionBtnText, { color: colors.textMain }]}>{t('fleet.fuel_logs')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

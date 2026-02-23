@@ -29,7 +29,7 @@ export default function RecordPaymentScreen() {
 
     const handleSubmit = async () => {
         if (!amount || Number(amount) <= 0) {
-            Alert.alert(t('owner.payments.invalid_input'), t('owner.payments.invalid_amount'));
+            Alert.alert(t('payments.invalid_input'), t('payments.invalid_amount'));
             return;
         }
 
@@ -52,19 +52,19 @@ export default function RecordPaymentScreen() {
 
             Alert.alert(
                 t('common.success'),
-                (result.message || t('owner.payments.record_success_msg')) + "\nThe operator has been notified.",
+                (result.message || t('payments.record_success_msg')) + "\nThe operator has been notified.",
                 [{ text: "OK", onPress: () => router.back() }]
             );
 
             Toast.show({
                 type: 'success',
-                text1: t('owner.payments.record_success'),
+                text1: t('payments.record_success'),
                 text2: result.message || `₹${amount} ${type} logged for ${operatorName}`
             });
         } catch (error: any) {
             console.error("Payment Record Error:", error);
 
-            let errorMessage = t('owner.payments.record_failed');
+            let errorMessage = t('payments.record_failed');
 
             if (error?.data?.errors) {
                 // If there are validation errors, format them
@@ -75,11 +75,11 @@ export default function RecordPaymentScreen() {
                 errorMessage = error.message;
             }
 
-            Alert.alert(t('owner.payments.record_error'), errorMessage);
+            Alert.alert(t('payments.record_error'), errorMessage);
 
             Toast.show({
                 type: 'error',
-                text1: t('owner.payments.record_error'),
+                text1: t('payments.record_error'),
                 text2: errorMessage
             });
         }
@@ -92,17 +92,17 @@ export default function RecordPaymentScreen() {
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
                 <View style={{ flex: 1, paddingLeft: 16 }}>
-                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.payments.record_title')}</Text>
+                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('payments.record_title')}</Text>
                     <Text style={[styles.subTitle, { color: colors.textMuted }]}>{operatorName}</Text>
                 </View>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('owner.payments.payment_details')}</Text>
+                    <Text style={[styles.label, { color: colors.textMuted }]}>{t('payments.payment_details')}</Text>
 
                     <TextInput
-                        label={t('owner.payments.amount_label')}
+                        label={t('payments.amount_label')}
                         value={amount}
                         onChangeText={setAmount}
                         keyboardType="numeric"
@@ -125,15 +125,15 @@ export default function RecordPaymentScreen() {
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                                         <MaterialCommunityIcons name={type === 'salary' ? 'calendar-check' : 'star-outline'} size={20} color={colors.primary} />
                                         <Text style={{ color: colors.textMain, textTransform: 'capitalize', fontWeight: '600' }}>
-                                            {t(`owner.payments.${type}`)}
+                                            {t(`payments.${type}`)}
                                         </Text>
                                     </View>
                                     <MaterialCommunityIcons name="chevron-down" size={20} color={colors.textMuted} />
                                 </TouchableOpacity>
                             }
                         >
-                            <Menu.Item onPress={() => { setType('salary'); setShowTypeMenu(false); }} title={t('owner.payments.salary')} />
-                            <Menu.Item onPress={() => { setType('bonus'); setShowTypeMenu(false); }} title={t('owner.payments.bonus')} />
+                            <Menu.Item onPress={() => { setType('salary'); setShowTypeMenu(false); }} title={t('payments.salary')} />
+                            <Menu.Item onPress={() => { setType('bonus'); setShowTypeMenu(false); }} title={t('payments.bonus')} />
                         </Menu>
                     </View>
 
@@ -146,10 +146,10 @@ export default function RecordPaymentScreen() {
                     </TouchableOpacity>
 
                     <TextInput
-                        label={t('owner.payments.desc_label')}
+                        label={t('payments.desc_label')}
                         value={description}
                         onChangeText={setDescription}
-                        placeholder={t('owner.payments.desc_placeholder')}
+                        placeholder={t('payments.desc_placeholder')}
                         mode="outlined"
                         multiline
                         numberOfLines={3}
@@ -169,7 +169,7 @@ export default function RecordPaymentScreen() {
                     buttonColor={colors.primary}
                     textColor="#000"
                 >
-                    {t('owner.payments.confirm_btn')}
+                    {t('payments.confirm_btn')}
                 </Button>
             </ScrollView>
 

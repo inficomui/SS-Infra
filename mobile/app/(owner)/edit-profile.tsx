@@ -46,8 +46,8 @@ export default function EditProfileScreen() {
 
             Toast.show({
                 type: 'success',
-                text1: t('owner.edit_profile_screen.profile_updated'),
-                text2: result.message || t('owner.edit_profile_screen.profile_updated_msg')
+                text1: t('edit_profile_screen.profile_updated'),
+                text2: result.message || t('edit_profile_screen.profile_updated_msg')
             });
 
             setTimeout(() => router.back(), 1000);
@@ -55,8 +55,8 @@ export default function EditProfileScreen() {
             console.error('Update Profile Error:', error);
             Toast.show({
                 type: 'error',
-                text1: t('owner.edit_profile_screen.update_failed'),
-                text2: error?.data?.message || t('owner.edit_profile_screen.update_failed_msg')
+                text1: t('edit_profile_screen.update_failed'),
+                text2: error?.data?.message || t('edit_profile_screen.update_failed_msg')
             });
         }
     };
@@ -67,7 +67,7 @@ export default function EditProfileScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.edit_profile_screen.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('edit_profile_screen.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -89,14 +89,14 @@ export default function EditProfileScreen() {
 
                     <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <InputField
-                            label={t('owner.edit_profile_screen.full_name')}
+                            label={t('edit_profile_screen.full_name')}
                             icon="account-outline"
                             value={formData.name}
                             onChange={(text: string) => setFormData({ ...formData, name: text })}
                             colors={colors}
                         />
                         <InputField
-                            label={t('owner.edit_profile_screen.email_address')}
+                            label={t('edit_profile_screen.email_address')}
                             icon="email-outline"
                             value={formData.email}
                             onChange={(text: string) => setFormData({ ...formData, email: text })}
@@ -104,7 +104,7 @@ export default function EditProfileScreen() {
                             colors={colors}
                         />
                         <InputField
-                            label={t('owner.edit_profile_screen.mobile_number')}
+                            label={t('edit_profile_screen.mobile_number')}
                             icon="phone-outline"
                             value={formData.mobile}
                             onChange={(text: string) => setFormData({ ...formData, mobile: text })}
@@ -114,7 +114,7 @@ export default function EditProfileScreen() {
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label={t('owner.edit_profile_screen.district')}
+                                    label={t('edit_profile_screen.district')}
                                     icon="map-marker-outline"
                                     value={formData.district}
                                     onChange={(text: string) => setFormData({ ...formData, district: text })}
@@ -123,7 +123,7 @@ export default function EditProfileScreen() {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <InputField
-                                    label={t('owner.edit_profile_screen.taluka')}
+                                    label={t('edit_profile_screen.taluka')}
                                     icon="map-outline"
                                     value={formData.taluka}
                                     onChange={(text: string) => setFormData({ ...formData, taluka: text })}
@@ -143,7 +143,7 @@ export default function EditProfileScreen() {
                             {isLoading ? <ActivityIndicator color="#000" /> : (
                                 <>
                                     <MaterialCommunityIcons name="content-save-check-outline" size={20} color="#000" />
-                                    <Text style={styles.saveText}>{t('owner.edit_profile_screen.save_changes')}</Text>
+                                    <Text style={styles.saveText}>{t('edit_profile_screen.save_changes')}</Text>
                                 </>
                             )}
                         </LinearGradient>

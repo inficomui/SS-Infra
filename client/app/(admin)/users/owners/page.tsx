@@ -113,10 +113,10 @@ export default function OwnersPage() {
             className="space-y-6"
         >
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card border border-border/50 p-6 rounded-md shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card border border-border/50 p-6 rounded-xl shadow-sm">
                 <div>
-                    <h2 className="text-2xl font-bold text-foreground tracking-tight">Owners Management</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Manage infrastructure owners and their details</p>
+                    <h2 className="text-3xl font-black text-foreground tracking-tight">Owners Management</h2>
+                    <p className="text-sm font-medium text-muted-foreground mt-1">Manage infrastructure owners and their details</p>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -135,14 +135,14 @@ export default function OwnersPage() {
                     </button>
                     <div className="relative flex-1 sm:w-72 group">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-foreground transition-colors" />
                         </div>
                         <input
                             type="text"
                             placeholder="Search by name, mobile..."
                             value={search}
                             onChange={handleSearch}
-                            className="block w-full pl-10 pr-3 py-2.5 bg-muted/50 border border-transparent focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/20 rounded-md text-sm transition-all"
+                            className="block w-full pl-10 pr-3 py-2.5 bg-muted/30 border border-border/50 focus:border-primary focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-lg text-sm transition-all font-medium"
                         />
                     </div>
                     <button
@@ -160,7 +160,7 @@ export default function OwnersPage() {
             </div>
 
             {/* List Content */}
-            <div className="bg-card shadow-sm rounded-md overflow-hidden border border-border/50">
+            <div className="bg-card shadow-sm rounded-xl overflow-hidden border border-border/60">
                 {isLoading ? (
                     <div className="flex justify-center items-center h-64">
                         <Loader2 className="animate-spin h-8 w-8 text-primary" />
@@ -168,13 +168,13 @@ export default function OwnersPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-border/50">
-                            <thead className="bg-muted/30">
+                            <thead className="bg-muted/40 border-b border-border/60">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Owner Details</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Location</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Referral</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Stats</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Joined Date</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Owner Details</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Location</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Referral</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Stats</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Joined Date</th>
                                     <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
@@ -198,17 +198,17 @@ export default function OwnersPage() {
                                         key={owner.id}
                                         className="group hover:bg-muted/30 transition-colors"
                                     >
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-6 py-5 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <div className="h-10 w-10 shrink-0">
-                                                    <div className="h-10 w-10 rounded-md bg-linear-to-br from-primary/80 to-yellow-600 flex items-center justify-center text-black font-bold shadow-md shadow-primary/10">
+                                                <div className="h-11 w-11 shrink-0">
+                                                    <div className="h-11 w-11 rounded-full bg-linear-to-br from-primary to-yellow-600 flex items-center justify-center text-primary-foreground font-black shadow-lg shadow-primary/20">
                                                         {owner.name?.[0]?.toUpperCase() || 'O'}
                                                     </div>
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{owner.name}</div>
-                                                    <div className="flex items-center text-xs text-muted-foreground mt-0.5">
-                                                        <Phone className="h-3 w-3 mr-1" />
+                                                    <div className="text-sm font-bold text-foreground group-hover:text-primary transition-colors tracking-tight">{owner.name}</div>
+                                                    <div className="flex items-center text-xs font-medium text-muted-foreground mt-1">
+                                                        <Phone className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                                                         {owner.mobile}
                                                     </div>
                                                 </div>

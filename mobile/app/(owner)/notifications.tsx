@@ -29,7 +29,7 @@ export default function NotificationsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.notifications_screen.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('notifications_screen.title')}</Text>
                 <TouchableOpacity onPress={handleMarkAllRead}>
                     <MaterialCommunityIcons name="playlist-check" size={24} color={colors.primary} />
                 </TouchableOpacity>

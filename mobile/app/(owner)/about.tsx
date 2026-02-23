@@ -20,7 +20,7 @@ export default function AboutScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.about.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('about.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -34,27 +34,27 @@ export default function AboutScreen() {
                 </View>
 
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={[styles.cardTitle, { color: colors.textMain }]}>{t('owner.about.mission')}</Text>
+                    <Text style={[styles.cardTitle, { color: colors.textMain }]}>{t('about.mission')}</Text>
                     <Text style={[styles.cardText, { color: colors.textMuted }]}>
-                        {t('owner.about.mission_text')}
+                        {t('about.mission_text')}
                     </Text>
                 </View>
 
                 <View style={[styles.section, { borderColor: colors.border }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('owner.about.developer_info')}</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('about.developer_info')}</Text>
                     <TouchableOpacity onPress={() => Linking.openURL('https://inficomsolutions.in')} style={[styles.linkRow, { borderBottomColor: colors.border }]}>
-                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>{t('owner.about.developed_by')}</Text>
+                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>{t('about.developed_by')}</Text>
                         <Text style={[styles.linkValue, { color: colors.primary }]}>Inficom Solutions</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => Linking.openURL('mailto:support@ssinfra.com')} style={styles.linkRow}>
-                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>{t('owner.about.contact_support')}</Text>
+                        <Text style={[styles.linkLabel, { color: colors.textMuted }]}>{t('about.contact_support')}</Text>
                         <Text style={[styles.linkValue, { color: colors.textMain }]}>support@ssinfra.com</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.footer}>
                     <Text style={[styles.footerText, { color: colors.textMuted }]}>
-                        {t('owner.about.rights_reserved')}
+                        {t('about.rights_reserved')}
                     </Text>
                 </View>
             </ScrollView>

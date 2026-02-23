@@ -18,50 +18,50 @@ export default function HelpScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.help.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('help.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
                 <List.AccordionGroup>
                     <List.Accordion
-                        title={t('owner.help.faq_1_title')}
+                        title={t('help.faq_1_title')}
                         id="1"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title={t('owner.help.faq_1_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
+                        <List.Item title={t('help.faq_1_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
                     </List.Accordion>
 
                     <List.Accordion
-                        title={t('owner.help.faq_2_title')}
+                        title={t('help.faq_2_title')}
                         id="2"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title={t('owner.help.faq_2_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
+                        <List.Item title={t('help.faq_2_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
                     </List.Accordion>
 
                     <List.Accordion
-                        title={t('owner.help.faq_3_title')}
+                        title={t('help.faq_3_title')}
                         id="3"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title={t('owner.help.faq_3_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={3} />
+                        <List.Item title={t('help.faq_3_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={3} />
                     </List.Accordion>
 
                     <List.Accordion
-                        title={t('owner.help.faq_4_title')}
+                        title={t('help.faq_4_title')}
                         id="4"
                         style={[styles.accordionItem, { backgroundColor: colors.card }]}
                         titleStyle={{ fontWeight: '700', color: colors.textMain }}
                         theme={{ colors: { primary: colors.primary } }}
                     >
-                        <List.Item title={t('owner.help.faq_4_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
+                        <List.Item title={t('help.faq_4_desc')} titleStyle={{ color: colors.textMuted }} titleNumberOfLines={2} />
                     </List.Accordion>
                 </List.AccordionGroup>
             </ScrollView>

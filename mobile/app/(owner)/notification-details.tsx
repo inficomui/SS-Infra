@@ -44,11 +44,11 @@ export default function NotificationDetailsScreen() {
                     <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.notification_details.title')}</Text>
+                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('notification_details.title')}</Text>
                     <View style={{ width: 44 }} />
                 </View>
                 <View style={styles.emptyContainer}>
-                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('owner.notification_details.not_found')}</Text>
+                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('notification_details.not_found')}</Text>
                 </View>
             </View>
         );
@@ -88,7 +88,7 @@ export default function NotificationDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.notification_details.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('notification_details.title')}</Text>
                 <TouchableOpacity onPress={handleDelete} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.danger }]}>
                     <MaterialCommunityIcons name="trash-can-outline" size={22} color={colors.danger} />
                 </TouchableOpacity>
@@ -109,7 +109,7 @@ export default function NotificationDetailsScreen() {
                     {/* Render additional data if available */}
                     {notification.data && Object.keys(notification.data).length > 0 && (
                         <View style={styles.dataContainer}>
-                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>{t('owner.notification_details.additional_data')}</Text>
+                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>{t('notification_details.additional_data')}</Text>
                             {Object.entries(notification.data).map(([key, value]) => (
                                 <View key={key} style={styles.dataRow}>
                                     <Text style={[styles.dataKey, { color: colors.textMuted }]}>{key}:</Text>

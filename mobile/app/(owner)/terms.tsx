@@ -18,33 +18,33 @@ export default function TermsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.terms.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('terms.title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_1_title')}</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('terms.section_1_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    {t('owner.terms.section_1_text')}
+                    {t('terms.section_1_text')}
                 </Text>
 
-                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_2_title')}</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('terms.section_2_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    {t('owner.terms.section_2_text')}
+                    {t('terms.section_2_text')}
                 </Text>
 
-                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_3_title')}</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('terms.section_3_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    {t('owner.terms.section_3_text')}
+                    {t('terms.section_3_text')}
                 </Text>
 
-                <Text style={[styles.heading, { color: colors.textMain }]}>{t('owner.terms.section_4_title')}</Text>
+                <Text style={[styles.heading, { color: colors.textMain }]}>{t('terms.section_4_title')}</Text>
                 <Text style={[styles.paragraph, { color: colors.textMuted }]}>
-                    {t('owner.terms.section_4_text')}
+                    {t('terms.section_4_text')}
                 </Text>
 
                 <View style={styles.footer}>
-                    <Text style={[styles.footerText, { color: colors.textMuted }]}>{t('owner.terms.last_updated')}</Text>
+                    <Text style={[styles.footerText, { color: colors.textMuted }]}>{t('terms.last_updated')}</Text>
                 </View>
             </ScrollView>
         </View>

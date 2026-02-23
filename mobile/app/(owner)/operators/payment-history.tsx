@@ -32,7 +32,7 @@ export default function OperatorPaymentHistoryScreen() {
             <View style={styles.cardHeader}>
                 <View style={[styles.typeBadge, { backgroundColor: item.type === 'salary' ? colors.primary + '15' : colors.success + '15' }]}>
                     <Text style={{ color: item.type === 'salary' ? colors.primary : colors.success, fontSize: 10, fontWeight: '900', textTransform: 'uppercase' }}>
-                        {item.type}
+                        {item.type === 'salary' ? t('payments.salary') : t('payments.bonus')}
                     </Text>
                 </View>
                 <Text style={[styles.amountText, { color: colors.textMain }]}>₹{item.amount}</Text>
@@ -59,7 +59,7 @@ export default function OperatorPaymentHistoryScreen() {
             <Divider style={{ backgroundColor: colors.border, marginVertical: 12 }} />
 
             <View style={styles.cardFooter}>
-                <Text style={{ fontSize: 11, color: colors.textMuted, fontWeight: '700' }}>{t('owner.payments.paid_by')}</Text>
+                <Text style={{ fontSize: 11, color: colors.textMuted, fontWeight: '700' }}>{t('payments.paid_by')}</Text>
                 <Text style={{ fontSize: 12, color: colors.textMain, fontWeight: '800' }}>{item.owner?.name}</Text>
             </View>
         </View>
@@ -72,7 +72,7 @@ export default function OperatorPaymentHistoryScreen() {
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
                 <View style={{ flex: 1, paddingLeft: 16 }}>
-                    <Text style={[styles.headerTitle, { color: colors.textMain }]} numberOfLines={1}>{t('owner.payments.history_title')}</Text>
+                    <Text style={[styles.headerTitle, { color: colors.textMain }]} numberOfLines={1}>{t('payments.history_title')}</Text>
                     <Text style={[styles.subTitle, { color: colors.textMuted }]}>{operatorName}</Text>
                 </View>
             </View>
@@ -89,8 +89,8 @@ export default function OperatorPaymentHistoryScreen() {
                     !isLoading ? (
                         <View style={styles.emptyState}>
                             <MaterialCommunityIcons name="cash-multiple" size={64} color={colors.textMuted} />
-                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16, fontWeight: '600' }}>{t('owner.payments.no_payments')}</Text>
-                            <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t('owner.payments.no_payments_sub')}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 16, fontSize: 16, fontWeight: '600' }}>{t('payments.no_payments')}</Text>
+                            <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t('payments.no_payments_sub')}</Text>
                         </View>
                     ) : (
                         <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />
@@ -106,7 +106,7 @@ export default function OperatorPaymentHistoryScreen() {
                             >
                                 <MaterialCommunityIcons name="chevron-left" size={24} color={colors.textMain} />
                             </TouchableOpacity>
-                            <Text style={[styles.pageText, { color: colors.textMain }]}>Page {page} of {lastPage}</Text>
+                            <Text style={[styles.pageText, { color: colors.textMain }]}>{t('fuel_management.page')} {page} {t('fuel_management.of')} {lastPage}</Text>
                             <TouchableOpacity
                                 disabled={page === lastPage || isFetching}
                                 onPress={() => setPage(page + 1)}

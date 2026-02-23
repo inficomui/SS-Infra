@@ -36,7 +36,7 @@ export default function WithdrawalHistoryScreen() {
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.wallet.history_title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('wallet.history_title')}</Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -46,8 +46,8 @@ export default function WithdrawalHistoryScreen() {
                 ) : withdrawals.length === 0 ? (
                     <View style={styles.emptyState}>
                         <MaterialCommunityIcons name="cash-clock" size={64} color={colors.textMuted} />
-                        <Text style={{ color: colors.textMuted, marginTop: 12, fontSize: 16, fontWeight: '600' }}>{t('owner.wallet.no_withdrawals')}</Text>
-                        <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t('owner.wallet.no_withdrawals_sub')}</Text>
+                        <Text style={{ color: colors.textMuted, marginTop: 12, fontSize: 16, fontWeight: '600' }}>{t('wallet.no_withdrawals')}</Text>
+                        <Text style={{ color: colors.textMuted, marginTop: 4, textAlign: 'center' }}>{t('wallet.no_withdrawals_sub')}</Text>
                     </View>
                 ) : (
                     <>
@@ -56,7 +56,7 @@ export default function WithdrawalHistoryScreen() {
                                 <View key={w.id} style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
                                     <View style={styles.row}>
                                         <View>
-                                            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textMuted, letterSpacing: 1 }}>{t('owner.wallet.request_id')}: #{w.id}</Text>
+                                            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textMuted, letterSpacing: 1 }}>{t('wallet.request_id')}: #{w.id}</Text>
                                             <Text style={{ fontSize: 24, fontWeight: '900', color: colors.textMain, marginTop: 6 }}>
                                                 ₹{w.amount}
                                             </Text>
@@ -77,7 +77,7 @@ export default function WithdrawalHistoryScreen() {
 
                                     {w.adminNote && (
                                         <View style={[styles.noteBox, { borderLeftColor: colors.primary }]}>
-                                            <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '700', marginBottom: 4 }}>{t('owner.wallet.admin_remark')}:</Text>
+                                            <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '700', marginBottom: 4 }}>{t('wallet.admin_remark')}:</Text>
                                             <Text style={{ fontSize: 13, color: colors.textMain, lineHeight: 18 }}>
                                                 &quot;{w.adminNote}&quot;
                                             </Text>
