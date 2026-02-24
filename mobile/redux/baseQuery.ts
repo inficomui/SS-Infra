@@ -25,6 +25,12 @@ export const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
     if (result.error) {
         const status = result.error.status;
         const data = result.error.data as any;
+        const requestUrl = typeof args === 'string' ? args : args.url;
+
+        console.error(
+            `[API Error] ${requestUrl} | Status: ${status}`,
+            JSON.stringify(data, null, 2)
+        );
 
         if (status === 401) {
             // Unauthorized - Log out user

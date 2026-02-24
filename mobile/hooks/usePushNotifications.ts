@@ -7,8 +7,7 @@ import Constants from 'expo-constants';
 import { useRegisterPushTokenMutation } from '@/redux/apis/authApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNotification } from '@/redux/slices/notificationSlice';
-
-// ... existing imports ...
+import { useRouter } from 'expo-router';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -29,8 +28,9 @@ export function usePushNotifications() {
     const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
 
     const dispatch = useDispatch();
+    const router = useRouter();
     const [registerPushToken, { isLoading }] = useRegisterPushTokenMutation();
-    const { isAuthenticated } = useSelector((state: any) => state.auth);
+    const { isAuthenticated, role } = useSelector((state: any) => state.auth);
 
     useEffect(() => {
         // Only register if authenticated
@@ -40,6 +40,11 @@ export function usePushNotifications() {
             .then(({ expoToken, deviceToken }) => {
                 setExpoPushToken(expoToken);
                 setDevicePushToken(deviceToken);
+
+                console.log("=== PUSH NOTIFICATION TOKENS ===");
+                console.log("EXPO PUSH TOKEN: ", expoToken);
+                console.log("DEVICE PUSH TOKEN: ", deviceToken);
+                console.log("================================");
 
                 if (expoToken) {
                     // Send to backend
@@ -53,6 +58,11 @@ export function usePushNotifications() {
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
             setNotification(notification);
+
+            console.log("============= PUSH NOTIFICATION RECEIVED =============");
+            console.log(JSON.stringify(notification.request.content, null, 2));
+            console.log("======================================================");
+
             // Dispatch to Redux store
             const content = notification.request.content;
             dispatch(addNotification({
@@ -66,14 +76,41 @@ export function usePushNotifications() {
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            // Handle navigation based on notification data here if needed
+            const content = response.notification.request.content;
+
+            console.log("============= PUSH NOTIFICATION TAPPED =============");
+            console.log(JSON.stringify(content, null, 2));
+            console.log("====================================================");
+
+            const data = content.data;
+            if (data && role) {
+                const basePath = role === 'Owner' ? '/(owner)' : '/(operator)';
+
+                // Construct a notification-like object for the details screen
+                const notificationObj = {
+                    id: response.notification.request.identifier,
+                    title: response.notification.request.content.title,
+                    body: response.notification.request.content.body,
+                    type: data.type || 'info',
+                    data: data,
+                    createdAt: new Date().toISOString(),
+                };
+
+                router.push({
+                    pathname: `${basePath}/notification-details` as any,
+                    params: {
+                        id: notificationObj.id,
+                        notification: JSON.stringify(notificationObj)
+                    }
+                });
+            }
         });
 
         return () => {
             notificationListener.current?.remove();
             responseListener.current?.remove();
         };
-    }, [isAuthenticated]);
+    }, [isAuthenticated, role]);
 
     return {
         expoPushToken,
@@ -107,12 +144,22 @@ async function registerForPushNotificationsAsync() {
         }
 
         try {
-            expoToken = (await Notifications.getExpoPushTokenAsync()).data;
-        } catch (e) { }
+            const projectId =
+                Constants?.expoConfig?.extra?.eas?.projectId ??
+                Constants?.easConfig?.projectId;
+
+            expoToken = (await Notifications.getExpoPushTokenAsync({
+                projectId,
+            })).data;
+        } catch (e) {
+            console.error("getExpoPushTokenAsync ERROR: ", e);
+        }
 
         try {
             deviceToken = (await Notifications.getDevicePushTokenAsync()).data;
-        } catch (e) { }
+        } catch (e) {
+            console.error("getDevicePushTokenAsync ERROR: ", e);
+        }
 
     } else {
         // Must use physical device for Push Notifications

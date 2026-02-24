@@ -1,39 +1,47 @@
 
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Text } from 'react-native-paper';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { Text, ActivityIndicator } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useDispatch, useSelector } from 'react-redux';
-import { markAsRead, selectNotificationById, deleteNotification } from '@/redux/slices/notificationSlice';
+// Remove import { markAsRead, selectNotificationById, deleteNotification } from '@/redux/slices/notificationSlice';
+import { useMarkAsReadMutation, useDeleteNotificationMutation, Notification } from '@/redux/apis/notificationApi';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function NotificationDetailsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
-    const dispatch = useDispatch();
     const { id, notification: notificationParam } = useLocalSearchParams<{ id: string, notification: string }>();
 
-    const reduxNotification = useSelector((state) => selectNotificationById(state, id));
+    const [markAsRead] = useMarkAsReadMutation();
+    const [deleteNotification, { isLoading: isDeleting }] = useDeleteNotificationMutation();
 
     const notification = React.useMemo(() => {
         if (notificationParam) {
             try {
-                return JSON.parse(notificationParam);
+                return JSON.parse(notificationParam) as Notification;
             } catch (e) {
                 console.error("Failed to parse notification param", e);
             }
         }
-        return reduxNotification;
-    }, [notificationParam, reduxNotification]);
+        return null;
+    }, [notificationParam]);
 
-    // Mark as read when viewing details (only if ID exists)
+    // Mark as read when viewing details
     React.useEffect(() => {
-        if ((id || notification?.id) && notification && !notification.isRead) {
-            dispatch(markAsRead(id || notification.id));
-        }
-    }, [id, notification]);
+        const triggerMarkRead = async () => {
+            if (notification && !(notification.isRead || notification.is_read)) {
+                try {
+                    await markAsRead(notification.id.toString()).unwrap();
+                } catch (e) {
+                    console.error("Failed to mark as read on detail view", e);
+                }
+            }
+        };
+        triggerMarkRead();
+    }, [notification]);
 
     if (!notification) {
         return (
@@ -53,8 +61,25 @@ export default function NotificationDetailsScreen() {
     }
 
     const handleDelete = () => {
-        dispatch(deleteNotification(id));
-        router.back();
+        Alert.alert(
+            "Delete Notification",
+            "Are you sure you want to delete this notification?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await deleteNotification(notification.id.toString()).unwrap();
+                            router.back();
+                        } catch (e) {
+                            Alert.alert("Error", "Failed to delete notification");
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const getIconForType = (type: string) => {
@@ -65,6 +90,8 @@ export default function NotificationDetailsScreen() {
             case 'invoice': return 'file-document-outline';
             case 'machine_assign': return 'truck-outline';
             case 'client_add': return 'account-plus-outline';
+            case 'search_lead': return 'fire';
+            case 'alert': return 'alert-circle-outline';
             default: return 'bell-outline';
         }
     };
@@ -76,9 +103,13 @@ export default function NotificationDetailsScreen() {
             case 'work_finish': return colors.primary;
             case 'invoice': return colors.primary || '#9333EA';
             case 'machine_assign': return colors.textMuted;
+            case 'search_lead': return '#FF5722';
+            case 'alert': return colors.danger;
             default: return colors.primary;
         }
     };
+
+    const createdAt = notification.createdAt || notification.created_at || new Date().toISOString();
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -88,7 +119,7 @@ export default function NotificationDetailsScreen() {
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: colors.textMain }]}>Details</Text>
                 <TouchableOpacity onPress={handleDelete} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.danger }]}>
-                    <MaterialCommunityIcons name="trash-can-outline" size={22} color={colors.danger} />
+                    {isDeleting ? <ActivityIndicator size="small" color={colors.danger} /> : <MaterialCommunityIcons name="trash-can-outline" size={22} color={colors.danger} />}
                 </TouchableOpacity>
             </View>
 
@@ -97,26 +128,64 @@ export default function NotificationDetailsScreen() {
                     <View style={[styles.iconBox, { backgroundColor: getColorForType(notification.type) + '15' }]}>
                         <MaterialCommunityIcons name={getIconForType(notification.type) as any} size={40} color={getColorForType(notification.type)} />
                     </View>
-                    <Text style={[styles.time, { color: colors.textMuted }]}>{new Date(notification.createdAt).toLocaleString()}</Text>
+                    <Text style={[styles.time, { color: colors.textMuted }]}>{new Date(createdAt).toLocaleString()}</Text>
                     <Text style={[styles.title, { color: colors.textMain }]}>{notification.title}</Text>
                 </View>
 
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <Text style={[styles.body, { color: colors.textMain }]}>{notification.body}</Text>
 
-                    {/* Render additional data if available */}
-                    {notification.data && Object.keys(notification.data).length > 0 && (
-                        <View style={styles.dataContainer}>
-                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>Additional Data</Text>
-                            {Object.entries(notification.data).map(([key, value]) => (
-                                <View key={key} style={styles.dataRow}>
-                                    <Text style={[styles.dataKey, { color: colors.textMuted }]}>{key}:</Text>
-                                    <Text style={[styles.dataValue, { color: colors.textMain }]}>{String(value)}</Text>
+                    {/* Specialized UI for Search Lead */}
+                    {notification.type === 'search_lead' && (
+                        <View style={styles.leadContainer}>
+                            <View style={styles.leadHeader}>
+                                <MaterialCommunityIcons name="lightning-bolt" size={16} color="#FFD700" />
+                                <Text style={styles.leadHeaderText}>PROSPECTIVE LEAD</Text>
+                            </View>
+                            <View style={styles.leadInfo}>
+                                <View style={styles.infoRow}>
+                                    <MaterialCommunityIcons name="map-marker" size={18} color={colors.textMuted} />
+                                    <Text style={[styles.infoText, { color: colors.textMain }]}>District: {notification.data?.district || 'Not specified'}</Text>
                                 </View>
-                            ))}
+                                {notification.data?.taluka && (
+                                    <View style={styles.infoRow}>
+                                        <MaterialCommunityIcons name="map-marker-outline" size={18} color={colors.textMuted} />
+                                        <Text style={[styles.infoText, { color: colors.textMain }]}>Taluka: {notification.data.taluka}</Text>
+                                    </View>
+                                )}
+                                {notification.data?.searchQuery && (
+                                    <View style={styles.infoRow}>
+                                        <MaterialCommunityIcons name="magnify" size={18} color={colors.textMuted} />
+                                        <Text style={[styles.infoText, { color: colors.textMain }]}>Search: "{notification.data.searchQuery}"</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <TouchableOpacity
+                                style={[styles.actionBtn, { backgroundColor: colors.primary }]}
+                                onPress={() => router.push('/(tabs)')}
+                            >
+                                <Text style={styles.actionBtnText}>VIEW MARKETPLACE</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {/* Render additional data if available and not search_lead (handled above) */}
+                    {notification.type !== 'search_lead' && notification.data && Object.keys(notification.data).length > 0 && (
+                        <View style={styles.dataContainer}>
+                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>Additional Details</Text>
+                            {Object.entries(notification.data).map(([key, value]) => {
+                                if (key === 'type') return null;
+                                return (
+                                    <View key={key} style={styles.dataRow}>
+                                        <Text style={[styles.dataKey, { color: colors.textMuted }]}>{key.replace(/_/g, ' ')}:</Text>
+                                        <Text style={[styles.dataValue, { color: colors.textMain }]}>{String(value)}</Text>
+                                    </View>
+                                );
+                            })}
                         </View>
                     )}
                 </View>
+                <View style={{ height: 40 }} />
             </ScrollView>
         </View>
     );
@@ -137,8 +206,18 @@ const styles = StyleSheet.create({
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     emptyText: { fontSize: 16, fontWeight: '600' },
     dataContainer: { marginTop: 24, paddingTop: 24, borderTopWidth: 1, borderTopColor: '#33333333' },
-    dataTitle: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', marginBottom: 12, letterSpacing: 1 },
-    dataRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+    dataTitle: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', marginBottom: 16, letterSpacing: 1 },
+    dataRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
     dataKey: { fontSize: 14, fontWeight: '600', textTransform: 'capitalize' },
     dataValue: { fontSize: 14, fontWeight: '700' },
+
+    // Lead Styles
+    leadContainer: { marginTop: 24, padding: 16, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.03)', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)' },
+    leadHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+    leadHeaderText: { fontSize: 10, fontWeight: '900', color: '#FFD700', letterSpacing: 1 },
+    leadInfo: { gap: 10, marginBottom: 20 },
+    infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    infoText: { fontSize: 15, fontWeight: '700' },
+    actionBtn: { height: 48, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+    actionBtnText: { color: '#000', fontWeight: '900', fontSize: 13, letterSpacing: 0.5 }
 });

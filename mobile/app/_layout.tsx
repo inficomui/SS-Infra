@@ -44,21 +44,7 @@ function RootLayoutNav() {
   const { role, isAuthenticated, user } = useSelector((state: any) => state.auth);
   const { isLoading: isValidatingSession } = useGetMeQuery(undefined, { skip: !isAuthenticated });
   const [mounted, setMounted] = useState(false);
-  const [isCheckingLanguage, setIsCheckingLanguage] = useState(true);
-  const [hasLanguage, setHasLanguage] = useState(false);
-
   useEffect(() => {
-    const checkLang = async () => {
-      try {
-        const lang = await storage.getItem('user-language');
-        if (lang) setHasLanguage(true);
-      } catch (e) {
-        // ignore
-      } finally {
-        setIsCheckingLanguage(false);
-      }
-    };
-    checkLang();
     setMounted(true);
   }, []);
 
@@ -67,22 +53,6 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (!mounted || (isAuthenticated && isValidatingSession)) return;
-
-    if (!hasLanguage && segments[0] !== 'language-selection') {
-      router.replace('/language-selection');
-      return;
-    }
-
-    if (segments[0] === 'language-selection') {
-      // Let the selection screen handle navigation or if language is now set (needs reload or context update ideally but simpler for now)
-      if (hasLanguage) {
-        // If somehow we have language, maybe redirect to login/home
-        // But normally we stay here until user picks.
-        // Actually if hasLanguage is true, we should fall through to auth checks.
-      } else {
-        return;
-      }
-    }
 
     if (!isAuthenticated) {
       if (segments[0] !== 'login' && segments[0] !== 'language-selection') {
@@ -97,9 +67,9 @@ function RootLayoutNav() {
         }
       }
     }
-  }, [isAuthenticated, role, segments, user, mounted, isValidatingSession, isCheckingLanguage, hasLanguage]);
+  }, [isAuthenticated, role, segments, user, mounted, isValidatingSession]);
 
-  if (!mounted || (isAuthenticated && isValidatingSession) || isCheckingLanguage) {
+  if (!mounted || (isAuthenticated && isValidatingSession)) {
     return <SplashScreen />;
   }
 

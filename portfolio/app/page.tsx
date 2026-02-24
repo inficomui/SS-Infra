@@ -8,7 +8,6 @@ import { OperatorDiscovery } from "@/components/home/OperatorDiscovery";
 import { NetworkDirectory } from "@/components/home/NetworkDirectory";
 import { EnquiryForm } from "@/components/home/EnquiryForm";
 import { Footer } from "@/components/layout/Footer";
-import { LoginPopup } from "@/components/ui/LoginPopup";
 import { IPhone3D } from "@/components/ui/IPhone3D";
 import { motion } from "framer-motion";
 import {
@@ -21,7 +20,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[var(--bg)] text-[var(--fg)]">
-      <LoginPopup />
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────── */}

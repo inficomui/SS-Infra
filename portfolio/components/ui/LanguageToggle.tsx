@@ -1,7 +1,7 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setLanguage, Language } from "@/store/slices/languageSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setLanguage, Language } from "@/redux/slices/languageSlice";
 import { Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

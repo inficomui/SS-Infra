@@ -1,42 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Users, HardHat, Briefcase, ChevronRight, CheckCircle2, Star, Zap } from "lucide-react";
-
-const DATA = {
-    pune: {
-        owners: [
-            { name: "Pune Infra Corp", fleet: 15, rating: 4.8 },
-            { name: "Sahyadri Earthmovers", fleet: 8, rating: 4.5 }
-        ],
-        operators: 124,
-        clients: ["MIDC Chakan", "Pune Metro", "Amanora Park"],
-        plans: ["Pro", "Enterprise"]
-    },
-    mumbai: {
-        owners: [
-            { name: "Coastal Road Builders", fleet: 45, rating: 4.9 },
-            { name: "Harbor Tech", fleet: 22, rating: 4.7 }
-        ],
-        operators: 342,
-        clients: ["MMRDA", "CIDCO", "MCGM"],
-        plans: ["Enterprise Plus"]
-    },
-    nagpur: {
-        owners: [
-            { name: "Vidarbha heavy Lift", fleet: 12, rating: 4.4 }
-        ],
-        operators: 68,
-        clients: ["MIHAN", "Nagpur Smart City"],
-        plans: ["Starter", "Pro"]
-    }
-};
+import { useGetDistrictsQuery } from "@/redux/apis/locationApi";
+import { useGetOwnersQuery, useGetOperatorsQuery } from "@/redux/apis/discoveryApi";
 
 export function NetworkDirectory() {
     const { t } = useTranslation();
-    const [activeLocation, setActiveLocation] = useState<keyof typeof DATA>("pune");
+    const { data: districtData, isLoading: loadingDistricts } = useGetDistrictsQuery();
+    const districts = districtData?.data ?? [];
+
+    const [activeDistrict, setActiveDistrict] = useState<string>("");
+
+    // Set initial active district once data loads
+    useMemo(() => {
+        if (districts.length > 0 && !activeDistrict) {
+            setActiveDistrict(districts[0]);
+        }
+    }, [districts]);
+
+    const { data: ownersData, isLoading: loadingOwners } = useGetOwnersQuery({ district: activeDistrict }, { skip: !activeDistrict });
+    const { data: operatorsData, isLoading: loadingOperators } = useGetOperatorsQuery({ district: activeDistrict }, { skip: !activeDistrict });
+
+    const owners = ownersData?.data?.data ?? [];
+    const operators = operatorsData?.data?.data ?? [];
 
     const plans = [
         { title: "Starter", price: "₹2,999", features: ["10 Operator Slots", "Basic Analytics", "Email Support"] },
@@ -63,25 +52,35 @@ export function NetworkDirectory() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                     {/* Location Sidebar */}
                     <div className="lg:col-span-4 space-y-4">
-                        {(Object.keys(DATA) as Array<keyof typeof DATA>).map((loc) => (
-                            <button
-                                key={loc}
-                                onClick={() => setActiveLocation(loc)}
-                                className={`w-full group p-8 rounded-xl border transition-all duration-500 flex items-center justify-between ${activeLocation === loc
-                                    ? 'bg-black dark:bg-white text-white dark:text-black border-transparent shadow-2xl scale-105'
-                                    : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:border-amber-500/50'
-                                    }`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${activeLocation === loc ? 'bg-amber-500 text-black' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
-                                        }`}>
-                                        <MapPin size={24} />
+                        {loadingDistricts ? (
+                            Array.from({ length: 3 }).map((_, i) => (
+                                <div key={i} className="w-full h-24 bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse" />
+                            ))
+                        ) : districts.length === 0 ? (
+                            <div className="p-8 text-center text-zinc-500 font-bold uppercase tracking-widest text-xs border border-dashed rounded-xl">
+                                No active hubs found.
+                            </div>
+                        ) : (
+                            districts.map((loc) => (
+                                <button
+                                    key={loc}
+                                    onClick={() => setActiveDistrict(loc)}
+                                    className={`w-full group p-8 rounded-xl border transition-all duration-500 flex items-center justify-between ${activeDistrict === loc
+                                        ? 'bg-black dark:bg-white text-white dark:text-black border-transparent shadow-2xl scale-105'
+                                        : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:border-amber-500/50'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${activeDistrict === loc ? 'bg-amber-500 text-black' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
+                                            }`}>
+                                            <MapPin size={24} />
+                                        </div>
+                                        <span className="text-2xl font-black capitalize tracking-tight font-[Space Grotesk]">{loc} Hub</span>
                                     </div>
-                                    <span className="text-2xl font-black capitalize tracking-tight font-[Space Grotesk]">{loc} Hub</span>
-                                </div>
-                                <ChevronRight size={20} className={`transition-transform duration-500 ${activeLocation === loc ? 'rotate-90 text-amber-500' : 'group-hover:translate-x-1'}`} />
-                            </button>
-                        ))}
+                                    <ChevronRight size={20} className={`transition-transform duration-500 ${activeDistrict === loc ? 'rotate-90 text-amber-500' : 'group-hover:translate-x-1'}`} />
+                                </button>
+                            ))
+                        )}
 
                         <div className="mt-12 p-10 bento-card bg-linear-to-br from-amber-500 to-yellow-600 text-black">
                             <h4 className="text-2xl font-black font-[Space Grotesk] mb-4">Need Custom Coverage?</h4>
@@ -96,7 +95,7 @@ export function NetworkDirectory() {
                     <div className="lg:col-span-8">
                         <AnimatePresence mode="wait">
                             <motion.div
-                                key={activeLocation}
+                                key={activeDistrict}
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
@@ -112,7 +111,9 @@ export function NetworkDirectory() {
                                             </div>
                                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Total Owners</span>
                                         </div>
-                                        <div className="text-5xl font-black font-[Space Grotesk]">{DATA[activeLocation].owners.length} Organizations</div>
+                                        <div className="text-5xl font-black font-[Space Grotesk]">
+                                            {loadingOwners ? "..." : `${owners.length} Organizations`}
+                                        </div>
                                     </div>
                                     <div className="bento-card p-8">
                                         <div className="flex items-center gap-4 mb-6">
@@ -121,14 +122,16 @@ export function NetworkDirectory() {
                                             </div>
                                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Active Operators</span>
                                         </div>
-                                        <div className="text-5xl font-black font-[Space Grotesk]">{DATA[activeLocation].operators} Units</div>
+                                        <div className="text-5xl font-black font-[Space Grotesk]">
+                                            {loadingOperators ? "..." : `${operators.length} Units`}
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Details Section */}
                                 <div className="bento-card p-10">
                                     <div className="flex items-center justify-between mb-10 pb-6 border-b border-zinc-100 dark:border-zinc-800">
-                                        <h4 className="text-2xl font-black font-[Space Grotesk]">Premium Partners in {activeLocation}</h4>
+                                        <h4 className="text-2xl font-black font-[Space Grotesk]">Premium Partners in {activeDistrict}</h4>
                                         <Users size={24} className="text-amber-500" />
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -137,24 +140,26 @@ export function NetworkDirectory() {
                                                 <Star size={14} fill="currentColor" /> Top Registered Owners
                                             </h5>
                                             <div className="space-y-4">
-                                                {DATA[activeLocation].owners.map((owner, i) => (
-                                                    <div key={i} className="p-4 rounded-xl bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-between">
-                                                        <span className="font-black text-sm">{owner.name}</span>
-                                                        <div className="px-3 py-1 bg-white dark:bg-black rounded-lg text-[10px] font-black text-zinc-500">Fleet: {owner.fleet}</div>
-                                                    </div>
-                                                ))}
+                                                {loadingOwners ? [1, 2].map(i => <div key={i} className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />) :
+                                                    owners.slice(0, 5).map((owner: any, i: number) => (
+                                                        <div key={i} className="p-4 rounded-xl bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-between">
+                                                            <span className="font-black text-sm">{owner.name}</span>
+                                                            <div className="px-3 py-1 bg-white dark:bg-black rounded-lg text-[10px] font-black text-zinc-500">Fleet: {owner.machinesCount || owner.machines || "—"}</div>
+                                                        </div>
+                                                    ))}
+                                                {!loadingOwners && owners.length === 0 && <p className="text-xs text-zinc-500">No registered owners here yet.</p>}
                                             </div>
                                         </div>
                                         <div>
                                             <h5 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-6 flex items-center gap-2">
-                                                <CheckCircle2 size={14} /> Major Clients / Projects
+                                                <CheckCircle2 size={14} /> Regional Coverage
                                             </h5>
                                             <div className="flex flex-wrap gap-2">
-                                                {DATA[activeLocation].clients.map((client, i) => (
-                                                    <span key={i} className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-black uppercase tracking-widest">
-                                                        {client}
+                                                {activeDistrict ? (
+                                                    <span className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-black uppercase tracking-widest">
+                                                        {activeDistrict} Sector
                                                     </span>
-                                                ))}
+                                                ) : "Loading..."}
                                             </div>
                                         </div>
                                     </div>
@@ -165,12 +170,12 @@ export function NetworkDirectory() {
                                     <div className="flex items-center justify-between mb-12">
                                         <div>
                                             <h4 className="text-3xl font-black font-[Space Grotesk] mb-2 tracking-tight">Regional Business Plans</h4>
-                                            <p className="text-sm text-zinc-500 font-bold uppercase tracking-widest">Scalable solutions for {activeLocation} Operations</p>
+                                            <p className="text-sm text-zinc-500 font-bold uppercase tracking-widest">Scalable solutions for {activeDistrict} Operations</p>
                                         </div>
                                         <div className="px-5 py-2 bg-amber-500 text-black rounded-lg text-[10px] font-black uppercase tracking-widest">Best Value</div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {plans.filter(p => DATA[activeLocation].plans.includes(p.title) || DATA[activeLocation].plans.includes("Enterprise Plus")).map((plan, i) => (
+                                        {plans.map((plan, i) => (
                                             <div key={i} className="p-8 rounded-xl border border-zinc-800 bg-black/40 hover:border-amber-500/50 transition-all group">
                                                 <div className="text-xs font-black text-amber-500 uppercase tracking-widest mb-4">{plan.title}</div>
                                                 <div className="text-3xl font-black mb-8">{plan.price} <span className="text-sm text-zinc-500">/mo</span></div>

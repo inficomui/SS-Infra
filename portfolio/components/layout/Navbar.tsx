@@ -3,14 +3,17 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
-import { Zap, Menu, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { Zap, Menu, X, ArrowRight, ShieldCheck, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { SearchPopup } from "@/components/ui/SearchPopup";
 
 export function Navbar() {
     const { t } = useTranslation();
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -19,10 +22,9 @@ export function Navbar() {
     }, []);
 
     const navLinks = [
-        { name: 'Features', href: '#features' },
-        { name: 'Owners', href: '#owners' },
-        { name: 'Discovery', href: '#discovery' },
-        { name: 'Enquiry', href: '#enquiry' }
+        { name: 'Home', href: '/' },
+        { name: 'Search', href: '/search' },
+        { name: 'Client Panel', href: '/dashboard/client' }
     ];
 
     return (
@@ -56,35 +58,47 @@ export function Navbar() {
                         </span>
                     </div>
 
-                    {/* Desktop Navigation Links */}
                     <div className="hidden lg:flex items-center gap-2">
                         {navLinks.map((item) => (
-                            <a
+                            <Link
                                 key={item.name}
                                 href={item.href}
                                 className="relative px-5 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400 hover:text-amber-500 dark:hover:text-amber-400 transition-all group"
                             >
                                 {item.name}
                                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-1/2" />
-                            </a>
+                            </Link>
                         ))}
                     </div>
 
                     {/* Action Area */}
                     <div className="flex items-center gap-2">
-                        <div className="hidden md:flex items-center gap-3 mr-3 pl-4 border-l border-zinc-200 dark:border-zinc-800">
+                        <div className="hidden md:flex items-center gap-3 mr-3 pl-4 border-l border-[var(--border)]">
+                            <button
+                                onClick={() => setSearchOpen(true)}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--bg)] border border-[var(--border)] text-[var(--fg)] hover:text-amber-500 hover:border-amber-500 transition-colors"
+                            >
+                                <Search size={18} />
+                            </button>
                             <LanguageToggle />
                             <ThemeToggle />
                         </div>
 
-                        <button className="hidden sm:flex group bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-black text-[10px] uppercase tracking-[0.2em] px-8 py-4 rounded-xl transition-all shadow-xl shadow-zinc-500/10 active:scale-95 items-center gap-2">
+                        <Link href="/auth/login" className="hidden sm:flex group bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-black text-[10px] uppercase tracking-[0.2em] px-8 py-4 rounded-xl transition-all shadow-xl shadow-zinc-500/10 active:scale-95 items-center gap-2">
                             {t("common.get_started")}
                             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                        </Link>
+
+                        <button
+                            onClick={() => setSearchOpen(true)}
+                            className="lg:hidden w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--bg-muted)] text-[var(--fg)] border border-[var(--border)] transition-colors mr-2"
+                        >
+                            <Search size={20} />
                         </button>
 
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="lg:hidden w-12 h-12 flex items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white transition-colors"
+                            className="lg:hidden w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--bg-muted)] text-[var(--fg)] border border-[var(--border)] transition-colors"
                         >
                             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                         </button>
@@ -114,14 +128,14 @@ export function Navbar() {
                                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Menu</p>
                                     <div className="grid grid-cols-1 gap-4">
                                         {navLinks.map((item) => (
-                                            <a
+                                            <Link
                                                 key={item.name}
                                                 href={item.href}
                                                 onClick={() => setMobileMenuOpen(false)}
                                                 className="text-3xl font-black uppercase tracking-tighter hover:text-amber-500 transition-colors dark:text-white"
                                             >
                                                 {item.name}
-                                            </a>
+                                            </Link>
                                         ))}
                                     </div>
                                 </div>
@@ -136,15 +150,17 @@ export function Navbar() {
                                             <ShieldCheck size={14} /> Secure
                                         </div>
                                     </div>
-                                    <button className="w-full bg-amber-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs">
+                                    <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)} className="w-full flex justify-center bg-amber-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs">
                                         {t("common.get_started")}
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </motion.div>
                     </>
                 )}
             </AnimatePresence>
+
+            <SearchPopup isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
         </header>
     );
 }

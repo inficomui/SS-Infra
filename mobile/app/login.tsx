@@ -24,7 +24,6 @@ import Toast from 'react-native-toast-message';
 import { selectThemeMode } from '@/redux/slices/themeSlice';
 import { Colors } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const { width, height } = Dimensions.get('window');
 
@@ -32,7 +31,7 @@ export default function LoginScreen() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [sendOtp, { isLoading: isSendingOtp }] = useSendOtpMutation();
-    const [verifyOtp, { isLoading: isVerifyingOtp }] = useVerifyOtpMutation();
+    const [verifyOtp, { isLoading: isVerifyingOtp, error: VerifyError, isError: VerifyIsError }] = useVerifyOtpMutation();
 
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
@@ -59,18 +58,20 @@ export default function LoginScreen() {
     const PLACEHOLDER_TEXT = isDark ? '#555' : '#9CA3AF';
 
     const handleSendOtp = async () => {
-        if (mobileNumber.length < 10) {
+        const cleanMobile = mobileNumber.replace(/[^0-9]/g, '');
+        if (cleanMobile.length < 10) {
             Toast.show({ type: 'error', text1: t('auth.invalid_number'), text2: t('auth.error_10_digit') });
             return;
         }
         try {
-            const response: any = await sendOtp({ mobile: mobileNumber }).unwrap();
+            const response: any = await sendOtp({ mobile: cleanMobile }).unwrap();
             if (response?.success) {
                 setIsOtpSent(true);
                 if (response.devOtp) setDevOtp(response.devOtp);
                 Toast.show({ type: 'success', text1: t('auth.otp_success') });
             }
         } catch (error: any) {
+            console.error("Send OTP Catch Error:", JSON.stringify(error, null, 2));
             const errorMessage = error?.data?.message || error?.data?.error || error?.message || t('auth.otp_failed');
             Toast.show({
                 type: 'error',
@@ -84,19 +85,37 @@ export default function LoginScreen() {
         if (otp.length === 4) {
             Keyboard.dismiss();
             try {
-                const response = await verifyOtp({ mobile: mobileNumber, otp }).unwrap();
-                if (response && response.token) {
+                const cleanMobile = mobileNumber.replace(/[^0-9]/g, '');
+                const response = await verifyOtp({ mobile: cleanMobile, otp }).unwrap();
+
+                // Extract token and user, handling potential nesting
+                const token = (response as any).token || (response as any).data?.token;
+                const user = (response as any).user || (response as any).data?.user;
+
+                if (token && user) {
                     dispatch(setCredentials({
-                        user: response.user,
-                        token: response.token
+                        user: user,
+                        token: token
                     }));
                     Toast.show({ type: 'success', text1: t('auth.login_success') });
                 } else {
-                    Toast.show({ type: 'error', text1: t('auth.login_failed'), text2: t('common.error') });
+                    // Show error message from backend if available, otherwise default to login_failed
+                    const errorMessage = (response as any).message || (response as any).data?.message || t('common.error');
+                    Toast.show({
+                        type: 'error',
+                        text1: t('auth.login_failed'),
+                        text2: errorMessage
+                    });
                 }
 
             } catch (error: any) {
-                Toast.show({ type: 'error', text1: t('auth.verify_failed'), text2: error?.data?.message || t('auth.invalid_otp') });
+                console.error("Verify OTP Catch Error:", JSON.stringify(error, null, 2));
+                const errorMessage = error?.data?.message || error?.message || t('auth.invalid_otp');
+                Toast.show({
+                    type: 'error',
+                    text1: t('auth.verify_failed'),
+                    text2: errorMessage
+                });
             }
         } else {
             Toast.show({ type: 'error', text1: t('auth.invalid_otp'), text2: t('auth.error_4_digit') });
@@ -112,9 +131,6 @@ export default function LoginScreen() {
 
                             {/* Top Branding Section */}
                             <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.headerHero}>
-                                <View style={styles.langToggleContainer}>
-                                    <LanguageSwitcher size={44} />
-                                </View>
                                 <Surface style={[styles.logoCircle, { backgroundColor: LOGO_BG }]} elevation={5}>
                                     <MaterialCommunityIcons name="crane" size={45} style={{ color: PRIMARY_YELLOW }} />
                                 </Surface>

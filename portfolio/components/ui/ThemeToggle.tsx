@@ -1,7 +1,7 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { toggleTheme } from "@/store/slices/themeSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { toggleTheme } from "@/redux/slices/themeSlice";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

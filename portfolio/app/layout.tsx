@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { StoreProvider } from "@/store/StoreProvider";
-import { ThemeProvider } from "@/store/ThemeProvider";
+import { StoreProvider } from "@/redux/StoreProvider";
+import { ThemeProvider } from "@/redux/ThemeProvider";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -33,6 +34,13 @@ export default function RootLayout({
         <StoreProvider>
           <ThemeProvider>
             {children}
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                style: { fontWeight: 700, fontSize: 13 },
+                success: { iconTheme: { primary: '#f59e0b', secondary: '#000' } },
+              }}
+            />
           </ThemeProvider>
         </StoreProvider>
       </body>

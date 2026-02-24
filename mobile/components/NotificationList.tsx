@@ -90,6 +90,9 @@ export default function NotificationList({ basePath = '/(owner)' }: { basePath?:
         } else if (item.type === 'payment') {
             iconName = 'cash';
             iconColor = colors.success;
+        } else if (item.type === 'search_lead') {
+            iconName = 'fire';
+            iconColor = '#FF5722'; // Deep Orange for leads
         }
 
         return (

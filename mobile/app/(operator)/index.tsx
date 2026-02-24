@@ -89,7 +89,8 @@ export default function OperatorOverview() {
         }, [])
     );
 
-    const allNotifications = notificationsData?.notifications || notificationsData?.data || [];
+    const rawNotifications = notificationsData?.notifications || notificationsData?.data;
+    const allNotifications: ApiNotification[] = Array.isArray(rawNotifications) ? rawNotifications : (Array.isArray((notificationsData?.data as any)?.data) ? (notificationsData?.data as any).data : []);
     const unreadCount = allNotifications.filter((n: ApiNotification) => !n.isRead && !n.is_read).length || 0;
 
     const intervalRef = useRef<number | null>(null);
