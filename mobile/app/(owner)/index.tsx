@@ -164,6 +164,13 @@ export default function OwnerDashboard() {
                             colors={colors}
                         />
                         <ActionButton
+                            icon="calendar-check"
+                            label={t('owner.bookings')}
+                            onPress={() => router.push('/(owner)/bookings' as any)}
+                            gradient={[colors.primary]}
+                            colors={colors}
+                        />
+                        <ActionButton
                             icon="format-list-bulleted"
                             label={t('owner.fleet_list')}
                             onPress={() => router.push('/(owner)/machines' as any)}

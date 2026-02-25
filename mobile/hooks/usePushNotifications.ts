@@ -41,10 +41,6 @@ export function usePushNotifications() {
                 setExpoPushToken(expoToken);
                 setDevicePushToken(deviceToken);
 
-                console.log("=== PUSH NOTIFICATION TOKENS ===");
-                console.log("EXPO PUSH TOKEN: ", expoToken);
-                console.log("DEVICE PUSH TOKEN: ", deviceToken);
-                console.log("================================");
 
                 if (expoToken) {
                     // Send to backend
@@ -58,10 +54,6 @@ export function usePushNotifications() {
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
             setNotification(notification);
-
-            console.log("============= PUSH NOTIFICATION RECEIVED =============");
-            console.log(JSON.stringify(notification.request.content, null, 2));
-            console.log("======================================================");
 
             // Dispatch to Redux store
             const content = notification.request.content;
@@ -77,10 +69,6 @@ export function usePushNotifications() {
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
             const content = response.notification.request.content;
-
-            console.log("============= PUSH NOTIFICATION TAPPED =============");
-            console.log(JSON.stringify(content, null, 2));
-            console.log("====================================================");
 
             const data = content.data;
             if (data && role) {

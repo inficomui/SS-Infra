@@ -16,7 +16,9 @@
         "no_machines": "No machines found.",
         "error_language": "Failed to change language",
         "unknown_operator": "Unknown Operator",
-        "no_notifications": "No notifications yet"
+        "no_notifications": "No notifications yet",
+        "change_language": "Change Language",
+        "search_language": "Search Language"
     },
     "overview": {
         "title": "Performance Hub",
@@ -35,6 +37,7 @@
         "tap_to_assign": "Tap to assign machine",
         "operations": "Operations",
         "clients": "Clients",
+        "bookings": "Bookings",
         "work_log": "Work Log",
         "wallet": "Wallet",
         "fuel": "Fuel",
@@ -68,6 +71,7 @@
         "in_use": "In Use",
         "service": "Service",
         "management": "Management",
+        "bookings": "Bookings",
         "new_operator": "New Operator",
         "new_machine": "New Machine",
         "fleet_list": "Fleet List",

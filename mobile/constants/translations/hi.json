@@ -16,7 +16,9 @@
         "no_machines": "कोई मशीन नहीं मिली।",
         "error_language": "भाषा बदलने में विफल",
         "unknown_operator": "अज्ञात ऑपरेटर",
-        "no_notifications": "अभी तक कोई सूचना नहीं"
+        "no_notifications": "अभी तक कोई सूचना नहीं",
+        "change_language": "भाषा बदलें",
+        "search_language": "भाषा खोजें"
     },
     "overview": {
         "title": "परफॉरमेंस हब",
@@ -35,6 +37,7 @@
         "tap_to_assign": "मशीन असाइन करने के लिए टैप करें",
         "operations": "संचालन",
         "clients": "ग्राहक",
+        "bookings": "बुकिंग",
         "work_log": "कार्य लॉग",
         "wallet": "वॉलेट",
         "fuel": "ईंधन",
@@ -68,6 +71,7 @@
         "in_use": "उपयोग में",
         "service": "सेवा",
         "management": "प्रबंधन",
+        "bookings": "बुकिंग",
         "new_operator": "नया ऑपरेटर",
         "new_machine": "नई मशीन",
         "fleet_list": "वाहनों का विवरण",

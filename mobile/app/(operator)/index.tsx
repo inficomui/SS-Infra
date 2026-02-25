@@ -404,6 +404,13 @@ export default function OperatorOverview() {
                         colors={colors}
                     />
                     <MenuIconButton
+                        icon="calendar-check"
+                        label={t('overview.bookings')}
+                        onPress={() => router.push('/(operator)/bookings' as any)}
+                        color="#8B5CF6"
+                        colors={colors}
+                    />
+                    <MenuIconButton
                         icon="chart-timeline-variant"
                         label={t('overview.work_log')}
                         onPress={() => router.push('/(operator)/work-log')}
