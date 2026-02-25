@@ -141,7 +141,7 @@ export default function NotificationDetailsScreen() {
                         <View style={styles.leadContainer}>
                             <View style={styles.leadHeader}>
                                 <MaterialCommunityIcons name="lightning-bolt" size={16} color="#FFD700" />
-                                <Text style={styles.leadHeaderText}>PROSPECTIVE LEAD</Text>
+                                <Text style={styles.leadHeaderText}>{t('notification_details.prospective_lead')}</Text>
                             </View>
                             <View style={styles.leadInfo}>
                                 <View style={styles.infoRow}>
@@ -165,7 +165,7 @@ export default function NotificationDetailsScreen() {
                                 style={[styles.actionBtn, { backgroundColor: colors.primary }]}
                                 onPress={() => router.push('/(owner)/operators')}
                             >
-                                <Text style={styles.actionBtnText}>CHECK OPERATORS</Text>
+                                <Text style={styles.actionBtnText}>{t('notification_details.check_operators')}</Text>
                             </TouchableOpacity>
                         </View>
                     )}

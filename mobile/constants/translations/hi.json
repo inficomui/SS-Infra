@@ -18,7 +18,11 @@
         "unknown_operator": "अज्ञात ऑपरेटर",
         "no_notifications": "अभी तक कोई सूचना नहीं",
         "change_language": "भाषा बदलें",
-        "search_language": "भाषा खोजें"
+        "search_language": "भाषा खोजें",
+        "no_bookings": "कोई बुकिंग नहीं मिली।",
+        "change": "बदलें",
+        "select_country_code": "देश कोड चुनें",
+        "search_country": "देश खोजें..."
     },
     "overview": {
         "title": "परफॉरमेंस हब",
@@ -345,6 +349,8 @@
         "verified": "सत्यापित",
         "send_reminder": "रिमाइंडर भेजें",
         "record_payment": "भुगतान रिकॉर्ड करें",
+        "enter_amount_placeholder": "राशि दर्ज करें",
+        "date_format_placeholder": "YYYY-MM-DD",
         "home": "होम",
         "share_invoice": "चालान साझा करें",
         "record_payment_title": "भुगतान रिकॉर्ड करें",
@@ -580,12 +586,22 @@
         "record_success": "भुगतान रिकॉर्ड किया गया",
         "record_success_msg": "भुगतान सफलतापूर्वक रिकॉर्ड किया गया!",
         "record_error": "भुगतान रिकॉर्ड त्रुटि",
-        "record_failed": "भुगतान रिकॉर्ड करने में विफल।"
+        "record_failed": "भुगतान रिकॉर्ड करने में विफल।",
+        "all_transactions": "सभी लेनदेन",
+        "total_earnings": "कुल कमाई",
+        "today_total": "आज की कुल कमाई: ₹{{amount}}",
+        "monthly_salary": "मासिक वेतन",
+        "bonus_credits": "बोनस क्रेडिट",
+        "today": "आज",
+        "previous": "पिछला"
     },
     "notification_details": {
         "title": "विवरण",
         "not_found": "सूचना नहीं मिली",
-        "additional_data": "अतिरिक्त डेटा"
+        "additional_data": "अतिरिक्त डेटा",
+        "prospective_lead": "संभावित लीड",
+        "check_operators": "ऑपरेटरों की जाँच करें",
+        "view_marketplace": "मार्केटप्लेस देखें"
     },
     "plans": {
         "title": "सदस्यता",
@@ -690,7 +706,9 @@
         "login_failed": "लॉगिन विफल",
         "verify_failed": "सत्यापन विफल",
         "invalid_otp": "अमान्य ओटीपी",
-        "error_4_digit": "कृपया 4 अंकों का ओटीपी दर्ज करें।"
+        "error_4_digit": "कृपया 4 अंकों का ओटीपी दर्ज करें।",
+        "fleet_portal": "फ्लीट ऑपरेशंस पोर्टल",
+        "protocol_desc": "एनक्रिप्टेड इन्फ्रास्ट्रक्चर प्रोटोकॉल v4.2"
     },
     "operator": {
         "session_setup": "सत्र सेटअप",
@@ -760,6 +778,7 @@
         "client_name_placeholder": "जैसे: NHAI रोड प्रोजेक्ट",
         "mobile_placeholder": "10 अंकों का मोबाइल नंबर",
         "district_placeholder": "जैसे: नासिक",
-        "taluka_placeholder": "जैसे: निफाड"
+        "taluka_placeholder": "जैसे: निफाड",
+        "amount_placeholder": "जैसे: 15000"
     }
 }

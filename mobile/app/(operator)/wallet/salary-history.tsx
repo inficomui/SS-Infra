@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     dateText: { fontSize: 12, fontWeight: '700' },
     filterSection: { marginBottom: 15 },
     filterScroll: { paddingHorizontal: 24, gap: 10 },
-    filterChip: { borderRadius: 12, height: 40, borderWidth: 0 },
+    filterChip: { borderRadius: 12, height: 32, borderWidth: 0 },
     filterChipText: { fontSize: 12, fontWeight: '700' },
     listContent: { paddingHorizontal: 24, paddingBottom: 40 },
     card: { padding: 16, borderRadius: 20, borderWidth: 1, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5 },

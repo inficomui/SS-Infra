@@ -135,7 +135,7 @@ export default function LoginScreen() {
                                     <MaterialCommunityIcons name="crane" size={45} style={{ color: PRIMARY_YELLOW }} />
                                 </Surface>
                                 <Text style={[styles.heroTitle, { color: HERO_TEXT }]}>SS INFRA</Text>
-                                <Text style={[styles.heroSubtitle, { color: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.7)' }]}>FLEET OPERATIONS PORTAL</Text>
+                                <Text style={[styles.heroSubtitle, { color: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.7)' }]}>{t('auth.fleet_portal')}</Text>
                             </LinearGradient>
 
                             <View style={styles.formContainer}>
@@ -207,7 +207,7 @@ export default function LoginScreen() {
                                         </View>
                                     )}
                                 </Surface>
-                                <Text style={[styles.protocolText, { color: TEXT_SECONDARY }]}>Encrypted Infrastructure Protocol v4.2</Text>
+                                <Text style={[styles.protocolText, { color: TEXT_SECONDARY }]}>{t('auth.protocol_desc')}</Text>
                             </View>
                         </View>
                     </TouchableWithoutFeedback>

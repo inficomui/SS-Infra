@@ -330,7 +330,7 @@ export default function InvoicePreviewScreen() {
                                     value={paymentAmount}
                                     onChangeText={setPaymentAmount}
                                     keyboardType="numeric"
-                                    placeholder="Enter amount"
+                                    placeholder={t('invoice_preview_screen.enter_amount_placeholder')}
                                     placeholderTextColor={colors.textMuted}
                                 />
                             </View>
@@ -341,7 +341,7 @@ export default function InvoicePreviewScreen() {
                                     style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card }]}
                                     value={paymentDate}
                                     onChangeText={setPaymentDate}
-                                    placeholder="YYYY-MM-DD"
+                                    placeholder={t('invoice_preview_screen.date_format_placeholder')}
                                     placeholderTextColor={colors.textMuted}
                                 />
                             </View>
@@ -352,7 +352,7 @@ export default function InvoicePreviewScreen() {
                                     style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card }]}
                                     value={nextPaymentDate}
                                     onChangeText={setNextPaymentDate}
-                                    placeholder="YYYY-MM-DD"
+                                    placeholder={t('invoice_preview_screen.date_format_placeholder')}
                                     placeholderTextColor={colors.textMuted}
                                 />
                                 <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 4 }}>

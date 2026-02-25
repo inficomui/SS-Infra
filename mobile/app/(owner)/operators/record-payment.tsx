@@ -142,7 +142,7 @@ export default function RecordPaymentScreen() {
                             <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
                             <Text style={{ color: colors.textMain, fontWeight: '600' }}>{formatDate(paymentDate)}</Text>
                         </View>
-                        <Text style={{ color: colors.primary, fontWeight: '800', fontSize: 12 }}>CHANGE</Text>
+                        <Text style={{ color: colors.primary, fontWeight: '800', fontSize: 12 }}>{t('common.change')}</Text>
                     </TouchableOpacity>
 
                     <TextInput

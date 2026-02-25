@@ -61,7 +61,17 @@ export const bookingApi = createApi({
             query: (body) => ({
                 url: '/enquiry/create',
                 method: 'POST',
-                body,
+                body: {
+                    targetId: body.targetId,
+                    targetType: body.targetType,
+                    clientName: body.clientName,
+                    clientMobile: body.mobile,
+                    otpToken: body.otpToken,
+                    message: body.message,
+                    locationDistrict: body.locationDistrict,
+                    locationTaluka: body.locationTaluka,
+                    dateOfRequirement: body.dateOfRequirement,
+                },
             }),
         }),
         getEnquiries: builder.query<EnquiriesResponse, { status?: string }>({

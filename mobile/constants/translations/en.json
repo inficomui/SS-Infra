@@ -18,7 +18,11 @@
         "unknown_operator": "Unknown Operator",
         "no_notifications": "No notifications yet",
         "change_language": "Change Language",
-        "search_language": "Search Language"
+        "search_language": "Search Language",
+        "no_bookings": "No bookings found.",
+        "change": "CHANGE",
+        "select_country_code": "Select Country Code",
+        "search_country": "Search country..."
     },
     "overview": {
         "title": "Performance Hub",
@@ -135,7 +139,7 @@
         "log_maintenance": "Log Maintenance",
         "fuel_logs_btn": "Fuel Logs",
         "purchase_date_label": "Purchase Date (Optional)",
-        "model_placeholder": "e.g. JCB 3DX Xtra",
+        "model_placeholder": "e.g. JCB 3DX X tra",
         "reg_placeholder": "e.g. INF-MC-001",
         "operator_fleet": "Operator Fleet",
         "search_operators": "Search name or mobile...",
@@ -147,7 +151,7 @@
         "legal_full_name": "Legal Full Name",
         "contact_number": "Contact Number",
         "district": "District",
-        "taluka": "Taluka / TQ",
+        "taluka": "Sub District",
         "salary_config": "Salary Configuration",
         "salary_type": "Salary Type",
         "none": "None",
@@ -160,7 +164,7 @@
         "mobile_required_msg": "Mobile number is required",
         "invalid_mobile_msg": "Enter a valid 10-digit number",
         "district_required_msg": "District is required",
-        "taluka_required_msg": "Taluka is required",
+        "taluka_required_msg": "Sub District is required",
         "salary_required_msg": "Salary amount is required",
         "op_registered_success": "Operator Registered",
         "op_added_success_msg": "New operator {{name}} added successfully.",
@@ -246,7 +250,7 @@
         "email_address": "Email Address",
         "mobile_number": "Mobile Number",
         "district": "District",
-        "taluka": "Taluka",
+        "taluka": "Sub District",
         "experience": "Experience",
         "save_changes": "Save Changes",
         "update_btn": "Update Profile",
@@ -348,6 +352,8 @@
         "home": "Home",
         "share_invoice": "SHARE INVOICE",
         "record_payment_title": "Record Payment",
+        "enter_amount_placeholder": "Enter amount",
+        "date_format_placeholder": "YYYY-MM-DD",
         "amount_received": "Amount Received (₹)",
         "payment_date": "Payment Date",
         "next_payment_date": "Next Payment Date (Optional)",
@@ -580,12 +586,22 @@
         "record_success": "Payment Recorded",
         "record_success_msg": "Payment recorded successfully!",
         "record_error": "Payment Record Error",
-        "record_failed": "Failed to record payment."
+        "record_failed": "Failed to record payment.",
+        "all_transactions": "All Transactions",
+        "total_earnings": "Total Earnings",
+        "today_total": "Today's Total: ₹{{amount}}",
+        "monthly_salary": "Monthly Salary",
+        "bonus_credits": "Bonus Credits",
+        "today": "TODAY",
+        "previous": "PREVIOUS"
     },
     "notification_details": {
         "title": "Details",
         "not_found": "Notification not found",
-        "additional_data": "Additional Data"
+        "additional_data": "Additional Data",
+        "prospective_lead": "PROSPECTIVE LEAD",
+        "check_operators": "CHECK OPERATORS",
+        "view_marketplace": "VIEW MARKETPLACE"
     },
     "plans": {
         "title": "SUBSCRIPTIONS",
@@ -627,7 +643,7 @@
             "unlimited_operators": "Unlimited Operators",
             "priority_support": "Priority 24/7 Support",
             "api_integrations": "API Integrations",
-            "custom_whitelabeling": "Custom Whitelabeling",
+            "custom_whitelabeling": "Custom White labeling",
             "dedicated_manager": "Dedicated Success Manager",
             "onsite_training": "On-site Training"
         }
@@ -690,7 +706,9 @@
         "login_failed": "Login Failed",
         "verify_failed": "Verification Failed",
         "invalid_otp": "Invalid OTP",
-        "error_4_digit": "Please enter 4-digit OTP."
+        "error_4_digit": "Please enter 4-digit OTP.",
+        "fleet_portal": "FLEET OPERATIONS PORTAL",
+        "protocol_desc": "Encrypted Infrastructure Protocol v4.2"
     },
     "operator": {
         "session_setup": "Session Setup",
@@ -750,16 +768,17 @@
         "mobile_required": "Mobile number is required",
         "enter_valid_mobile": "Enter a valid 10-digit number",
         "district_required": "District is required",
-        "taluka_required": "Taluka is required",
+        "taluka_required": "Sub District is required",
         "client_added_success": "New client {{name}} added.",
         "confirm_add_client_btn": "Confirm & Add Client",
         "client_project_name_label": "Client / Project Name",
         "contact_number_label": "Contact Number",
         "district_label": "District",
-        "taluka_label": "Taluka / TQ",
+        "taluka_label": "Sub District",
         "client_name_placeholder": "e.g. NHAI Road Project",
         "mobile_placeholder": "10-digit mobile number",
         "district_placeholder": "e.g. Nasik",
-        "taluka_placeholder": "e.g. Niphad"
+        "taluka_placeholder": "e.g. Niphad",
+        "amount_placeholder": "e.g. 15000"
     }
 }

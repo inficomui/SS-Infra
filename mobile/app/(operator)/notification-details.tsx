@@ -9,10 +9,12 @@ import { useDispatch, useSelector } from 'react-redux';
 // Remove import { markAsRead, selectNotificationById, deleteNotification } from '@/redux/slices/notificationSlice';
 import { useMarkAsReadMutation, useDeleteNotificationMutation, Notification } from '@/redux/apis/notificationApi';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 export default function NotificationDetailsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { t } = useTranslation();
     const { id, notification: notificationParam } = useLocalSearchParams<{ id: string, notification: string }>();
 
     const [markAsRead] = useMarkAsReadMutation();
@@ -50,11 +52,11 @@ export default function NotificationDetailsScreen() {
                     <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>Details</Text>
+                    <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('notification_details.title')}</Text>
                     <View style={{ width: 44 }} />
                 </View>
                 <View style={styles.emptyContainer}>
-                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>Notification not found</Text>
+                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('notification_details.not_found')}</Text>
                 </View>
             </View>
         );
@@ -117,7 +119,7 @@ export default function NotificationDetailsScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>Details</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('notification_details.title')}</Text>
                 <TouchableOpacity onPress={handleDelete} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.danger }]}>
                     {isDeleting ? <ActivityIndicator size="small" color={colors.danger} /> : <MaterialCommunityIcons name="trash-can-outline" size={22} color={colors.danger} />}
                 </TouchableOpacity>
@@ -140,7 +142,7 @@ export default function NotificationDetailsScreen() {
                         <View style={styles.leadContainer}>
                             <View style={styles.leadHeader}>
                                 <MaterialCommunityIcons name="lightning-bolt" size={16} color="#FFD700" />
-                                <Text style={styles.leadHeaderText}>PROSPECTIVE LEAD</Text>
+                                <Text style={styles.leadHeaderText}>{t('notification_details.prospective_lead')}</Text>
                             </View>
                             <View style={styles.leadInfo}>
                                 <View style={styles.infoRow}>
@@ -164,7 +166,7 @@ export default function NotificationDetailsScreen() {
                                 style={[styles.actionBtn, { backgroundColor: colors.primary }]}
                                 onPress={() => router.push('/(tabs)')}
                             >
-                                <Text style={styles.actionBtnText}>VIEW MARKETPLACE</Text>
+                                <Text style={styles.actionBtnText}>{t('notification_details.view_marketplace')}</Text>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -172,7 +174,7 @@ export default function NotificationDetailsScreen() {
                     {/* Render additional data if available and not search_lead (handled above) */}
                     {notification.type !== 'search_lead' && notification.data && Object.keys(notification.data).length > 0 && (
                         <View style={styles.dataContainer}>
-                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>Additional Details</Text>
+                            <Text style={[styles.dataTitle, { color: colors.textMuted }]}>{t('notification_details.additional_data')}</Text>
                             {Object.entries(notification.data).map(([key, value]) => {
                                 if (key === 'type') return null;
                                 return (

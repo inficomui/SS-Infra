@@ -148,7 +148,7 @@ export default function AddOperatorScreen() {
                                     value={formData.district}
                                     onChange={(text: string) => setFormData({ ...formData, district: text })}
                                     error={errors.district}
-                                    placeholder="e.g. Nasik"
+                                    placeholder={t('operator.district_placeholder')}
                                     colors={colors}
                                 />
                             </View>
@@ -159,7 +159,7 @@ export default function AddOperatorScreen() {
                                     value={formData.taluka}
                                     onChange={(text: string) => setFormData({ ...formData, taluka: text })}
                                     error={errors.taluka}
-                                    placeholder="e.g. Niphad"
+                                    placeholder={t('operator.taluka_placeholder')}
                                     colors={colors}
                                 />
                             </View>
@@ -201,7 +201,7 @@ export default function AddOperatorScreen() {
                                 value={formData.salaryAmount}
                                 onChange={(text: string) => setFormData({ ...formData, salaryAmount: text.replace(/[^0-9]/g, '') })}
                                 error={errors.salaryAmount}
-                                placeholder="e.g. 15000"
+                                placeholder={t('operator.amount_placeholder')}
                                 keyboardType="numeric"
                                 colors={colors}
                             />

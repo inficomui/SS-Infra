@@ -18,7 +18,11 @@
         "unknown_operator": "अज्ञात ऑपरेटर",
         "no_notifications": "अद्याप कोणतीही सूचना नाही",
         "change_language": "भाषा बदला",
-        "search_language": "भाषा "
+        "search_language": "भाषा शोधा",
+        "no_bookings": "कोणतेही बुकिंग आढळले नाही.",
+        "change": "बदला",
+        "select_country_code": "देश कोड निवडा",
+        "search_country": "देश शोधा..."
     },
     "overview": {
         "title": "परफॉर्मन्स हब",
@@ -344,7 +348,9 @@
         "work_proof": "कामाचा पुरावा",
         "verified": "सत्यापित",
         "send_reminder": "रिमाइंडर पाठवा",
-        "record_payment": "पेमेंट रेकॉर्ड करा",
+        "record_payment": "पेमेंट नोंदवा",
+        "enter_amount_placeholder": "रक्कम प्रविष्ट करा",
+        "date_format_placeholder": "YYYY-MM-DD",
         "home": "होम",
         "share_invoice": "इन्व्हॉइस शेअर करा",
         "record_payment_title": "पेमेंट रेकॉर्ड करा",
@@ -580,12 +586,22 @@
         "record_success": "पेमेंट रेकॉर्ड केले",
         "record_success_msg": "पेमेंट यशस्वीरित्या रेकॉर्ड केले!",
         "record_error": "पेमेंट रेकॉर्ड त्रुटी",
-        "record_failed": "पेमेंट रेकॉर्ड करण्यात अयशस्वी."
+        "record_failed": "पेमेंट रेकॉर्ड करण्यात अयशस्वी.",
+        "all_transactions": "सर्व व्यवहार",
+        "total_earnings": "एकूण कमाई",
+        "today_total": "आजची एकूण: ₹{{amount}}",
+        "monthly_salary": "मासिक पगार",
+        "bonus_credits": "बोनस क्रेडिट",
+        "today": "आज",
+        "previous": "मागील"
     },
     "notification_details": {
         "title": "तपशील",
         "not_found": "सूचना सापडली नाही",
-        "additional_data": "अतिरिक्त डेटा"
+        "additional_data": "अतिरिक्त डेटा",
+        "prospective_lead": "संभाव्य लीड",
+        "check_operators": "ऑपरेटर्स तपासा",
+        "view_marketplace": "मार्केटप्लेस पहा"
     },
     "plans": {
         "title": "सबस्क्रिप्शन",
@@ -690,7 +706,9 @@
         "login_failed": "लॉगिन अयशस्वी",
         "verify_failed": "सत्यापन अयशस्वी",
         "invalid_otp": "अवैध ओटीपी",
-        "error_4_digit": "कृपया ४ अंकी ओटीपी प्रविष्ट करा."
+        "error_4_digit": "कृपया ४ अंकी ओटीपी प्रविष्ट करा.",
+        "fleet_portal": "फ्लीट ऑपरेशन्स पोर्टल",
+        "protocol_desc": "एनक्रिप्टेड इन्फ्रास्ट्रक्चर प्रोटोकॉल v4.2"
     },
     "operator": {
         "session_setup": "सत्र सेटअप",
@@ -760,6 +778,7 @@
         "client_name_placeholder": "उदा. NHAI रोड प्रोजेक्ट",
         "mobile_placeholder": "१० अंकी मोबाईल नंबर",
         "district_placeholder": "उदा. नाशिक",
-        "taluka_placeholder": "उदा. निफाड"
+        "taluka_placeholder": "उदा. निफाड",
+        "amount_placeholder": "उदा. 15000"
     }
 }

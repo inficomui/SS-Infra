@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Modal, FlatList, TextInput } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 interface Country {
     code: string;
@@ -38,6 +39,7 @@ interface CountryCodePickerProps {
 }
 
 const CountryCodePicker: React.FC<CountryCodePickerProps> = ({ selectedCode, onSelect }) => {
+    const { t } = useTranslation();
     const [modalVisible, setModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -74,7 +76,7 @@ const CountryCodePicker: React.FC<CountryCodePickerProps> = ({ selectedCode, onS
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Select Country Code</Text>
+                            <Text style={styles.modalTitle}>{t('common.select_country_code')}</Text>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
                                 <MaterialCommunityIcons name="close" size={24} color="#1F2937" />
                             </TouchableOpacity>
@@ -84,7 +86,7 @@ const CountryCodePicker: React.FC<CountryCodePickerProps> = ({ selectedCode, onS
                             <MaterialCommunityIcons name="magnify" size={20} color="#6B7280" />
                             <TextInput
                                 style={styles.searchInput}
-                                placeholder="Search country..."
+                                placeholder={t('common.search_country')}
                                 value={searchQuery}
                                 onChangeText={setSearchQuery}
                                 placeholderTextColor="#9CA3AF"

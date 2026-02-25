@@ -97,7 +97,7 @@ export default function AddMaintenanceScreen() {
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                <Text style={[styles.label, { color: colors.textMuted }]}>Select Machine</Text>
+                <Text style={[styles.label, { color: colors.textMuted }]}>{t('common.select_machine')}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.machineScroll}>
                     {machinesData?.machines?.map((m) => (
                         <TouchableOpacity
@@ -157,7 +157,7 @@ export default function AddMaintenanceScreen() {
                             <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
                             <Text style={{ color: colors.textMain }}>{serviceDate.toLocaleDateString()}</Text>
                         </View>
-                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 12 }}>CHANGE</Text>
+                        <Text style={{ color: colors.primary, fontWeight: '700', fontSize: 12 }}>{t('common.change')}</Text>
                     </TouchableOpacity>
 
                     <TextInput
