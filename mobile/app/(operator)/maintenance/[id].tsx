@@ -1,7 +1,7 @@
 
-import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
-import { Text } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, Modal } from 'react-native';
+import { Text, ActivityIndicator } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
@@ -16,6 +16,19 @@ export default function MaintenanceDetailsScreen() {
     const params = useLocalSearchParams();
     const { colors } = useAppTheme();
     const { t } = useTranslation();
+
+    // Image Preview State
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+
+    const openPreview = (url: string | undefined) => {
+        if (!url) return;
+        const resolved = resolveImageUrl(url);
+        if (resolved) {
+            setSelectedImage(resolved);
+            setPreviewVisible(true);
+        }
+    };
 
     const record = params.data ? JSON.parse(params.data as string) : null;
 
@@ -32,10 +45,46 @@ export default function MaintenanceDetailsScreen() {
         );
     }
 
-    const { machine, service_date, service_type, cost, description, service_image_url, invoice_image_url, mechanic_name } = record;
+    const { machine, service_date, service_type, cost, description, mechanic_name } = record;
+
+    // Robust field access for images
+    const serviceImg = record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
+    const invoiceImg = record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path;
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
+            {/* Full Screen Image Preview Modal */}
+            <Modal
+                visible={previewVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setPreviewVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <TouchableOpacity
+                        style={styles.closePreviewBtn}
+                        onPress={() => setPreviewVisible(false)}
+                        activeOpacity={0.7}
+                    >
+                        <MaterialCommunityIcons name="close" size={32} color="#FFF" />
+                    </TouchableOpacity>
+
+                    {selectedImage ? (
+                        <Image
+                            source={{ uri: selectedImage }}
+                            style={styles.fullPreviewImage}
+                            resizeMode="contain"
+                        />
+                    ) : (
+                        <ActivityIndicator color="#FFF" size="large" />
+                    )}
+
+                    <View style={styles.previewFooterContent}>
+                        <Text style={styles.previewFooterLabel}>{t('maintenance_records.details_title')}</Text>
+                        <Text style={styles.previewFooterHint}>{t('fuel_management.pinch_zoom')}</Text>
+                    </View>
+                </View>
+            </Modal>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
@@ -83,11 +132,18 @@ export default function MaintenanceDetailsScreen() {
                 <View style={styles.imagesContainer}>
                     <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>{t('maintenance_records.service_images')}</Text>
 
-                    {service_image_url ? (
-                        <View style={[styles.imageWrapper, { borderColor: colors.border }]}>
+                    {serviceImg ? (
+                        <TouchableOpacity
+                            onPress={() => openPreview(serviceImg)}
+                            activeOpacity={0.9}
+                            style={[styles.imageWrapper, { borderColor: colors.border }]}
+                        >
                             <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>{t('maintenance_records.service_photo')}</Text>
-                            <Image source={{ uri: resolveImageUrl(service_image_url) }} style={styles.fullImage} resizeMode="cover" />
-                        </View>
+                            <Image source={{ uri: resolveImageUrl(serviceImg) }} style={styles.fullImage} resizeMode="cover" />
+                            <View style={styles.magnifyIcon}>
+                                <MaterialCommunityIcons name="magnify-plus" size={20} color="#FFF" />
+                            </View>
+                        </TouchableOpacity>
                     ) : (
                         <View style={[styles.noImage, { backgroundColor: colors.card, borderColor: colors.border }]}>
                             <MaterialCommunityIcons name="camera-off" size={30} color={colors.textMuted} />
@@ -95,11 +151,18 @@ export default function MaintenanceDetailsScreen() {
                         </View>
                     )}
 
-                    {invoice_image_url ? (
-                        <View style={[styles.imageWrapper, { borderColor: colors.border, marginTop: 16 }]}>
+                    {invoiceImg ? (
+                        <TouchableOpacity
+                            onPress={() => openPreview(invoiceImg)}
+                            activeOpacity={0.9}
+                            style={[styles.imageWrapper, { borderColor: colors.border, marginTop: 16 }]}
+                        >
                             <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>{t('maintenance_records.invoice_photo')}</Text>
-                            <Image source={{ uri: resolveImageUrl(invoice_image_url) }} style={styles.fullImage} resizeMode="cover" />
-                        </View>
+                            <Image source={{ uri: resolveImageUrl(invoiceImg) }} style={styles.fullImage} resizeMode="cover" />
+                            <View style={styles.magnifyIcon}>
+                                <MaterialCommunityIcons name="magnify-plus" size={20} color="#FFF" />
+                            </View>
+                        </TouchableOpacity>
                     ) : (
                         <View style={[styles.noImage, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 16 }]}>
                             <MaterialCommunityIcons name="file-document-outline" size={30} color={colors.textMuted} />
@@ -134,5 +197,57 @@ const styles = StyleSheet.create({
     imageWrapper: { width: '100%', height: 250, borderRadius: 16, overflow: 'hidden', borderWidth: 1, position: 'relative' },
     fullImage: { width: '100%', height: '100%' },
     noImage: { width: '100%', height: 150, borderRadius: 16, borderWidth: 1, justifyContent: 'center', alignItems: 'center', borderStyle: 'dashed' },
-    imageLabel: { position: 'absolute', top: 10, left: 10, zIndex: 1, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, fontSize: 10, fontWeight: '700', overflow: 'hidden' }
+    imageLabel: { position: 'absolute', top: 10, left: 10, zIndex: 1, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, fontSize: 10, fontWeight: '700', overflow: 'hidden' },
+    magnifyIcon: {
+        position: 'absolute',
+        bottom: 12,
+        right: 12,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.95)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    closePreviewBtn: {
+        position: 'absolute',
+        top: 50,
+        right: 24,
+        zIndex: 10,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    fullPreviewImage: {
+        width: width,
+        height: Dimensions.get('window').height * 0.7
+    },
+    previewFooterContent: {
+        position: 'absolute',
+        bottom: 50,
+        width: '100%',
+        alignItems: 'center',
+        paddingHorizontal: 20
+    },
+    previewFooterLabel: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: '900',
+        letterSpacing: 2,
+        textTransform: 'uppercase'
+    },
+    previewFooterHint: {
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: 12,
+        marginTop: 8
+    }
 });

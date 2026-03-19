@@ -27,12 +27,5 @@ export const formatDate = (dateString: string | Date): string => {
     });
 };
 
-export const resolveImageUrl = (path: string | null | undefined): string | null => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    if (path.startsWith('file://')) return path;
-
-    // Base storage URL
-    const baseUrl = 'https://backend.ssinfrasoftware.com';
-    return `${baseUrl}/storage/${path.replace(/^storage\//, '')}`;
-};
+import { resolveImageUrl } from './imageHelpers';
+export { resolveImageUrl };

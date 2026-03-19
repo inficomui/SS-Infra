@@ -16,6 +16,8 @@ import { authApi } from "@/redux/apis/authApi";
 import { locationApi } from "@/redux/apis/locationApi";
 import { bookingApi } from "@/redux/apis/bookingApi";
 import { discoveryApi } from "@/redux/apis/discoveryApi";
+import { subscriptionApi } from "@/redux/apis/subscriptionApi";
+import { plansApi } from "@/redux/apis/plansApi";
 
 // Global RTK Query error middleware — shows toast on any API failure
 const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
@@ -39,6 +41,8 @@ export const store = configureStore({
         [locationApi.reducerPath]: locationApi.reducer,
         [bookingApi.reducerPath]: bookingApi.reducer,
         [discoveryApi.reducerPath]: discoveryApi.reducer,
+        [subscriptionApi.reducerPath]: subscriptionApi.reducer,
+        [plansApi.reducerPath]: plansApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
@@ -46,6 +50,8 @@ export const store = configureStore({
             .concat(locationApi.middleware)
             .concat(bookingApi.middleware)
             .concat(discoveryApi.middleware)
+            .concat(subscriptionApi.middleware)
+            .concat(plansApi.middleware)
             .concat(rtkQueryErrorLogger),
 });
 

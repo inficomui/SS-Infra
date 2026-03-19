@@ -369,7 +369,8 @@ function MachineCard({ machine, colors, onPress }: any) {
 
     const status = (machine.status || 'available') as string;
 
-    const imageUrl = resolveImageUrl(machine.photo_url || machine.photo_path || machine.photoUrl);
+    const machinePhoto = machine.photo_url || machine.photo_path || machine.photoUrl || machine.machine_photo || machine.photo;
+    const imageUrl = resolveImageUrl(machinePhoto);
 
     return (
         <TouchableOpacity

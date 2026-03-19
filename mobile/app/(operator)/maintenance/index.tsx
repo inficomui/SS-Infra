@@ -68,8 +68,8 @@ export default function OperatorMaintenanceRecordsScreen() {
             <View style={styles.cardHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                     <View style={[styles.iconBox, { backgroundColor: colors.primary + '15', overflow: 'hidden' }]}>
-                        {record.service_image_url ? (
-                            <Image source={{ uri: resolveImageUrl(record.service_image_url) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                        {(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) ? (
+                            <Image source={{ uri: resolveImageUrl(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                         ) : (
                             <MaterialCommunityIcons name="wrench-outline" size={20} color={colors.primary} />
                         )}
@@ -91,9 +91,9 @@ export default function OperatorMaintenanceRecordsScreen() {
                 <View style={styles.statItem}>
                     <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
-                        {record.service_image_url && <MaterialCommunityIcons name="camera" size={16} color={colors.success} />}
-                        {record.invoice_image_url && <MaterialCommunityIcons name="file-document" size={16} color={colors.success} />}
-                        {!record.service_image_url && !record.invoice_image_url && <Text style={{ fontSize: 10, color: colors.textMuted }}>{t('maintenance_records.no_photo')}</Text>}
+                        {(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && <MaterialCommunityIcons name="camera" size={16} color={colors.success} />}
+                        {(record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <MaterialCommunityIcons name="file-document" size={16} color={colors.success} />}
+                        {!(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && !(record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <Text style={{ fontSize: 10, color: colors.textMuted }}>{t('maintenance_records.no_photo')}</Text>}
                     </View>
                 </View>
             </View>

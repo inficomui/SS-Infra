@@ -14,6 +14,12 @@ export interface FuelLog {
     before_reading_url?: string;
     reading_after?: string;
     after_reading_url?: string;
+    reading_before_path?: string;
+    before_reading_path?: string;
+    before_reading?: string;
+    reading_after_path?: string;
+    after_reading_path?: string;
+    after_reading?: string;
     description?: string;
     created_at: string;
     machine?: { id: number; name: string; registration_number: string };

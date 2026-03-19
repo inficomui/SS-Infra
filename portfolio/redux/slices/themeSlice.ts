@@ -6,17 +6,8 @@ interface ThemeState {
     mode: "light" | "dark";
 }
 
-const getInitialTheme = (): "light" | "dark" => {
-    if (typeof window !== "undefined") {
-        const saved = localStorage.getItem("theme");
-        if (saved === "light" || saved === "dark") return saved;
-        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    }
-    return "dark";
-};
-
 const initialState: ThemeState = {
-    mode: getInitialTheme(),
+    mode: "dark", // Always initialize as dark to ensure SSR and Client initial matched rendering
 };
 
 const themeSlice = createSlice({

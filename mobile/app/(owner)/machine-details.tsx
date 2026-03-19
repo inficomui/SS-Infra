@@ -27,7 +27,8 @@ export default function MachineDetailsScreen() {
         );
     }
 
-    const { name, registration_number, photo_url, status, purchase_date, current_operator } = machine;
+    const { name, registration_number, status, purchase_date, current_operator } = machine;
+    const machinePhoto = machine.photo_url || machine.photo_path || machine.photoUrl || machine.machine_photo || machine.photo;
 
     const statusConfig: any = {
         available: { color: colors.success, label: t('fleet.online'), icon: 'check-circle' },
@@ -53,8 +54,8 @@ export default function MachineDetailsScreen() {
 
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 <View style={[styles.imageContainer, { borderColor: colors.border, backgroundColor: colors.card }]}>
-                    {photo_url ? (
-                        <Image source={{ uri: resolveImageUrl(photo_url) }} style={styles.machineImage} resizeMode="cover" />
+                    {machinePhoto ? (
+                        <Image source={{ uri: resolveImageUrl(machinePhoto) }} style={styles.machineImage} resizeMode="cover" />
                     ) : (
                         <View style={[styles.placeholderImage, { backgroundColor: colors.background }]}>
                             <MaterialCommunityIcons name="excavator" size={60} color={colors.textMuted} />

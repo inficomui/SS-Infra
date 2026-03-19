@@ -65,13 +65,16 @@ export interface Machine {
     registration_number: string;
     status: 'available' | 'in_use' | 'maintenance';
     photo_url?: string;
+    photo_path?: string;
+    photoUrl?: string;
+    machine_photo?: string;
+    photo?: string;
     owner_id: number;
     current_operator_id?: number | null;
     purchase_date?: string;
     last_service_date?: string | null;
     created_at: string;
     updated_at?: string;
-    photo_path?: string;
     // Legacy support (optional mapping if frontend transforms it)
     registrationNumber?: string;
 }

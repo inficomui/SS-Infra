@@ -201,14 +201,15 @@ function MachineListItem({ machine, colors, currentOperator, onEdit, onDelete }:
         });
     };
 
+    const machinePhoto = machine.photo_url || machine.photo_path || machine.photoUrl || machine.machine_photo || machine.photo;
     return (
         <TouchableOpacity
             onPress={handlePress}
             style={[styles.machineCard, { backgroundColor: colors.card, borderColor: colors.border }]}
         >
             <View style={[styles.machineIconBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                {machine.photo_url ? (
-                    <Image source={{ uri: resolveImageUrl(machine.photo_url) }} style={styles.machineImage} />
+                {machinePhoto ? (
+                    <Image source={{ uri: resolveImageUrl(machinePhoto) }} style={styles.machineImage} />
                 ) : (
                     <MaterialCommunityIcons name="excavator" size={32} color={colors.textMuted} />
                 )}

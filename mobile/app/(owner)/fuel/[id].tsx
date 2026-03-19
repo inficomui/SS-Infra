@@ -74,8 +74,8 @@ export default function OwnerFuelDetailScreen() {
     }
 
     // Support multiple field names for robustness
-    const beforeImage = log.reading_before_url || log.reading_before || log.before_reading_url;
-    const afterImage = log.reading_after_url || log.reading_after || log.after_reading_url;
+    const beforeImage = log.reading_before_url || log.reading_before || log.before_reading_url || log.reading_before_path || log.before_reading_path || log.before_reading;
+    const afterImage = log.reading_after_url || log.reading_after || log.after_reading_url || log.reading_after_path || log.after_reading_path || log.after_reading;
 
     const renderInfoRow = (icon: string, label: string, value: string, subValue?: string) => (
         <View style={styles.infoRow}>

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Users, HardHat, Briefcase, ChevronRight, CheckCircle2, Star, Zap } from "lucide-react";
 import { useGetDistrictsQuery } from "@/redux/apis/locationApi";
 import { useGetOwnersQuery, useGetOperatorsQuery } from "@/redux/apis/discoveryApi";
+import { useGetPlansQuery } from "@/redux/apis/plansApi";
 
 export function NetworkDirectory() {
     const { t } = useTranslation();
@@ -23,15 +24,25 @@ export function NetworkDirectory() {
 
     const { data: ownersData, isLoading: loadingOwners } = useGetOwnersQuery({ district: activeDistrict }, { skip: !activeDistrict });
     const { data: operatorsData, isLoading: loadingOperators } = useGetOperatorsQuery({ district: activeDistrict }, { skip: !activeDistrict });
+    const { data: plansRes, isLoading: loadingPlans } = useGetPlansQuery({});
 
     const owners = ownersData?.data?.data ?? [];
     const operators = operatorsData?.data?.data ?? [];
+    const fetchedPlans = plansRes?.data ?? [];
 
-    const plans = [
+    const fallbackPlans = [
         { title: "Starter", price: "₹2,999", features: ["10 Operator Slots", "Basic Analytics", "Email Support"] },
         { title: "Pro", price: "₹7,499", features: ["50 Operator Slots", "Real-time Tracking", "Priority Ops", "24/7 Support"] },
         { title: "Enterprise", price: "Custom", features: ["Unlimited Fleet", "Neural Mesh Integration", "Dedicated Manager", "API Access"] }
     ];
+
+    const displayPlans = fetchedPlans.length > 0
+        ? fetchedPlans.map((p: any) => ({
+            title: p.name,
+            price: p.price ? `₹${p.price.toLocaleString()}` : "Custom",
+            features: p.features || []
+        }))
+        : fallbackPlans;
 
     return (
         <section className="py-32 bg-zinc-50 dark:bg-[#080808] border-y border-zinc-100 dark:border-zinc-900" id="directory">
@@ -53,7 +64,7 @@ export function NetworkDirectory() {
                     {/* Location Sidebar */}
                     <div className="lg:col-span-4 space-y-4">
                         {loadingDistricts ? (
-                            Array.from({ length: 3 }).map((_, i) => (
+                            Array.from({ length: 3 }).map((_, i: number) => (
                                 <div key={i} className="w-full h-24 bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse" />
                             ))
                         ) : districts.length === 0 ? (
@@ -140,7 +151,7 @@ export function NetworkDirectory() {
                                                 <Star size={14} fill="currentColor" /> Top Registered Owners
                                             </h5>
                                             <div className="space-y-4">
-                                                {loadingOwners ? [1, 2].map(i => <div key={i} className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />) :
+                                                {loadingOwners ? [1, 2].map((i: number) => <div key={i} className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />) :
                                                     owners.slice(0, 5).map((owner: any, i: number) => (
                                                         <div key={i} className="p-4 rounded-xl bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-between">
                                                             <span className="font-black text-sm">{owner.name}</span>
@@ -166,27 +177,31 @@ export function NetworkDirectory() {
                                 </div>
 
                                 {/* Plans Section */}
-                                <div className="bento-card p-10 bg-zinc-900 text-white">
+                                <div className="bento-card p-10">
                                     <div className="flex items-center justify-between mb-12">
                                         <div>
-                                            <h4 className="text-3xl font-black font-[Space Grotesk] mb-2 tracking-tight">Regional Business Plans</h4>
-                                            <p className="text-sm text-zinc-500 font-bold uppercase tracking-widest">Scalable solutions for {activeDistrict} Operations</p>
+                                            <h4 className="text-3xl font-black font-[Space Grotesk] mb-2 tracking-tight text-[var(--fg)]">Regional Business Plans</h4>
+                                            <p className="text-sm text-[var(--fg-muted)] font-bold uppercase tracking-widest">Scalable solutions for {activeDistrict} Operations</p>
                                         </div>
                                         <div className="px-5 py-2 bg-amber-500 text-black rounded-lg text-[10px] font-black uppercase tracking-widest">Best Value</div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {plans.map((plan, i) => (
-                                            <div key={i} className="p-8 rounded-xl border border-zinc-800 bg-black/40 hover:border-amber-500/50 transition-all group">
+                                        {loadingPlans ? (
+                                            Array.from({ length: 3 }).map((_, i: number) => (
+                                                <div key={i} className="h-64 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 animate-pulse" />
+                                            ))
+                                        ) : displayPlans.map((plan: any, i: number) => (
+                                            <div key={i} className="p-8 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black/40 hover:border-amber-500/50 transition-all group shadow-sm dark:shadow-none">
                                                 <div className="text-xs font-black text-amber-500 uppercase tracking-widest mb-4">{plan.title}</div>
-                                                <div className="text-3xl font-black mb-8">{plan.price} <span className="text-sm text-zinc-500">/mo</span></div>
+                                                <div className="text-3xl font-black mb-8 text-[var(--fg)]">{plan.price} <span className="text-sm text-[var(--fg-muted)]">/mo</span></div>
                                                 <ul className="space-y-3 mb-10">
-                                                    {plan.features.map((f, j) => (
-                                                        <li key={j} className="flex items-center gap-2 text-[10px] font-bold text-zinc-400">
+                                                    {plan.features.map((f: any, j: number) => (
+                                                        <li key={j} className="flex items-center gap-2 text-[10px] font-bold text-[var(--fg-muted)]">
                                                             <div className="w-1.5 h-1.5 bg-green-500 rounded-full" /> {f}
                                                         </li>
                                                     ))}
                                                 </ul>
-                                                <button className="w-full py-4 text-white border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest group-hover:bg-amber-500 group-hover:text-black transition-all">
+                                                <button className="w-full py-4 text-[var(--fg)] border border-zinc-200 dark:border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest group-hover:border-amber-500/50 group-hover:bg-amber-500 group-hover:text-black transition-all">
                                                     Activate Plan
                                                 </button>
                                             </div>

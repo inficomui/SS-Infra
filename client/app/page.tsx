@@ -42,6 +42,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], [0, -50])
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 100])
 
   useEffect(() => {
     setMounted(true)
@@ -103,7 +104,7 @@ export default function Home() {
           {/* Abstract Background Elements */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] opacity-50 dark:opacity-20 pointer-events-none"></div>
           <motion.div style={{ y }} className="absolute right-0 top-1/4 w-[300px] h-[300px] bg-yellow-600/20 rounded-full blur-[80px] pointer-events-none"></motion.div>
-          <motion.div style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }} className="absolute left-0 bottom-1/4 w-[400px] h-[400px] bg-zinc-500/10 rounded-full blur-[100px] pointer-events-none"></motion.div>
+          <motion.div style={{ y: y2 }} className="absolute left-0 bottom-1/4 w-[400px] h-[400px] bg-zinc-500/10 rounded-full blur-[100px] pointer-events-none"></motion.div>
 
           <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
             <motion.div

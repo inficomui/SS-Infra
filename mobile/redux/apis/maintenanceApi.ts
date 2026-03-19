@@ -9,6 +9,17 @@ export interface MaintenanceRecord {
     service_date: string;
     service_image_url?: string;
     invoice_image_url?: string;
+    service_image?: string;
+    invoice_image?: string;
+    service_photo_url?: string;
+    invoice_photo_url?: string;
+    service_photo?: string;
+    invoice_photo?: string;
+    service_photo_path?: string;
+    invoice_photo_path?: string;
+    invoice_path?: string;
+    service_image_path?: string;
+    invoice_image_path?: string;
     description?: string;
     machine?: { id: number; name: string; registration_number: string };
 }

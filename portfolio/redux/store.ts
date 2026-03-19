@@ -14,6 +14,7 @@ import { authApi } from "./apis/authApi";
 import { locationApi } from "./apis/locationApi";
 import { bookingApi } from "./apis/bookingApi";
 import { discoveryApi } from "./apis/discoveryApi";
+import { subscriptionApi } from "./apis/subscriptionApi";
 
 // Global RTK Query Error Handler
 export const rtkQueryErrorLogger: Middleware =
@@ -41,6 +42,7 @@ export const store = configureStore({
         [locationApi.reducerPath]: locationApi.reducer,
         [bookingApi.reducerPath]: bookingApi.reducer,
         [discoveryApi.reducerPath]: discoveryApi.reducer,
+        [subscriptionApi.reducerPath]: subscriptionApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
@@ -48,6 +50,7 @@ export const store = configureStore({
             .concat(locationApi.middleware)
             .concat(bookingApi.middleware)
             .concat(discoveryApi.middleware)
+            .concat(subscriptionApi.middleware)
             .concat(rtkQueryErrorLogger),
 });
 
