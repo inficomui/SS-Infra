@@ -38,9 +38,8 @@ export default function OwnerFuelLogsScreen() {
         page: page,
     });
 
-    const logsResponse = logsData?.data;
-    const logsList = logsResponse?.data || [];
-    const totalPages = logsResponse?.last_page || 1;
+    const logsList = logsData?.logs || logsData?.data?.data || [];
+    const totalPages = logsData?.pagination?.totalPages || logsData?.data?.last_page || 1;
 
     // Filter and Sort logs
     const processedLogs = useMemo(() => {
@@ -57,8 +56,8 @@ export default function OwnerFuelLogsScreen() {
 
         // Sorting
         list.sort((a, b) => {
-            const dateA = new Date(a.log_date).getTime();
-            const dateB = new Date(b.log_date).getTime();
+            const dateA = new Date(a.logDate || a.log_date || '').getTime();
+            const dateB = new Date(b.logDate || b.log_date || '').getTime();
             return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
         });
 
@@ -100,7 +99,7 @@ export default function OwnerFuelLogsScreen() {
                             {log.machine?.name || t('fuel_management.unknown_machine')}
                         </Text>
                         <Text style={[styles.dateText, { color: colors.textMuted }]}>
-                            {formatDate(log.log_date)}
+                            {formatDate(log.logDate || log.log_date || '')}
                         </Text>
                     </View>
                 </View>
@@ -114,7 +113,7 @@ export default function OwnerFuelLogsScreen() {
                 <View style={styles.statItem}>
                     <MaterialCommunityIcons name="beaker-outline" size={16} color={colors.textMuted} style={{ marginBottom: 4 }} />
                     <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.volume')}</Text>
-                    <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuel_liters} L</Text>
+                    <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuelLiters || log.fuel_liters} L</Text>
                 </View>
 
                 <View style={[styles.verticalDivider, { backgroundColor: colors.border + '30' }]} />
@@ -124,14 +123,14 @@ export default function OwnerFuelLogsScreen() {
                     <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.photos')}</Text>
                     <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
                         <MaterialCommunityIcons
-                            name={(log.reading_before_url || log.reading_before || log.before_reading_url) ? "check-circle" : "minus-circle-outline"}
+                            name={(log.readingBeforeUrl || log.reading_before_url) ? "check-circle" : "minus-circle-outline"}
                             size={14}
-                            color={(log.reading_before_url || log.reading_before || log.before_reading_url) ? colors.success : colors.textMuted}
+                            color={(log.readingBeforeUrl || log.reading_before_url) ? colors.success : colors.textMuted}
                         />
                         <MaterialCommunityIcons
-                            name={(log.reading_after_url || log.reading_after || log.after_reading_url) ? "check-circle" : "minus-circle-outline"}
+                            name={(log.readingAfterUrl || log.reading_after_url) ? "check-circle" : "minus-circle-outline"}
                             size={14}
-                            color={(log.reading_after_url || log.reading_after || log.after_reading_url) ? colors.success : colors.textMuted}
+                            color={(log.readingAfterUrl || log.reading_after_url) ? colors.success : colors.textMuted}
                         />
                     </View>
                 </View>

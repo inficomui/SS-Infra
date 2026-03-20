@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Platform, FlatList, Image } from 'react-native';
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Platform, FlatList, Image, Dimensions } from 'react-native';
 import { Text, ActivityIndicator, Searchbar, IconButton, Menu } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import { useGetMaintenanceRecordsQuery } from '@/redux/apis/maintenanceApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
 import { formatDate } from '../../../utils/formatters';
+import ImagePreviewModal from '@/components/ui/ImagePreviewModal';
 
 export default function MaintenanceRecordsScreen() {
     const router = useRouter();
@@ -25,6 +26,18 @@ export default function MaintenanceRecordsScreen() {
     const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
     const [showSortMenu, setShowSortMenu] = useState(false);
 
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+
+    const openPreview = (url: string | undefined) => {
+        if (!url) return;
+        const resolved = resolveImageUrl(url);
+        if (resolved) {
+            setSelectedImage(resolved);
+            setPreviewVisible(true);
+        }
+    };
+
     // Query
     const { data: recordsData, isLoading, isFetching, refetch } = useGetMaintenanceRecordsQuery({
         startDate: startDate.toISOString().split('T')[0],
@@ -32,9 +45,8 @@ export default function MaintenanceRecordsScreen() {
         page: page,
     });
 
-    const recordsResponse = recordsData?.data;
-    const recordsList = recordsResponse?.data || [];
-    const totalPages = recordsResponse?.last_page || 1;
+    const recordsList = recordsData?.records || recordsData?.data?.data || [];
+    const totalPages = recordsData?.pagination?.totalPages || recordsData?.data?.last_page || 1;
 
     const processedRecords = useMemo(() => {
         let list = [...recordsList];
@@ -42,13 +54,13 @@ export default function MaintenanceRecordsScreen() {
         if (searchQuery) {
             list = list.filter(record =>
                 record.machine?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                record.service_type.toLowerCase().includes(searchQuery.toLowerCase())
+                (record.service_type || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
         list.sort((a, b) => {
-            const dateA = new Date(a.service_date).getTime();
-            const dateB = new Date(b.service_date).getTime();
+            const dateA = new Date(a.service_date || '').getTime();
+            const dateB = new Date(b.service_date || '').getTime();
             return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
         });
 
@@ -65,61 +77,72 @@ export default function MaintenanceRecordsScreen() {
         if (selectedDate) setEndDate(selectedDate);
     };
 
-    const renderItem = ({ item: record }: { item: any }) => (
-        <TouchableOpacity
-            onPress={() => router.push({ pathname: '/(owner)/maintenance/[id]', params: { id: record.id, data: JSON.stringify(record) } })}
-            style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
-        >
-            <View style={styles.cardHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
-                    <View style={[styles.iconBox, { backgroundColor: colors.primary + '15', overflow: 'hidden' }]}>
-                        {(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) ? (
-                            <Image source={{ uri: resolveImageUrl(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-                        ) : (
-                            <MaterialCommunityIcons name="tools" size={20} color={colors.primary} />
-                        )}
+    const renderItem = ({ item: record }: { item: any }) => {
+        const photo = record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
+        return (
+            <TouchableOpacity
+                onPress={() => router.push({ pathname: '/(owner)/maintenance/[id]', params: { id: record.id, data: JSON.stringify(record) } })}
+                style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
+            >
+                <View style={styles.cardHeader}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+                        <TouchableOpacity
+                            onPress={() => openPreview(photo)}
+                            style={[styles.iconBox, { backgroundColor: colors.primary + '15', overflow: 'hidden' }]}
+                        >
+                            {photo ? (
+                                <Image source={{ uri: resolveImageUrl(photo) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                            ) : (
+                                <MaterialCommunityIcons name="tools" size={20} color={colors.primary} />
+                            )}
+                        </TouchableOpacity>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || t('maintenance_records.unknown_machine')}</Text>
+                            <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.service_date)}</Text>
+                        </View>
                     </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || t('maintenance_records.unknown_machine')}</Text>
-                        <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.service_date)}</Text>
-                    </View>
+                    <Text style={[styles.amountText, { color: colors.textMain }]}>₹{record.cost}</Text>
                 </View>
-                <Text style={[styles.amountText, { color: colors.textMain }]}>₹{record.cost}</Text>
-            </View>
 
-            <View style={[styles.statsRow, { borderColor: colors.border }]}>
-                <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.service_type')}</Text>
-                    <Text style={[styles.statValue, { color: colors.textMain }]}>{record.service_type}</Text>
-                </View>
-                <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                        {(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) ? (
-                            <MaterialCommunityIcons name="camera" size={18} color={colors.success} />
-                        ) : (
-                            <MaterialCommunityIcons name="camera-off" size={18} color={colors.textMuted} />
-                        )}
-                        {(record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) ? (
-                            <MaterialCommunityIcons name="file-document" size={18} color={colors.success} />
-                        ) : (
-                            <MaterialCommunityIcons name="file-document-outline" size={18} color={colors.textMuted} />
-                        )}
+                <View style={[styles.statsRow, { borderColor: colors.border }]}>
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.service_type')}</Text>
+                        <Text style={[styles.statValue, { color: colors.textMain }]}>{record.service_type || ''}</Text>
+                    </View>
+                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                            {photo ? (
+                                <MaterialCommunityIcons name="camera" size={18} color={colors.success} />
+                            ) : (
+                                <MaterialCommunityIcons name="camera-off" size={18} color={colors.textMuted} />
+                            )}
+                            {(record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) ? (
+                                <MaterialCommunityIcons name="file-document" size={18} color={colors.success} />
+                            ) : (
+                                <MaterialCommunityIcons name="file-document-outline" size={18} color={colors.textMuted} />
+                            )}
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            {record.description && (
-                <View style={[styles.descriptionBox, { backgroundColor: colors.background + '50' }]}>
-                    <Text style={[styles.descriptionText, { color: colors.textMuted }]} numberOfLines={2}>{record.description}</Text>
-                </View>
-            )}
-        </TouchableOpacity>
-    );
+                {record.description && (
+                    <View style={[styles.descriptionBox, { backgroundColor: colors.background + '50' }]}>
+                        <Text style={[styles.descriptionText, { color: colors.textMuted }]} numberOfLines={2}>{record.description}</Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <ImagePreviewModal
+                visible={previewVisible}
+                imageUrl={selectedImage}
+                onClose={() => setPreviewVisible(false)}
+            />
             <View style={styles.header}>
                 <TouchableOpacity
                     onPress={() => router.back()}

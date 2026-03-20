@@ -7,9 +7,8 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    Alert,
     Image,
-    Modal
+    Modal,
 } from 'react-native';
 import { Text, TextInput as PaperInput, ActivityIndicator } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +26,6 @@ export default function AddMachineScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const params = useLocalSearchParams();
-    console.log("Add/Edit Machine Params:", JSON.stringify(params, null, 2));
 
     // Parse full object if available
     const machineData = params.fullData ? JSON.parse(params.fullData as string) : {};
@@ -54,11 +52,9 @@ export default function AddMachineScreen() {
     const [date, setDate] = useState(formData.purchaseDate ? new Date(formData.purchaseDate) : new Date());
 
     const initialPhoto = (params.photo as string) || machineData.photo_url || machineData.photoUrl || machineData.photo_path;
-    const [photoUri, setPhotoUri] = useState<string | null>(initialPhoto ? resolveImageUrl(initialPhoto) : null);
+    const resolvedPhotoUri = initialPhoto ? resolveImageUrl(initialPhoto) : null;
+    const [photoUri, setPhotoUri] = useState<string | null>(resolvedPhotoUri || null);
     const [errors, setErrors] = useState<any>({});
-
-    console.log("Initial Form Data:", JSON.stringify(formData, null, 2));
-    console.log("Initial Photo URI:", photoUri);
 
     // Photo preview modal state
     const [previewVisible, setPreviewVisible] = useState(false);
@@ -82,7 +78,7 @@ export default function AddMachineScreen() {
     const handleTakePhoto = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert(t('fleet.permission_denied'), t('fleet.camera_permission'));
+            Toast.show({ type: 'error', text1: t('fleet.permission_denied'), text2: t('fleet.camera_permission') });
             return;
         }
 
@@ -102,7 +98,7 @@ export default function AddMachineScreen() {
     const handlePickPhoto = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert(t('fleet.permission_denied'), t('fleet.gallery_permission'));
+            Toast.show({ type: 'error', text1: t('fleet.permission_denied'), text2: t('fleet.gallery_permission') });
             return;
         }
 
@@ -156,8 +152,11 @@ export default function AddMachineScreen() {
             }
 
             if (isEditMode && machineId) {
-                console.log("Updating Machine Data...", machineId);
-                await updateMachine({ id: machineId, data: data }).unwrap();
+                const result = await updateMachine({ id: machineId, data: data }).unwrap();
+
+                if (result.success === false) {
+                    throw new Error(result.message || t('fleet.op_failed'));
+                }
 
                 Toast.show({
                     type: 'success',
@@ -167,8 +166,11 @@ export default function AddMachineScreen() {
 
                 setTimeout(() => router.back(), 1500);
             } else {
-                console.log("Submitting New Machine Data...");
-                await addMachine(data).unwrap();
+                const result = await addMachine(data).unwrap();
+
+                if (result.success === false) {
+                    throw new Error(result.message || t('fleet.op_failed'));
+                }
 
                 Toast.show({
                     type: 'success',
@@ -182,6 +184,17 @@ export default function AddMachineScreen() {
         } catch (error: any) {
             console.error('Machine Operation Error:', error);
             const serverMsg = error?.data?.message || error?.message || t('fleet.op_failed');
+            const isSubscriptionExpired = error?.data?.subscription_expired === true;
+
+            if (isSubscriptionExpired) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Subscription Expired',
+                    text2: serverMsg || 'Renew your plan to add machines.',
+                });
+                setTimeout(() => router.push({ pathname: '/(common)/plans' as any, params: { source: 'expired' } }), 1800);
+                return;
+            }
 
             Toast.show({
                 type: 'error',

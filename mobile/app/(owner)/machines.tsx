@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Dimensions, Image } from 'react-native';
 import { Text, ActivityIndicator, Searchbar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -17,22 +17,31 @@ export default function MachinesListScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const { colors, isDark } = useAppTheme();
-    const { data: machinesData, isLoading, refetch } = useGetMachinesQuery();
+    const { data: machinesData, error: apiError, isLoading, refetch } = useGetMachinesQuery();
     const { data: operatorsData } = useGetOperatorsQuery();
     const [deleteMachine, { isLoading: isDeleting }] = useDeleteMachineMutation();
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [refreshing, setRefreshing] = useState(false);
 
+    // Determine if we have an API error 
+    const errorData = (apiError as any)?.data || (machinesData?.success === false ? machinesData : null);
+    const errorMessage = errorData?.message || (apiError as any)?.error;
+    const isSubscriptionExpired = errorData?.subscription_expired === true;
+
     // Modal State
     const [modalVisible, setModalVisible] = useState(false);
     const [machineToDelete, setMachineToDelete] = useState<any>(null);
 
-    const machines = machinesData?.machines || [];
-    const operators = operatorsData?.operators || [];
+    const rawData = machinesData as any;
+    const machines = Array.isArray(rawData?.machines) 
+        ? rawData.machines 
+        : (Array.isArray(rawData?.data) ? rawData.data : []);
+    
+    const operators = operatorsData?.workers || (operatorsData as any)?.operators || [];
 
     const getOperatorName = (id: number) => {
-        const op = operators.find(o => o.id === id);
+        const op = operators.find((o: any) => o.id === id);
         return op ? op.name : `ID: ${id}`;
     };
 
@@ -130,6 +139,29 @@ export default function MachinesListScreen() {
             >
                 {isLoading ? (
                     <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />
+                ) : errorMessage ? (
+                    <View style={styles.emptyContainer}>
+                        <MaterialCommunityIcons 
+                            name={isSubscriptionExpired ? "credit-card-off-outline" : "alert-circle-outline"} 
+                            size={80} 
+                            color={colors.danger || '#EF4444'} 
+                            style={{ marginBottom: 16 }}
+                        />
+                        <Text style={[styles.emptyText, { color: colors.textMain, fontWeight: '900', fontSize: 20 }]}>
+                            {isSubscriptionExpired ? t('owner.subscription_expired', 'Subscription Ended') : t('common.error', 'Error Loading Data')}
+                        </Text>
+                        <Text style={[{ color: colors.textMuted, textAlign: 'center', marginTop: 12, paddingHorizontal: 20, fontSize: 14, lineHeight: 22 }]}>
+                            {errorMessage}
+                        </Text>
+                        {isSubscriptionExpired && (
+                            <TouchableOpacity 
+                                onPress={() => router.push('/(common)/plans' as any)} 
+                                style={{ marginTop: 30, backgroundColor: colors.primary, paddingVertical: 14, paddingHorizontal: 32, borderRadius: 12 }}
+                            >
+                                <Text style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Renew Plan Now</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 ) : filteredMachines.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <MaterialCommunityIcons name="truck-outline" size={80} color={colors.border} />

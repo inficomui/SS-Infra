@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, Modal } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
 import { formatDate } from '../../../utils/formatters';
+import ImagePreviewModal from '@/components/ui/ImagePreviewModal';
 
 const { width } = Dimensions.get('window');
 
@@ -51,38 +52,11 @@ export default function MaintenanceDetailsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Full Screen Image Preview Modal */}
-            <Modal
+            <ImagePreviewModal
                 visible={previewVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setPreviewVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <TouchableOpacity
-                        style={styles.closePreviewBtn}
-                        onPress={() => setPreviewVisible(false)}
-                        activeOpacity={0.7}
-                    >
-                        <MaterialCommunityIcons name="close" size={32} color="#FFF" />
-                    </TouchableOpacity>
-
-                    {selectedImage ? (
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={styles.fullPreviewImage}
-                            resizeMode="contain"
-                        />
-                    ) : (
-                        <ActivityIndicator color="#FFF" size="large" />
-                    )}
-
-                    <View style={styles.previewFooterContent}>
-                        <Text style={styles.previewFooterLabel}>{t('maintenance_records.details_title')}</Text>
-                        <Text style={styles.previewFooterHint}>{t('fuel_management.pinch_zoom')}</Text>
-                    </View>
-                </View>
-            </Modal>
+                imageUrl={selectedImage}
+                onClose={() => setPreviewVisible(false)}
+            />
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />

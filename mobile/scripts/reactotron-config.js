@@ -33,7 +33,7 @@ const configureReactotron = (config = {}) => {
         const { scriptURL } = NativeModules.SourceCode;
         scriptHostname = scriptURL.split('://')[1].split(':')[0];
     } catch (e) {
-        console.log('Reactotron: Could not determine host, falling back to localhost');
+        console.error('Reactotron: Could not determine host, falling back to localhost');
     }
 
     // Initialize Reactotron
@@ -61,7 +61,7 @@ const configureReactotron = (config = {}) => {
     // Clear logs on startup for a fresh debugging session
     reactotron.clear();
 
-    // Patch console.log to send logs to Reactotron (Optional, but recommended)
+
     const yeOldeConsoleLog = console.log;
     console.log = (...args) => {
         yeOldeConsoleLog(...args);

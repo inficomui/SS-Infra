@@ -40,7 +40,6 @@ export default function RecordPaymentScreen() {
             paymentDate: paymentDate.toISOString().split('T')[0]
         };
 
-        console.log("Submitting Payment:", { operatorId, data: paymentData });
 
         try {
             const result = await recordPayment({
@@ -48,7 +47,6 @@ export default function RecordPaymentScreen() {
                 data: paymentData
             }).unwrap();
 
-            console.log("Payment Record Success:", result);
 
             Alert.alert(
                 t('common.success'),

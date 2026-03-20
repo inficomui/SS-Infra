@@ -12,6 +12,7 @@ import { subscriptionApi } from './apis/subscriptionApi';
 import { bookingApi } from './apis/bookingApi';
 import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
+import driverReducer from './slices/driverSlice';
 import { storage } from './storage';
 import notificationReducer from './slices/notificationSlice';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
@@ -28,13 +29,14 @@ const rootReducer = combineReducers({
     [bookingApi.reducerPath]: bookingApi.reducer,
     auth: authReducer,
     theme: themeReducer,
+    driver: driverReducer,
     notifications: notificationReducer,
 });
 
 const persistConfig = {
     key: 'root',
     storage: storage,
-    whitelist: ['auth', 'theme', 'notifications'],
+    whitelist: ['auth', 'theme', 'notifications', 'driver'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

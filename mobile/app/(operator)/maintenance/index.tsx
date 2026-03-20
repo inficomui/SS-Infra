@@ -10,6 +10,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
 import { formatDate } from '../../../utils/formatters';
 import { Image } from 'react-native';
+import { useGetMeQuery } from '@/redux/apis/authApi';
 
 export default function OperatorMaintenanceRecordsScreen() {
     const router = useRouter();
@@ -24,6 +25,9 @@ export default function OperatorMaintenanceRecordsScreen() {
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
 
+    // Auth
+    const { data: userData } = useGetMeQuery();
+
     // Query
     const { data: recordsData, isLoading, isFetching, refetch } = useGetMaintenanceRecordsQuery({
         startDate: startDate.toISOString().split('T')[0],
@@ -31,21 +35,24 @@ export default function OperatorMaintenanceRecordsScreen() {
         page: page,
     });
 
-    const recordsResponse = recordsData?.data;
-    const recordsList = recordsResponse?.data || [];
-    const totalPages = recordsResponse?.last_page || 1;
+    const recordsList = recordsData?.records || recordsData?.data?.data || [];
+    const totalPages = recordsData?.pagination?.totalPages || recordsData?.data?.last_page || 1;
 
     const processedRecords = useMemo(() => {
         let list = [...recordsList];
 
+        if (userData?.user?.id) {
+            list = list.filter(record => record.operatorId === userData.user.id || record.operator_id === userData.user.id || record.operator?.id === userData.user.id);
+        }
+
         if (searchQuery) {
             list = list.filter(record =>
                 record.machine?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                record.service_type.toLowerCase().includes(searchQuery.toLowerCase())
+                (record.serviceType || record.service_type || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
-        list.sort((a, b) => new Date(b.service_date).getTime() - new Date(a.service_date).getTime());
+        list.sort((a, b) => new Date(b.serviceDate || b.service_date || '').getTime() - new Date(a.serviceDate || a.service_date || '').getTime());
 
         return list;
     }, [recordsList, searchQuery]);
@@ -68,15 +75,15 @@ export default function OperatorMaintenanceRecordsScreen() {
             <View style={styles.cardHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
                     <View style={[styles.iconBox, { backgroundColor: colors.primary + '15', overflow: 'hidden' }]}>
-                        {(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) ? (
-                            <Image source={{ uri: resolveImageUrl(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                        {(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) ? (
+                            <Image source={{ uri: resolveImageUrl(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) || '' }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                         ) : (
                             <MaterialCommunityIcons name="wrench-outline" size={20} color={colors.primary} />
                         )}
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || t('maintenance_records.unknown_machine')}</Text>
-                        <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.service_date)}</Text>
+                        <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.serviceDate || record.service_date || '')}</Text>
                     </View>
                 </View>
                 <IconButton icon="chevron-right" iconColor={colors.textMuted} onPress={() => router.push({ pathname: '/(operator)/maintenance/[id]', params: { id: record.id, data: JSON.stringify(record) } })} />
@@ -85,15 +92,15 @@ export default function OperatorMaintenanceRecordsScreen() {
             <View style={[styles.statsRow, { borderColor: colors.border }]}>
                 <View style={styles.statItem}>
                     <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.service_type')}</Text>
-                    <Text style={[styles.statValue, { color: colors.textMain }]}>{record.service_type}</Text>
+                    <Text style={[styles.statValue, { color: colors.textMain }]}>{record.serviceType || record.service_type}</Text>
                 </View>
                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
                 <View style={styles.statItem}>
                     <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
-                        {(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && <MaterialCommunityIcons name="camera" size={16} color={colors.success} />}
-                        {(record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <MaterialCommunityIcons name="file-document" size={16} color={colors.success} />}
-                        {!(record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && !(record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <Text style={{ fontSize: 10, color: colors.textMuted }}>{t('maintenance_records.no_photo')}</Text>}
+                        {(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && <MaterialCommunityIcons name="camera" size={16} color={colors.success} />}
+                        {(record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <MaterialCommunityIcons name="file-document" size={16} color={colors.success} />}
+                        {!(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && !(record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <Text style={{ fontSize: 10, color: colors.textMuted }}>{t('maintenance_records.no_photo')}</Text>}
                     </View>
                 </View>
             </View>

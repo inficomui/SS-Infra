@@ -73,8 +73,13 @@ export default function OperatorDetailsPage({ params }: { params: Promise<{ id: 
                             <div className="mb-1">
                                 <div className="flex items-center gap-3">
                                     <h1 className="text-2xl font-black text-foreground tracking-tight">{operator.name}</h1>
-                                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-md border border-emerald-500/20">
-                                        Operator
+                                    <span className={clsx(
+                                        "px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-md border",
+                                        operator.role === 'Driver' 
+                                            ? "bg-blue-500/10 text-blue-600 border-blue-500/20"
+                                            : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                    )}>
+                                        {operator.role || 'Operator'}
                                     </span>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-y-2 gap-x-6 mt-3 text-sm font-medium text-muted-foreground">
@@ -216,7 +221,7 @@ export default function OperatorDetailsPage({ params }: { params: Promise<{ id: 
                 onClose={() => setIsSubscriptionModalOpen(false)}
                 userId={operator.id}
                 userName={operator.name}
-                userRole="Operator"
+                userRole={operator.role || 'Operator'}
             />
         </div>
     )

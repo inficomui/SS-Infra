@@ -55,7 +55,9 @@ export default function OperatorDetailsScreen() {
                             labelStyle={{ fontSize: 36, fontWeight: 'bold' }}
                         />
                         <Text style={[styles.operatorName, { color: colors.textMain }]}>{operator.name}</Text>
-                        <Text style={[styles.operatorRole, { color: colors.textMuted }]}>{t('owner.certified_operator')}</Text>
+                        <Text style={[styles.operatorRole, { color: colors.textMuted }]}>
+                            {operator.role === 'Driver' ? 'Certified Driver' : t('owner.certified_operator')}
+                        </Text>
                     </View>
 
                     <View style={styles.divider} />

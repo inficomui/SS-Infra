@@ -1,18 +1,30 @@
 
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions } from 'react-native';
 import { Text, Avatar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { resolveImageUrl } from '../../utils/imageHelpers';
+import ImagePreviewModal from '@/components/ui/ImagePreviewModal';
 
 export default function MachineDetailsScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const params = useLocalSearchParams();
     const { colors } = useAppTheme();
+    const [previewVisible, setPreviewVisible] = React.useState(false);
+    const [selectedImage, setSelectedImage] = React.useState<string | undefined>(undefined);
+
+    const openPreview = (url: string | undefined) => {
+        if (!url) return;
+        const resolved = resolveImageUrl(url);
+        if (resolved) {
+            setSelectedImage(resolved);
+            setPreviewVisible(true);
+        }
+    };
 
     const machine = params.data ? JSON.parse(params.data as string) : null;
 
@@ -39,6 +51,11 @@ export default function MachineDetailsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <ImagePreviewModal
+                visible={previewVisible}
+                imageUrl={selectedImage}
+                onClose={() => setPreviewVisible(false)}
+            />
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
@@ -55,7 +72,9 @@ export default function MachineDetailsScreen() {
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                 <View style={[styles.imageContainer, { borderColor: colors.border, backgroundColor: colors.card }]}>
                     {machinePhoto ? (
-                        <Image source={{ uri: resolveImageUrl(machinePhoto) }} style={styles.machineImage} resizeMode="cover" />
+                        <TouchableOpacity onPress={() => openPreview(machinePhoto)} activeOpacity={0.9} style={styles.machineImage}>
+                            <Image source={{ uri: resolveImageUrl(machinePhoto) }} style={styles.machineImage} resizeMode="cover" />
+                        </TouchableOpacity>
                     ) : (
                         <View style={[styles.placeholderImage, { backgroundColor: colors.background }]}>
                             <MaterialCommunityIcons name="excavator" size={60} color={colors.textMuted} />

@@ -7,7 +7,7 @@ export interface Plan {
     name: string;
     type: string;
     durationDays?: number;
-    price?: number;
+    price?: string | number; // API returns price as string e.g. "499.00"
     features?: string[];
 }
 
@@ -53,8 +53,15 @@ export interface AssignPlanResponse {
 export interface CancelSubscriptionResponse {
     success: boolean;
     message: string;
-    subscription?: Subscription; // For soft delete
+    subscription?: Subscription; // For soft delete (status: 'cancelled')
     deletedSubscription?: { id: number; userId: number; userName: string }; // For hard delete
+}
+
+export interface GetMySubscriptionResponse {
+    success: boolean;
+    isActive: boolean; // Use THIS field to check subscription status, not subscription !== null
+    message: string;
+    subscription: Subscription | null;
 }
 
 export interface GetUserSubscriptionsResponse {
@@ -90,7 +97,6 @@ export const subscriptionApi = createApi({
     baseQuery,
     tagTypes: ['Subscriptions', 'UserSubscriptions'],
     endpoints: (builder) => ({
-        // 1. Assign Plan to User (Admin Only)
         assignPlan: builder.mutation<AssignPlanResponse, AssignPlanRequest>({
             query: (data) => ({
                 url: '/subscriptions/assign',
@@ -98,6 +104,9 @@ export const subscriptionApi = createApi({
                 body: data,
             }),
             invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
+            transformResponse: (response: AssignPlanResponse) => {
+                return response;
+            },
         }),
 
         // 2. Cancel/Delete Subscription (Admin Only)
@@ -105,24 +114,47 @@ export const subscriptionApi = createApi({
             query: ({ id, softDelete = false }) => ({
                 url: `/subscriptions/${id}`,
                 method: 'DELETE',
-                params: { softDelete },
+                body: { softDelete }, // softDelete goes in the request body, not query params
             }),
             invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
+            transformResponse: (response: CancelSubscriptionResponse) => {
+                return response;
+            },
         }),
 
         // 3. Get User's Subscriptions (Admin Only)
         getUserSubscriptions: builder.query<GetUserSubscriptionsResponse, number>({
             query: (userId) => `/subscriptions/user/${userId}`,
             providesTags: (result, error, userId) => [{ type: 'UserSubscriptions', id: userId }],
+            transformResponse: (response: GetUserSubscriptionsResponse) => {
+                return response;
+            },
         }),
 
-        // 4. Get All Subscriptions (Admin Only) with filtering
         getAllSubscriptions: builder.query<GetAllSubscriptionsResponse, GetAllSubscriptionsParams>({
             query: (params) => ({
                 url: '/subscriptions',
                 params,
             }),
             providesTags: ['Subscriptions'],
+            transformResponse: (response: GetAllSubscriptionsResponse) => {
+                return response;
+            },
+        }),
+        // 5. Get Logged-in User's Active Subscription
+        getMySubscription: builder.query<GetMySubscriptionResponse, void>({
+            query: () => '/subscriptions/my',
+            providesTags: ['UserSubscriptions'],
+            onQueryStarted: async (_, { queryFulfilled }) => {
+                try {
+                    const { data } = await queryFulfilled;
+                } catch (err) {
+                    console.error('--- [subscriptions/my] Request FAILED ---', err);
+                }
+            },
+            transformResponse: (response: GetMySubscriptionResponse) => {
+                return response;
+            },
         }),
     }),
 });
@@ -132,4 +164,5 @@ export const {
     useCancelSubscriptionMutation,
     useGetUserSubscriptionsQuery,
     useGetAllSubscriptionsQuery,
+    useGetMySubscriptionQuery,
 } = subscriptionApi;

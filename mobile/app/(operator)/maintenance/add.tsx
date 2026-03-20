@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { Text, TextInput, Button, Menu } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAddMaintenanceRecordMutation } from '@/redux/apis/maintenanceApi';
 import { useGetMachinesQuery } from '@/redux/apis/ownerApi';
+import { storage } from '@/redux/storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 
@@ -25,6 +27,18 @@ export default function OperatorAddMaintenanceScreen() {
     const [invoiceImage, setInvoiceImage] = useState<any>(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTypeMenu, setShowTypeMenu] = useState(false);
+
+    // Load pre-selected machine
+    useEffect(() => {
+        const loadMachine = async () => {
+            const stored = await storage.getItem('selected_machine');
+            if (stored) {
+                const machine = JSON.parse(stored);
+                setMachineId(machine.id.toString());
+            }
+        };
+        loadMachine();
+    }, []);
 
     const serviceTypes = ['Maintenance', 'Repair', 'Oil Change', 'Tyre Replacement', 'Hydraulic Service', 'Breakdown', 'Other'];
 
@@ -48,7 +62,7 @@ export default function OperatorAddMaintenanceScreen() {
 
     const handleSubmit = async () => {
         if (!machineId || !serviceType || !cost) {
-            Alert.alert(t('common.error'), t('maintenance_records.fill_required'));
+            Toast.show({ type: 'error', text1: t('common.error'), text2: t('maintenance_records.fill_required') });
             return;
         }
 
@@ -85,10 +99,10 @@ export default function OperatorAddMaintenanceScreen() {
 
         try {
             await addMaintenance(formData).unwrap();
-            Alert.alert(t('common.success'), t('maintenance_records.log_success'));
+            Toast.show({ type: 'success', text1: t('common.success'), text2: t('maintenance_records.log_success') });
             router.back();
         } catch (error: any) {
-            Alert.alert(t('common.error'), error?.data?.message || t('maintenance_records.log_error'));
+            Toast.show({ type: 'error', text1: t('common.error'), text2: error?.data?.message || t('maintenance_records.log_error') });
         }
     };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Linking } from 'react-native';
 import { Text, ActivityIndicator, Searchbar, Avatar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -8,15 +8,46 @@ import { useGetOperatorsQuery } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Toast from 'react-native-toast-message';
 
+// Simple debounce hook for search
+function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+    return debouncedValue;
+}
+
 export default function OperatorsListScreen() {
     const router = useRouter();
     const { t } = useTranslation();
-    const { colors } = useAppTheme();
-    const { data: operatorsData, isLoading, refetch } = useGetOperatorsQuery();
+    const { colors, isDark } = useAppTheme();
     const [searchQuery, setSearchQuery] = useState('');
+    const [roleFilter, setRoleFilter] = useState<'All' | 'Operator' | 'Driver'>('All');
+
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+    const { data: operatorsData, error: apiError, isLoading, refetch, isFetching } = useGetOperatorsQuery({
+        search: debouncedSearchQuery || undefined,
+        role: roleFilter === 'All' ? undefined : roleFilter as 'Operator' | 'Driver'
+    });
+
     const [refreshing, setRefreshing] = useState(false);
 
-    const operators = operatorsData?.operators || [];
+    // Determine if we have an API error (either HTTP error or 200 OK with success: false)
+    const errorData = (apiError as any)?.data || (operatorsData?.success === false ? operatorsData : null);
+    const errorMessage = errorData?.message || (apiError as any)?.error;
+    const isSubscriptionExpired = errorData?.subscription_expired === true;
+
+    // Support both { operators: [] } and { data: [] } formats based on API responses
+    const rawData = operatorsData as any;
+    const operators = Array.isArray(rawData?.operators)
+        ? rawData.operators
+        : (Array.isArray(rawData?.data) ? rawData.data : []);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -29,23 +60,13 @@ export default function OperatorsListScreen() {
         setRefreshing(false);
     };
 
-    const filteredOperators = operators.filter((operator: any) => {
-        const query = searchQuery.toLowerCase();
-        return (
-            operator.name.toLowerCase().includes(query) ||
-            operator.mobile.includes(query) ||
-            operator.district.toLowerCase().includes(query) ||
-            operator.taluka.toLowerCase().includes(query)
-        );
-    });
-
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.operator_fleet')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.operators')}</Text>
                 <TouchableOpacity onPress={() => router.push('/(owner)/add-operator' as any)} style={[styles.iconButton, { backgroundColor: colors.primary }]}>
                     <MaterialCommunityIcons name="account-plus" size={24} color="#000" />
                 </TouchableOpacity>
@@ -53,7 +74,7 @@ export default function OperatorsListScreen() {
 
             <View style={styles.searchWrapper}>
                 <Searchbar
-                    placeholder={t('owner.search_operators')}
+                    placeholder="Search by name or mobile..."
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border }]}
@@ -61,6 +82,14 @@ export default function OperatorsListScreen() {
                     placeholderTextColor={colors.textMuted}
                     iconColor={colors.primary}
                 />
+            </View>
+
+            <View style={{ marginBottom: 20 }}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}>
+                    <FilterChip label={t('owner.all_staff')} active={roleFilter === 'All'} onPress={() => setRoleFilter('All')} colors={colors} />
+                    <FilterChip label={t('owner.driver')} active={roleFilter === 'Driver'} onPress={() => setRoleFilter('Driver')} colors={colors} />
+                    <FilterChip label={t('owner.operator')} active={roleFilter === 'Operator'} onPress={() => setRoleFilter('Operator')} colors={colors} />
+                </ScrollView>
             </View>
 
             <ScrollView
@@ -72,17 +101,44 @@ export default function OperatorsListScreen() {
                     <Text style={[styles.summaryText, { color: colors.textMuted }]}>
                         {t('owner.total_registered')} <Text style={{ color: colors.primary, fontWeight: '900' }}>{operators.length}</Text>
                     </Text>
+                    {isFetching && !refreshing && <ActivityIndicator size={12} color={colors.primary} style={{ marginLeft: 8 }} />}
                 </View>
 
-                {isLoading ? (
+                {isLoading && !isFetching ? (
                     <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />
-                ) : filteredOperators.length === 0 ? (
+                ) : errorMessage ? (
                     <View style={styles.emptyContainer}>
-                        <MaterialCommunityIcons name="account-off-outline" size={80} color={colors.border} />
+                        <MaterialCommunityIcons
+                            name={isSubscriptionExpired ? "credit-card-off-outline" : "alert-circle-outline"}
+                            size={80}
+                            color={colors.danger || '#EF4444'}
+                            style={{ marginBottom: 16 }}
+                        />
+                        <Text style={[styles.emptyText, { color: colors.textMain, fontWeight: '900', fontSize: 20 }]}>
+                            {isSubscriptionExpired ? t('owner.subscription_expired', 'Subscription Ended') : t('common.error', 'Error Loading Data')}
+                        </Text>
+                        <Text style={[{ color: colors.textMuted, textAlign: 'center', marginTop: 12, paddingHorizontal: 20, fontSize: 14, lineHeight: 22 }]}>
+                            {errorMessage}
+                        </Text>
+                        {isSubscriptionExpired && (
+                            <TouchableOpacity
+                                onPress={() => router.push({ pathname: '/(common)/plans' as any, params: { source: 'expired' } })}
+                                style={{ marginTop: 30, backgroundColor: colors.primary, paddingVertical: 14, paddingHorizontal: 32, borderRadius: 12 }}
+                            >
+                                <Text style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Renew Plan Now</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                ) : operators.length === 0 && !isFetching ? (
+                    <View style={styles.emptyContainer}>
+                        <MaterialCommunityIcons name="account-group-outline" size={80} color={colors.border} />
                         <Text style={[styles.emptyText, { color: colors.textMuted }]}>{t('owner.no_operators_found')}</Text>
+                        <Text style={{ color: colors.textMuted, fontSize: 13, marginTop: 8, textAlign: 'center', paddingHorizontal: 40 }}>
+                            {t('owner.add_first_worker_hint')}
+                        </Text>
                     </View>
                 ) : (
-                    filteredOperators.map((operator: any) => (
+                    operators.map((operator: any) => (
                         <OperatorListItem key={operator.id} operator={operator} colors={colors} />
                     ))
                 )}
@@ -92,14 +148,37 @@ export default function OperatorsListScreen() {
     );
 }
 
+function FilterChip({ label, active, onPress, colors }: any) {
+    const { t } = useTranslation();
+    return (
+        <TouchableOpacity
+            onPress={onPress}
+            style={[
+                styles.filterChip,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                active && { backgroundColor: colors.primary, borderColor: colors.primary }
+            ]}
+        >
+            <Text style={[styles.filterChipText, { color: colors.textMuted }, active && { color: '#000' }]}>{label}</Text>
+        </TouchableOpacity>
+    );
+}
+
 function OperatorListItem({ operator, colors }: any) {
+    const { t } = useTranslation();
     const router = useRouter();
     const initials = operator.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+    const isDriver = operator.role === 'Driver';
+
+    // Salary display
+    const salaryLabel = operator.salaryType === 'monthly'
+        ? `₹${parseFloat(operator.salaryAmount || '0').toLocaleString('en-IN')}/mo`
+        : operator.salaryType === 'daily'
+            ? `₹${parseFloat(operator.salaryAmount || '0').toLocaleString('en-IN')}/day`
+            : null;
 
     const handleCall = () => {
-        if (operator.mobile) {
-            Linking.openURL(`tel:${operator.mobile}`);
-        }
+        if (operator.mobile) Linking.openURL(`tel:${operator.mobile}`);
     };
 
     const handlePress = () => {
@@ -124,7 +203,23 @@ function OperatorListItem({ operator, colors }: any) {
             <View style={styles.operatorInfo}>
                 <View style={styles.nameRow}>
                     <Text style={[styles.operatorName, { color: colors.textMain }]}>{operator.name}</Text>
-                    <MaterialCommunityIcons name="check-decagram" size={16} color={colors.success} />
+                    <View style={[
+                        styles.roleBadge,
+                        { backgroundColor: isDriver ? '#3B82F620' : colors.success + '20' }
+                    ]}>
+                        <MaterialCommunityIcons
+                            name={isDriver ? 'steering' : 'account-hard-hat'}
+                            size={10}
+                            color={isDriver ? '#3B82F6' : colors.success}
+                            style={{ marginRight: 3 }}
+                        />
+                        <Text style={[
+                            styles.roleBadgeText,
+                            { color: isDriver ? '#3B82F6' : colors.success }
+                        ]}>
+                            {isDriver ? t('owner.driver').toUpperCase() : t('owner.operator').toUpperCase()}
+                        </Text>
+                    </View>
                 </View>
                 <View style={styles.detailRow}>
                     <MaterialCommunityIcons name="phone" size={12} color={colors.textMuted} />
@@ -134,12 +229,24 @@ function OperatorListItem({ operator, colors }: any) {
                     <MaterialCommunityIcons name="map-marker" size={12} color={colors.primary} />
                     <Text style={[styles.detailText, { color: colors.textMuted }]}>{operator.district}, {operator.taluka}</Text>
                 </View>
+                {isDriver && operator.license_number && (
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="card-account-details-outline" size={12} color={colors.textMuted} />
+                        <Text style={[styles.detailText, { color: colors.textMuted }]}>{operator.license_number}</Text>
+                    </View>
+                )}
+                {salaryLabel && (
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="cash" size={12} color={colors.success} />
+                        <Text style={[styles.detailText, { color: colors.success, fontWeight: '700' }]}>{salaryLabel}</Text>
+                    </View>
+                )}
             </View>
             <View style={styles.actionColumn}>
                 <TouchableOpacity onPress={handleCall} style={[styles.callBtn, { backgroundColor: colors.primary + '20' }]}>
                     <MaterialCommunityIcons name="phone-outgoing" size={18} color={colors.primary} />
                 </TouchableOpacity>
-                <MaterialCommunityIcons name="dots-vertical" size={20} color={colors.textMuted} />
+                <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textMuted} />
             </View>
         </TouchableOpacity>
     );
@@ -167,6 +274,8 @@ const styles = StyleSheet.create({
     headerTitle: { fontSize: 22, fontWeight: '800', letterSpacing: 0.5 },
     searchWrapper: { paddingHorizontal: 20, marginBottom: 20 },
     searchBar: { borderRadius: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, borderWidth: 1 },
+    filterChip: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, borderWidth: 1, elevation: 1 },
+    filterChipText: { fontSize: 14, fontWeight: '700', letterSpacing: 0.2 },
     scrollView: { flex: 1 },
     scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
     summaryBar: { marginBottom: 20, paddingLeft: 8 },
@@ -186,8 +295,10 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
     },
     operatorInfo: { flex: 1 },
-    nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+    nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' },
     operatorName: { fontSize: 18, fontWeight: '800', letterSpacing: 0.2 },
+    roleBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+    roleBadgeText: { fontSize: 9, fontWeight: '900', letterSpacing: 0.5 },
     detailRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
     detailText: { fontSize: 14, fontWeight: '500', opacity: 0.8 },
     actionColumn: { alignItems: 'center', gap: 16 },

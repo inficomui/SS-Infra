@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     StyleSheet,
@@ -16,7 +16,7 @@ import { TextInput, Text, Surface } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCredentials } from '@/redux/slices/authSlice';
+import { setCredentials, selectIsAuthenticated, selectCurrentUser } from '@/redux/slices/authSlice';
 import CountryCodePicker from '@/components/ui/CountryCodePicker';
 import OTPInput from '@/components/ui/OTPInput';
 import { useSendOtpMutation, useVerifyOtpMutation } from '@/redux/apis/authApi';
@@ -24,12 +24,32 @@ import Toast from 'react-native-toast-message';
 import { selectThemeMode } from '@/redux/slices/themeSlice';
 import { Colors } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
+
+const ROLE_ROUTES: Record<string, string> = {
+    owner: '/(owner)',
+    operator: '/(operator)',
+    driver: '/(driver)',
+};
 
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
     const { t } = useTranslation();
+    const router = useRouter();
     const dispatch = useDispatch();
+
+    // Guard: if the user is already authenticated, send them to their panel immediately.
+    // This handles back-navigation to /login after logout race conditions.
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+    const currentUser = useSelector(selectCurrentUser);
+    useEffect(() => {
+        if (isAuthenticated && currentUser) {
+            const route = ROLE_ROUTES[currentUser.role?.toLowerCase() ?? ''];
+            if (route) router.replace(route as any);
+        }
+    }, [isAuthenticated, currentUser]);
+
     const [sendOtp, { isLoading: isSendingOtp }] = useSendOtpMutation();
     const [verifyOtp, { isLoading: isVerifyingOtp, error: VerifyError, isError: VerifyIsError }] = useVerifyOtpMutation();
 
@@ -97,7 +117,22 @@ export default function LoginScreen() {
                         user: user,
                         token: token
                     }));
+                    // redux-persist automatically persists the auth slice to AsyncStorage,
+                    // so no manual @auth_session write is needed here.
+
                     Toast.show({ type: 'success', text1: t('auth.login_success') });
+
+                    // Explicitly navigate based on role
+                    const lowerRole = user.role?.toLowerCase();
+                    if (lowerRole === 'owner') {
+                        router.replace('/(owner)');
+                    } else if (lowerRole === 'operator') {
+                        router.replace('/(operator)');
+                    } else if (lowerRole === 'driver') {
+                        router.replace('/(driver)');
+                    } else {
+                        router.replace('/modal'); // fallback away from (tabs)
+                    }
                 } else {
                     // Show error message from backend if available, otherwise default to login_failed
                     const errorMessage = (response as any).message || (response as any).data?.message || t('common.error');

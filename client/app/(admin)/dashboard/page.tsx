@@ -101,7 +101,7 @@ export default function Dashboard() {
                     bgColor="bg-blue-500/10"
                 />
                 <StatsCard
-                    title="Active Operators"
+                    title="Active Personnel"
                     value={stats.users?.totalOperators || 0}
                     icon={Activity}
                     trend="+2.4%"

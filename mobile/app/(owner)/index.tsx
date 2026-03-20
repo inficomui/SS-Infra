@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -17,10 +18,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import { useGetOperatorsQuery, useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
 import { useGetNotificationsQuery, Notification as ApiNotification } from '@/redux/apis/notificationApi';
+import { useGetMySubscriptionQuery, GetMySubscriptionResponse } from '@/redux/apis/subscriptionApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
 import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
 import { t } from 'i18next';
+import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
 
@@ -34,16 +37,35 @@ export default function OwnerDashboard() {
     const { data: operatorsData, isLoading: loadingOperators, refetch: refetchOperators } = useGetOperatorsQuery();
     const { data: machinesData, isLoading: loadingMachines, refetch: refetchMachines } = useGetMachinesQuery();
     const { data: notificationsData, refetch: refetchNotifications } = useGetNotificationsQuery();
+    const { data: subData, isLoading: loadingSub, refetch: refetchSub } = useGetMySubscriptionQuery();
 
     const [refreshing, setRefreshing] = useState(false);
 
-    const operators = operatorsData?.operators || [];
-    const machines = machinesData?.machines || [];
+    const operators = (operatorsData as any)?.operators || (operatorsData as any)?.workers || [];
+    const machines = machinesData?.machines || (machinesData as any)?.data || [];
+
+    // Subscription status helpers
+    const isSubActive = subData?.isActive ?? true; // default true until loaded
+    const subDaysLeft = Math.floor(subData?.subscription?.daysRemaining ?? 999);
+    const subStatus = subData?.subscription?.status;
+    const isSubExpired = !isSubActive || subStatus === 'expired';
+    const isSubNearExpiry = isSubActive && subDaysLeft <= 14 && subDaysLeft > 0;
 
     const onRefresh = async () => {
         setRefreshing(true);
-        await Promise.all([refetchOperators(), refetchMachines(), refetchNotifications()]);
+        await Promise.all([refetchOperators(), refetchMachines(), refetchNotifications(), refetchSub()]);
         setRefreshing(false);
+    };
+
+    const handleLockedAction = (feature: string) => {
+        Toast.show({
+            type: 'error',
+            text1: 'Subscription Required',
+            text2: `Renew your plan to access ${feature}.`,
+        });
+        setTimeout(() => {
+            router.push({ pathname: '/(common)/plans' as any, params: { source: 'expired' } });
+        }, 1200);
     };
 
     const getGreeting = () => {
@@ -59,9 +81,9 @@ export default function OwnerDashboard() {
 
     // Calculate statistics
     const activeOperators = operators.length;
-    const availableMachines = machines.filter(m => m.status === 'available').length;
-    const machinesInUse = machines.filter(m => m.status === 'in_use').length;
-    const machinesInMaintenance = machines.filter(m => m.status === 'maintenance').length;
+    const availableMachines = machines.filter((m: any) => m.status === 'available').length;
+    const machinesInUse = machines.filter((m: any) => m.status === 'in_use').length;
+    const machinesInMaintenance = machines.filter((m: any) => m.status === 'maintenance').length;
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -109,6 +131,17 @@ export default function OwnerDashboard() {
                     />
                 }
             >
+                {/* Subscription Warning */}
+                {!loadingSub && (
+                    <SubscriptionWarning
+                        subscription={subData?.subscription}
+                        isActive={subData?.isActive}
+                        colors={colors}
+                        t={t}
+                        onPress={() => router.push('/(common)/plans' as any)}
+                    />
+                )}
+
                 {/* Stats */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statsRow}>
@@ -148,6 +181,8 @@ export default function OwnerDashboard() {
                             onPress={() => router.push('/(owner)/add-operator' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
+                            isLocked={isSubExpired}
+                            onLockedPress={() => handleLockedAction(t('owner.new_operator'))}
                         />
                         <ActionButton
                             icon="truck-plus"
@@ -155,6 +190,8 @@ export default function OwnerDashboard() {
                             onPress={() => router.push('/(owner)/add-machine' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
+                            isLocked={isSubExpired}
+                            onLockedPress={() => handleLockedAction(t('owner.new_machine'))}
                         />
                         <ActionButton
                             icon="account-group"
@@ -169,6 +206,8 @@ export default function OwnerDashboard() {
                             onPress={() => router.push('/(owner)/bookings' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
+                            isLocked={isSubExpired}
+                            onLockedPress={() => handleLockedAction(t('owner.bookings'))}
                         />
                         <ActionButton
                             icon="format-list-bulleted"
@@ -189,6 +228,8 @@ export default function OwnerDashboard() {
                             onPress={() => router.push('/(owner)/salary-report' as any)}
                             gradient={[colors.primary]}
                             colors={colors}
+                            isLocked={isSubExpired}
+                            onLockedPress={() => handleLockedAction(t('owner.salary_report'))}
                         />
                         <ActionButton
                             icon="gas-station"
@@ -299,6 +340,81 @@ function EmptyState({ icon, text, colors }: any) {
     );
 }
 
+function SubscriptionWarning({ subscription, isActive, colors, t, onPress }: any) {
+    const daysLeft = Math.floor(subscription?.daysRemaining ?? 0);
+
+    // ── Case 1: Expired or no active subscription → large red banner ──
+    if (!isActive || !subscription || subscription.status === 'expired') {
+        return (
+            <TouchableOpacity
+                onPress={onPress}
+                activeOpacity={0.9}
+                style={[styles.expiredBanner, { backgroundColor: colors.danger + '12', borderColor: colors.danger }]}
+            >
+                <View style={[styles.expiredBannerTop, { borderBottomColor: colors.danger + '30' }]}>
+                    <View style={[styles.expiredIconCircle, { backgroundColor: colors.danger + '20' }]}>
+                        <MaterialCommunityIcons name="shield-off-outline" size={28} color={colors.danger} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={[styles.expiredTitle, { color: colors.danger }]}>Subscription Expired</Text>
+                        <Text style={[styles.expiredSubtitle, { color: colors.textMuted }]}>
+                            {subscription?.status === 'expired'
+                                ? `Your plan ended on ${new Date(subscription.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                                : 'You have no active plan assigned to your account'}
+                        </Text>
+                    </View>
+                </View>
+                <View style={styles.expiredBannerBody}>
+                    <View style={styles.expiredFeatureRow}>
+                        {['Add Operators', 'Add Machines', 'View Bookings', 'Salary Reports'].map(f => (
+                            <View key={f} style={[styles.expiredFeatureChip, { backgroundColor: colors.danger + '15', borderColor: colors.danger + '30' }]}>
+                                <MaterialCommunityIcons name="lock-outline" size={11} color={colors.danger} />
+                                <Text style={[styles.expiredFeatureText, { color: colors.danger }]}>{f}</Text>
+                            </View>
+                        ))}
+                    </View>
+                    <View style={[styles.expiredRenewBtn, { backgroundColor: colors.danger }]}>
+                        <MaterialCommunityIcons name="crown-outline" size={16} color="#FFF" />
+                        <Text style={styles.expiredRenewText}>TAP TO VIEW PLANS & RENEW</Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+
+    // ── Case 2: Near expiry ≤14 days → compact orange/red strip ──
+    if (daysLeft <= 14) {
+        const urgentColor = daysLeft <= 3 ? colors.danger : colors.warning;
+        return (
+            <TouchableOpacity
+                onPress={onPress}
+                style={[styles.warningCard, { backgroundColor: urgentColor + '12', borderColor: urgentColor }]}
+            >
+                <View style={styles.warningIconContainer}>
+                    <MaterialCommunityIcons
+                        name={daysLeft <= 3 ? 'alert-circle' : 'clock-alert-outline'}
+                        size={24} color={urgentColor}
+                    />
+                </View>
+                <View style={styles.warningContent}>
+                    <Text style={[styles.warningTitle, { color: urgentColor }]}>
+                        {daysLeft <= 3 ? '⚠️ Expiring Very Soon!' : 'Plan Expiring Soon'}
+                    </Text>
+                    <Text style={[styles.warningText, { color: colors.textMuted }]}>
+                        <Text style={{ fontWeight: '900', color: urgentColor }}>{daysLeft} day{daysLeft !== 1 ? 's' : ''}</Text> left on your {subscription.plan?.name ?? 'plan'}
+                    </Text>
+                </View>
+                <View style={[styles.renewBtn, { backgroundColor: urgentColor }]}>
+                    <Text style={styles.renewText}>RENEW</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    }
+
+    // ── Case 3: Healthy subscription → no banner ──
+    return null;
+}
+
 function StatCard({ icon, label, value, color, loading, colors }: any) {
     const { t } = useTranslation();
     return (
@@ -318,17 +434,27 @@ function StatCard({ icon, label, value, color, loading, colors }: any) {
     );
 }
 
-function ActionButton({ icon, label, onPress, gradient, dark, colors }: any) {
+function ActionButton({ icon, label, onPress, gradient, dark, colors, isLocked, onLockedPress }: any) {
     const { t } = useTranslation();
     return (
-        <TouchableOpacity onPress={onPress} style={styles.actionButton}>
+        <TouchableOpacity
+            onPress={isLocked ? onLockedPress : onPress}
+            style={styles.actionButton}
+            activeOpacity={0.75}
+        >
             <View style={[
                 styles.actionGradient,
                 { backgroundColor: dark ? colors.primary : colors.card },
-                !dark && { borderWidth: 1, borderColor: colors.border }
+                !dark && { borderWidth: 1, borderColor: colors.border },
+                isLocked && { opacity: 0.55 }
             ]}>
                 <MaterialCommunityIcons name={icon as any} size={28} color={dark ? '#000' : colors.primary} />
                 <Text style={[styles.actionLabel, { color: dark ? '#000' : colors.textMain }]}>{label}</Text>
+                {isLocked && (
+                    <View style={[styles.lockBadge, { backgroundColor: colors.danger }]}>
+                        <MaterialCommunityIcons name="lock" size={10} color="#FFF" />
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );
@@ -342,10 +468,26 @@ function OperatorCard({ operator, colors, onPress }: any) {
             onPress={onPress}
         >
             <View style={[styles.listCardIcon, { backgroundColor: colors.cardLight }]}>
-                <MaterialCommunityIcons name="account" size={24} color={colors.primary} />
+                <MaterialCommunityIcons name={operator.role === 'Driver' ? "car" : "account"} size={24} color={colors.primary} />
             </View>
             <View style={styles.listCardContent}>
-                <Text style={[styles.listCardTitle, { color: colors.textMain }]}>{operator.name}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text style={[styles.listCardTitle, { color: colors.textMain }]}>{operator.name}</Text>
+                    <View style={{
+                        backgroundColor: operator.role === 'Driver' ? '#3B82F620' : colors.success + '20',
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                        borderRadius: 4
+                    }}>
+                        <Text style={{
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                            color: operator.role === 'Driver' ? '#3B82F6' : colors.success
+                        }}>
+                            {(operator.role || 'Operator').toUpperCase()}
+                        </Text>
+                    </View>
+                </View>
                 <Text style={[styles.listCardSubtitle, { color: colors.textMuted }]}>{operator.mobile}</Text>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={20} color={colors.border} />
@@ -479,4 +621,66 @@ const styles = StyleSheet.create({
     statusText: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
     emptyState: { alignItems: 'center', paddingVertical: 40, borderRadius: 16, borderStyle: 'dashed', borderWidth: 2 },
     emptyText: { fontSize: 16, marginTop: 12, fontWeight: '600', opacity: 0.7 },
+    warningCard: {
+        marginBottom: 20,
+        padding: 14,
+        borderRadius: 12,
+        borderWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    warningIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    warningContent: { flex: 1 },
+    warningTitle: { fontSize: 13, fontWeight: '900', marginBottom: 2 },
+    warningText: { fontSize: 12, lineHeight: 16 },
+    renewBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+    renewText: { color: '#fff', fontSize: 11, fontWeight: '900' },
+
+    // Expired banner (large)
+    expiredBanner: {
+        marginBottom: 20,
+        borderRadius: 16,
+        borderWidth: 1.5,
+        overflow: 'hidden',
+    },
+    expiredBannerTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        padding: 16,
+        borderBottomWidth: 1,
+    },
+    expiredIconCircle: {
+        width: 52, height: 52, borderRadius: 14,
+        justifyContent: 'center', alignItems: 'center',
+    },
+    expiredTitle: { fontSize: 16, fontWeight: '900', marginBottom: 3 },
+    expiredSubtitle: { fontSize: 12, fontWeight: '500', lineHeight: 17 },
+    expiredBannerBody: { padding: 16, paddingTop: 12, gap: 12 },
+    expiredFeatureRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    expiredFeatureChip: {
+        flexDirection: 'row', alignItems: 'center', gap: 5,
+        paddingHorizontal: 10, paddingVertical: 5,
+        borderRadius: 20, borderWidth: 1,
+    },
+    expiredFeatureText: { fontSize: 11, fontWeight: '700' },
+    expiredRenewBtn: {
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+        paddingVertical: 13, borderRadius: 10,
+    },
+    expiredRenewText: { color: '#FFF', fontSize: 13, fontWeight: '900', letterSpacing: 0.5 },
+
+    // Lock badge on action buttons
+    lockBadge: {
+        position: 'absolute', top: 10, right: 10,
+        width: 18, height: 18, borderRadius: 9,
+        justifyContent: 'center', alignItems: 'center',
+    },
 });

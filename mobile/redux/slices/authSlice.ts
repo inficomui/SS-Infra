@@ -5,7 +5,7 @@ interface AuthState {
     token: string | null;
     isAuthenticated: boolean;
     user: User | null;
-    role: 'Owner' | 'Operator' | 'Admin' | null;
+    role: 'Owner' | 'Operator' | 'Admin' | 'Driver' | null;
 }
 
 const initialState: AuthState = {
@@ -37,11 +37,18 @@ const authSlice = createSlice({
         },
         updateUser: (state, action: PayloadAction<User>) => {
             state.user = action.payload;
+            state.role = action.payload.role;
+        },
+        rehydrate: (state, action: PayloadAction<{ user: User; token: string }>) => {
+            state.user = action.payload.user;
+            state.token = action.payload.token;
+            state.role = action.payload.user.role;
+            state.isAuthenticated = true;
         },
     },
 });
 
-export const { setCredentials, logout, updateUser } = authSlice.actions;
+export const { setCredentials, logout, updateUser, rehydrate } = authSlice.actions;
 
 export default authSlice.reducer;
 

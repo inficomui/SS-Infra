@@ -56,13 +56,10 @@ const plans = [
 async function seedPlans(adminToken) {
     if (!adminToken) {
         console.error("Error: Please provide an ADMIN_TOKEN as an argument.");
-        console.log("Usage: node scripts/seedPlans.js <YOUR_ADMIN_TOKEN>");
         process.exit(1);
     }
 
     const baseUrl = "https://backend.ssinfrasoftware.com/api/v1/plans";
-
-    console.log("Starting to seed plans...");
 
     for (const plan of plans) {
         try {
@@ -80,13 +77,12 @@ async function seedPlans(adminToken) {
             if (!response.ok) {
                 console.error(`Failed to create plan "${plan.name}":`, data);
             } else {
-                console.log(`✅ Successfully created plan "${plan.name}" (ID: ${data.plan?.id})`);
+                console.log(`Successfully created plan "${plan.name}" (ID: ${data.plan?.id})`);
             }
         } catch (error) {
             console.error(`Error creating plan "${plan.name}":`, error.message);
         }
     }
-    console.log("Seeding complete.");
 }
 
 // Run if called directly

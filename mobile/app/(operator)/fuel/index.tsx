@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDate } from '../../../utils/formatters';
+import { useGetMeQuery } from '@/redux/apis/authApi';
 
 export default function FuelLogsScreen() {
     const router = useRouter();
@@ -24,6 +25,9 @@ export default function FuelLogsScreen() {
     const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
     const [showSortMenu, setShowSortMenu] = useState(false);
 
+    // Auth
+    const { data: userData } = useGetMeQuery();
+
     // Query
     const { data: logsData, isLoading, isFetching, refetch } = useGetFuelLogsQuery({
         startDate: startDate.toISOString().split('T')[0],
@@ -31,27 +35,28 @@ export default function FuelLogsScreen() {
         page: page,
     });
 
-    const logsResponse = logsData?.data;
-    const logsList = logsResponse?.data || [];
-    const totalPages = logsResponse?.last_page || 1;
+    const logsList = logsData?.logs || logsData?.data?.data || [];
+    const totalPages = logsData?.pagination?.totalPages || logsData?.data?.last_page || 1;
 
     // Local filter for search (if backend search isn't explicitly defined in query params yet, 
     // but the user asked for it, I'll implement local filtering for now or assume API might support it if they add it)
     const processedLogs = useMemo(() => {
         let list = [...logsList];
 
-        // Search filter
+        // Filter by operator ID if user data is available
+        if (userData?.user?.id) {
+            list = list.filter(log => log.operatorId === userData.user.id || log.operator_id === userData.user.id || log.operator?.id === userData.user.id);
+        }
+
         if (searchQuery) {
             list = list.filter(log =>
-                log.machine?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                log.operator?.name.toLowerCase().includes(searchQuery.toLowerCase())
+                log.machine?.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
-        // Sorting
         list.sort((a, b) => {
-            const dateA = new Date(a.log_date).getTime();
-            const dateB = new Date(b.log_date).getTime();
+            const dateA = new Date(a.logDate || a.log_date || '').getTime();
+            const dateB = new Date(b.logDate || b.log_date || '').getTime();
             return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
         });
 
@@ -87,13 +92,13 @@ export default function FuelLogsScreen() {
                             {log.machine?.name || t('fuel_management.unknown_machine')}
                         </Text>
                         <Text style={[styles.dateText, { color: colors.textMuted }]}>
-                            {formatDate(log.log_date)}
+                            {formatDate(log.logDate || log.log_date || '')}
                         </Text>
                     </View>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={[styles.amountText, { color: colors.textMain }]}>₹{log.amount}</Text>
-                    <Text style={[styles.operatorSubText, { color: colors.textMuted }]}>{log.operator?.name}</Text>
+                    <Text style={[styles.operatorSubText, { color: colors.textMuted }]}>{log.operator?.name || 'Unknown'}</Text>
                 </View>
             </View>
 
@@ -101,7 +106,7 @@ export default function FuelLogsScreen() {
                 <View style={styles.statItem}>
                     <MaterialCommunityIcons name="beaker-outline" size={16} color={colors.textMuted} style={{ marginBottom: 4 }} />
                     <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.volume')}</Text>
-                    <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuel_liters} L</Text>
+                    <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuelLiters || log.fuel_liters} L</Text>
                 </View>
 
                 <View style={[styles.verticalDivider, { backgroundColor: colors.border + '30' }]} />
@@ -111,14 +116,14 @@ export default function FuelLogsScreen() {
                     <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.photos')}</Text>
                     <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
                         <MaterialCommunityIcons
-                            name={log.reading_before_url ? "check-circle" : "minus-circle-outline"}
+                            name={(log.readingBeforeUrl || log.reading_before_url) ? "check-circle" : "minus-circle-outline"}
                             size={14}
-                            color={log.reading_before_url ? colors.success : colors.textMuted}
+                            color={(log.readingBeforeUrl || log.reading_before_url) ? colors.success : colors.textMuted}
                         />
                         <MaterialCommunityIcons
-                            name={log.reading_after_url ? "check-circle" : "minus-circle-outline"}
+                            name={(log.readingAfterUrl || log.reading_after_url) ? "check-circle" : "minus-circle-outline"}
                             size={14}
-                            color={log.reading_after_url ? colors.success : colors.textMuted}
+                            color={(log.readingAfterUrl || log.reading_after_url) ? colors.success : colors.textMuted}
                         />
                     </View>
                 </View>

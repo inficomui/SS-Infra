@@ -3,25 +3,27 @@ import { CONFIG } from '@/constants/Config';
 
 export interface MaintenanceRecord {
     id: number;
-    machine_id: number;
-    service_type: string;
-    cost: string;
-    service_date: string;
+    machineId?: number;
+    operatorId?: number;
+    serviceType: string;
+    description?: string;
+    cost: number | string;
+    serviceDate: string;
+    nextServiceDate?: string;
+    serviceImageUrl?: string;
+    invoiceImageUrl?: string;
+    createdAt: string;
+    machine?: { id: number; name: string; registrationNumber: string; registration_number?: string };
+    operator?: { id: number; name: string };
+    
+    // Fallbacks
+    machine_id?: number;
+    operator_id?: number;
+    service_type?: string;
+    service_date?: string;
+    next_service_date?: string;
     service_image_url?: string;
     invoice_image_url?: string;
-    service_image?: string;
-    invoice_image?: string;
-    service_photo_url?: string;
-    invoice_photo_url?: string;
-    service_photo?: string;
-    invoice_photo?: string;
-    service_photo_path?: string;
-    invoice_photo_path?: string;
-    invoice_path?: string;
-    service_image_path?: string;
-    invoice_image_path?: string;
-    description?: string;
-    machine?: { id: number; name: string; registration_number: string };
 }
 
 export interface GetMaintenanceParams {
@@ -40,12 +42,9 @@ export const maintenanceApi = createApi({
     endpoints: (builder) => ({
         getMaintenanceRecords: builder.query<{
             success: boolean;
-            data: {
-                current_page: number;
-                last_page: number;
-                total: number;
-                data: MaintenanceRecord[]
-            }
+            records: MaintenanceRecord[];
+            pagination?: { totalItems: number; totalPages: number; currentPage: number; limit: number };
+            data?: { data: MaintenanceRecord[]; last_page: number; current_page: number } // Temp fallback
         }, GetMaintenanceParams>({
             query: (params) => {
                 let url = '/maintenance-records?';

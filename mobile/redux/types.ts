@@ -2,7 +2,7 @@ export interface User {
     id: number;
     name: string;
     mobile: string;
-    role: 'Owner' | 'Operator' | 'Admin';
+    role: 'Owner' | 'Operator' | 'Admin' | 'Driver';
     district: string;
     taluka: string;
     fixedMonthly?: string;
@@ -11,6 +11,13 @@ export interface User {
     referralCode?: string | null;
     ownerId?: number | null;
     avatar?: string | null;
+    licenseNumber?: string;
+    assignedVehicle?: string;
+    isActivePlan?: boolean;
+    planDetails?: {
+        status: string;
+        end_date: string;
+    };
     createdAt: string;
 }
 

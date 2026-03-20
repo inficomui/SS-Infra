@@ -7,31 +7,40 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
-import { Text, TextInput as PaperInput, ActivityIndicator, HelperText } from 'react-native-paper';
+import { Text, TextInput as PaperInput, ActivityIndicator, HelperText, Menu } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAddOperatorMutation, useUpdateSalaryConfigMutation } from '@/redux/apis/ownerApi';
+import { useAddOperatorMutation } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Toast from 'react-native-toast-message';
+import { MAHARASHTRA_DATA } from '@/constants/maharashtraData';
 
 export default function AddOperatorScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const { colors } = useAppTheme();
     const [addOperator, { isLoading: isAdding }] = useAddOperatorMutation();
-    const [updateSalaryConfig, { isLoading: isUpdatingSalary }] = useUpdateSalaryConfigMutation();
 
     const [formData, setFormData] = useState({
         name: '',
         mobile: '',
         district: '',
         taluka: '',
-        // New Salary System Fields
-        salaryType: 'none', // 'daily', 'monthly', 'none'
+        role: 'Operator' as 'Operator' | 'Driver',
+        license_number: '',
+        assigned_vehicle: '',
+        // Salary fields
+        salaryType: 'none',     // 'daily' | 'monthly' | 'none'
         salaryAmount: '',
     });
+
+    const [showDistrictMenu, setShowDistrictMenu] = useState(false);
+    const [showTalukaMenu, setShowTalukaMenu] = useState(false);
+
+    const districts = Object.keys(MAHARASHTRA_DATA).sort();
+    const talukas = formData.district ? MAHARASHTRA_DATA[formData.district].sort() || [] : [];
 
     const [errors, setErrors] = useState<any>({});
 
@@ -46,6 +55,10 @@ export default function AddOperatorScreen() {
         if (!formData.district.trim()) newErrors.district = t('owner.district_required_msg');
         if (!formData.taluka.trim()) newErrors.taluka = t('owner.taluka_required_msg');
 
+        if (formData.role === 'Driver' && !formData.license_number.trim()) {
+            newErrors.license_number = t('owner.license_required_msg');
+        }
+
         if (formData.salaryType !== 'none' && !formData.salaryAmount) {
             newErrors.salaryAmount = t('owner.salary_required_msg');
         }
@@ -58,44 +71,93 @@ export default function AddOperatorScreen() {
         if (!validateForm()) return;
 
         try {
-            // 1. Create Operator
-            const operatorResult = await addOperator({
-                name: formData.name,
-                mobile: formData.mobile,
+            // Build payload using API convenience salary fields
+            const registerPayload: any = {
+                name: formData.name.trim(),
+                mobile: formData.mobile.trim(),
                 district: formData.district,
                 taluka: formData.taluka,
-            }).unwrap();
+                role: formData.role,
+            };
 
-            // 2. If salary config is present, update it
-            if (formData.salaryType !== 'none' && operatorResult.success && operatorResult.operator?.id) {
-                await updateSalaryConfig({
-                    operatorId: operatorResult.operator.id,
-                    data: {
-                        salaryType: formData.salaryType as 'daily' | 'monthly' | 'none',
-                        salaryAmount: Number(formData.salaryAmount),
-                    }
-                }).unwrap();
+            // Use convenience shorthand instead of sending both salaryType + salaryAmount
+            if (formData.salaryType === 'monthly' && formData.salaryAmount) {
+                registerPayload.fixedMonthly = Number(formData.salaryAmount);
+            } else if (formData.salaryType === 'daily' && formData.salaryAmount) {
+                registerPayload.perDayWise = Number(formData.salaryAmount);
             }
+            // salaryType=none → don't send any salary fields; API defaults to none/0
+
+            // Driver-only fields
+            if (formData.role === 'Driver') {
+                registerPayload.license_number = formData.license_number.trim();
+                if (formData.assigned_vehicle.trim()) {
+                    registerPayload.assigned_vehicle = formData.assigned_vehicle.trim();
+                }
+            }
+
+            const result = await addOperator(registerPayload).unwrap();
+
+            const workerName = result.worker?.name ?? formData.name;
+            const successMsgKey = formData.role === 'Operator'
+                ? 'owner.op_added_success_msg'
+                : 'owner.dr_added_success_msg';
 
             Toast.show({
                 type: 'success',
-                text1: t('owner.op_registered_success'),
-                text2: t('owner.op_added_success_msg', { name: formData.name })
+                text1: formData.role === 'Operator'
+                    ? t('owner.op_registered_success')
+                    : t('owner.dr_registered_success', { defaultValue: 'Driver Registered Successfully' }),
+                text2: t(successMsgKey, { name: workerName }),
             });
 
             setTimeout(() => router.back(), 1500);
-        } catch (error: any) {
-            console.error('Add Operator Error:', error);
 
+        } catch (error: any) {
+            console.error('Register Worker Error:', JSON.stringify(error, null, 2));
+
+            const errData = error?.data ?? error;
+            const status = error?.status;
+
+            // --- Subscription expired (403 with subscription_expired flag) ---
+            if (status === 403 && errData?.subscription_expired) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Subscription Expired',
+                    text2: errData.message || 'Renew your plan to add workers.',
+                });
+                setTimeout(() => router.push({ pathname: '/(common)/plans' as any, params: { source: 'expired' } }), 1800);
+                return;
+            }
+
+            // --- Field-level validation errors from API (400) ---
+            if (errData?.errors && typeof errData.errors === 'object') {
+                const apiErrors: any = {};
+                // Map API field names → form keys
+                Object.entries(errData.errors).forEach(([field, messages]) => {
+                    apiErrors[field] = Array.isArray(messages)
+                        ? (messages as string[])[0]
+                        : messages;
+                });
+                setErrors(apiErrors);
+                Toast.show({
+                    type: 'error',
+                    text1: t('owner.reg_failed'),
+                    text2: errData.message || t('owner.check_fields'),
+                });
+                return;
+            }
+
+            // --- Generic error ---
             Toast.show({
                 type: 'error',
                 text1: t('owner.reg_failed'),
-                text2: error?.data?.message || t('owner.failed_add_op')
+                text2: errData?.message || error?.message || t('owner.failed_add_op'),
             });
         }
     };
 
-    const isProcessing = isAdding || isUpdatingSalary;
+    const isProcessing = isAdding;
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -103,7 +165,9 @@ export default function AddOperatorScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('owner.new_operator_title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>
+                    {t('owner.new_operator_title')}
+                </Text>
                 <View style={{ width: 44 }} />
             </View>
 
@@ -111,10 +175,52 @@ export default function AddOperatorScreen() {
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     <View style={styles.iconHeader}>
                         <View style={[styles.mainIcon, { backgroundColor: colors.primary + '15' }]}>
-                            <MaterialCommunityIcons name="account-plus-outline" size={40} color={colors.primary} />
+                            <MaterialCommunityIcons
+                                name={formData.role === 'Operator' ? 'account-hard-hat' : 'steering'}
+                                size={40}
+                                color={colors.primary}
+                            />
                         </View>
-                        <Text style={[styles.formTitle, { color: colors.textMain }]}>{t('owner.register_operator')}</Text>
-                        <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>{t('owner.certified_pro_desc')}</Text>
+                        <Text style={[styles.formTitle, { color: colors.textMain }]}>
+                            {formData.role === 'Operator' ? t('owner.register_operator') : t('owner.register_driver')}
+                        </Text>
+                        <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>
+                            {formData.role === 'Operator'
+                                ? t('owner.add_operator_hint')
+                                : t('owner.add_driver_hint')}
+                        </Text>
+                    </View>
+
+                    <View style={[styles.formSection, { backgroundColor: colors.card, borderColor: colors.border, marginBottom: 20 }]}>
+                        <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>{t('owner.select_role')}</Text>
+                        <View style={styles.row}>
+                            {(['Operator', 'Driver'] as const).map((role) => (
+                                <TouchableOpacity
+                                    key={role}
+                                    style={[
+                                        styles.salaryTypeButton,
+                                        { borderColor: colors.border, backgroundColor: colors.background },
+                                        formData.role === role && { borderColor: colors.primary, backgroundColor: colors.primary + '15' }
+                                    ]}
+                                    onPress={() => setFormData({ ...formData, role })}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                        <MaterialCommunityIcons
+                                            name={role === 'Operator' ? 'account-hard-hat' : 'steering'}
+                                            size={18}
+                                            color={formData.role === role ? colors.primary : colors.textMuted}
+                                        />
+                                        <Text style={[
+                                            styles.salaryTypeText,
+                                            { color: colors.textMuted },
+                                            formData.role === role && { color: colors.primary, fontWeight: '800' }
+                                        ]}>
+                                            {role === 'Operator' ? t('owner.operator') : t('owner.driver')}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     </View>
 
                     <View style={[styles.formSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -140,28 +246,100 @@ export default function AddOperatorScreen() {
                             colors={colors}
                         />
 
+                        {formData.role === 'Driver' && (
+                            <>
+                                <InputField
+                                    label={t('owner.license_number')}
+                                    icon="card-account-details-outline"
+                                    value={formData.license_number}
+                                    onChange={(text: string) => setFormData({ ...formData, license_number: text.toUpperCase() })}
+                                    error={errors.license_number}
+                                    placeholder={t('owner.license_placeholder')}
+                                    colors={colors}
+                                />
+                                <InputField
+                                    label={t('owner.assigned_vehicle', 'Assigned Vehicle (Optional)')}
+                                    icon="truck-outline"
+                                    value={formData.assigned_vehicle}
+                                    onChange={(text: string) => setFormData({ ...formData, assigned_vehicle: text })}
+                                    error={errors.assigned_vehicle}
+                                    placeholder={t('owner.assigned_vehicle_placeholder', 'e.g. JCB-001, TN-02-AB-1234')}
+                                    colors={colors}
+                                />
+                            </>
+                        )}
+
                         <View style={styles.row}>
-                            <View style={{ flex: 1 }}>
-                                <InputField
-                                    label={t('owner.district')}
-                                    icon="map-marker-outline"
-                                    value={formData.district}
-                                    onChange={(text: string) => setFormData({ ...formData, district: text })}
-                                    error={errors.district}
-                                    placeholder={t('operator.district_placeholder')}
-                                    colors={colors}
-                                />
+                            <View style={{ flex: 1, gap: 8 }}>
+                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('owner.district')}</Text>
+                                <Menu
+                                    visible={showDistrictMenu}
+                                    onDismiss={() => setShowDistrictMenu(false)}
+                                    anchor={
+                                        <TouchableOpacity
+                                            onPress={() => setShowDistrictMenu(true)}
+                                            style={[
+                                                styles.inputContainer,
+                                                { backgroundColor: colors.background, borderColor: colors.border, height: 50 },
+                                                errors.district && { borderColor: colors.danger }
+                                            ]}>
+                                            <MaterialCommunityIcons name="map-marker-outline" size={20} color={errors.district ? colors.danger : colors.textMuted} />
+                                            <Text style={{ flex: 1, paddingLeft: 10, color: formData.district ? colors.textMain : colors.textMuted, fontSize: 13 }}>
+                                                {formData.district || t('operator.district_placeholder')}
+                                            </Text>
+                                            <MaterialCommunityIcons name="chevron-down" size={20} color={colors.textMuted} style={{ paddingRight: 12 }} />
+                                        </TouchableOpacity>
+                                    }
+                                >
+                                    {districts.map(dist => (
+                                        <Menu.Item
+                                            key={dist}
+                                            onPress={() => {
+                                                setFormData({ ...formData, district: dist, taluka: '' });
+                                                setShowDistrictMenu(false);
+                                            }}
+                                            title={dist}
+                                        />
+                                    ))}
+                                </Menu>
+                                {errors.district && <Text style={[styles.errorLabel, { color: colors.danger }]}>{errors.district}</Text>}
                             </View>
-                            <View style={{ flex: 1 }}>
-                                <InputField
-                                    label={t('owner.taluka')}
-                                    icon="map-outline"
-                                    value={formData.taluka}
-                                    onChange={(text: string) => setFormData({ ...formData, taluka: text })}
-                                    error={errors.taluka}
-                                    placeholder={t('operator.taluka_placeholder')}
-                                    colors={colors}
-                                />
+                            <View style={{ flex: 1, gap: 8 }}>
+                                <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('owner.taluka')}</Text>
+                                <Menu
+                                    visible={showTalukaMenu}
+                                    onDismiss={() => setShowTalukaMenu(false)}
+                                    anchor={
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                if (formData.district) setShowTalukaMenu(true);
+                                                else Toast.show({ type: 'info', text1: 'Select District First' });
+                                            }}
+                                            style={[
+                                                styles.inputContainer,
+                                                { backgroundColor: colors.background, borderColor: colors.border, height: 50 },
+                                                errors.taluka && { borderColor: colors.danger }
+                                            ]}>
+                                            <MaterialCommunityIcons name="map-outline" size={20} color={errors.taluka ? colors.danger : colors.textMuted} />
+                                            <Text style={{ flex: 1, paddingLeft: 10, color: formData.taluka ? colors.textMain : colors.textMuted, fontSize: 13 }}>
+                                                {formData.taluka || t('operator.taluka_placeholder')}
+                                            </Text>
+                                            <MaterialCommunityIcons name="chevron-down" size={20} color={colors.textMuted} style={{ paddingRight: 12 }} />
+                                        </TouchableOpacity>
+                                    }
+                                >
+                                    {talukas.map(taluka => (
+                                        <Menu.Item
+                                            key={taluka}
+                                            onPress={() => {
+                                                setFormData({ ...formData, taluka: taluka });
+                                                setShowTalukaMenu(false);
+                                            }}
+                                            title={taluka}
+                                        />
+                                    ))}
+                                </Menu>
+                                {errors.taluka && <Text style={[styles.errorLabel, { color: colors.danger }]}>{errors.taluka}</Text>}
                             </View>
                         </View>
                     </View>
@@ -170,24 +348,33 @@ export default function AddOperatorScreen() {
                         <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>{t('owner.salary_config')}</Text>
 
                         <View style={styles.salaryTypeContainer}>
-                            <Text style={[styles.inputLabel, { color: colors.textMuted, marginBottom: 12 }]}>{t('owner.salary_type')}</Text>
                             <View style={styles.row}>
-                                {['none', 'monthly', 'daily'].map((type) => (
+                                {[
+                                    { key: 'none', label: t('owner.none'), icon: 'cash-off' },
+                                    { key: 'monthly', label: t('owner.monthly'), icon: 'calendar-month' },
+                                    { key: 'daily', label: t('owner.daily'), icon: 'calendar-today' }
+                                ].map(({ key, label, icon }) => (
                                     <TouchableOpacity
-                                        key={type}
+                                        key={key}
                                         style={[
                                             styles.salaryTypeButton,
                                             { borderColor: colors.border, backgroundColor: colors.background },
-                                            formData.salaryType === type && { borderColor: colors.primary, backgroundColor: colors.primary + '15' }
+                                            formData.salaryType === key && { borderColor: colors.primary, backgroundColor: colors.primary + '15' }
                                         ]}
-                                        onPress={() => setFormData({ ...formData, salaryType: type })}
+                                        onPress={() => setFormData({ ...formData, salaryType: key as any })}
                                     >
+                                        <MaterialCommunityIcons
+                                            name={icon as any}
+                                            size={20}
+                                            color={formData.salaryType === key ? colors.primary : colors.textMuted}
+                                            style={{ marginBottom: 4 }}
+                                        />
                                         <Text style={[
                                             styles.salaryTypeText,
                                             { color: colors.textMuted },
-                                            formData.salaryType === type && { color: colors.primary, fontWeight: '800' }
+                                            formData.salaryType === key && { color: colors.primary, fontWeight: '800' }
                                         ]}>
-                                            {t(`owner.${type}`)}
+                                            {label}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}
@@ -201,7 +388,7 @@ export default function AddOperatorScreen() {
                                 value={formData.salaryAmount}
                                 onChange={(text: string) => setFormData({ ...formData, salaryAmount: text.replace(/[^0-9]/g, '') })}
                                 error={errors.salaryAmount}
-                                placeholder={t('operator.amount_placeholder')}
+                                placeholder={formData.salaryType === 'monthly' ? 'e.g. 15000' : 'e.g. 700'}
                                 keyboardType="numeric"
                                 colors={colors}
                             />
@@ -212,8 +399,13 @@ export default function AddOperatorScreen() {
                         <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                             {isProcessing ? <ActivityIndicator color="#000" /> : (
                                 <>
-                                    <MaterialCommunityIcons name="account-check-outline" size={20} color="#000" />
-                                    <Text style={styles.submitText}>{t('owner.save_register_op')}</Text>
+                                    <MaterialCommunityIcons
+                                        name={formData.role === 'Operator' ? 'account-check' : 'card-account-details-outline'}
+                                        size={20} color="#000"
+                                    />
+                                    <Text style={styles.submitText}>
+                                        {t('owner.save_register_op')}
+                                    </Text>
                                 </>
                             )}
                         </LinearGradient>

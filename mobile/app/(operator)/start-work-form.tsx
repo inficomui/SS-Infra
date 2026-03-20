@@ -5,18 +5,17 @@ import {
     ScrollView,
     TouchableOpacity,
     Image,
-    Alert,
     KeyboardAvoidingView,
     Platform
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import {
     Text,
     TextInput,
     ActivityIndicator,
     Modal,
     Portal,
-    Searchbar,
-    Snackbar
+    Searchbar
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -40,7 +39,6 @@ export default function StartWorkForm() {
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [showClientModal, setShowClientModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     // Form States
     const [newClientName, setNewClientName] = useState('');
@@ -78,7 +76,7 @@ export default function StartWorkForm() {
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert(t('common.permission_denied'), t('operator.location_permission_msg'));
+                Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('operator.location_permission_msg') });
                 setIsLocating(false);
                 return;
             }
@@ -108,15 +106,15 @@ export default function StartWorkForm() {
                     .join(", ");
 
                 setNewLocation(formattedAddress);
-                Alert.alert(t('operator.location_found'), t('operator.site_detected_at', { address: formattedAddress }));
+                Toast.show({ type: 'info', text1: t('operator.location_found'), text2: t('operator.site_detected_at', { address: formattedAddress }) });
             } else {
                 setNewLocation(`Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`);
-                Alert.alert(t('operator.location_found'), t('operator.gps_captured'));
+                Toast.show({ type: 'info', text1: t('operator.location_found'), text2: t('operator.gps_captured') });
             }
 
         } catch (error) {
             console.error("Location Fetch Error:", error);
-            Alert.alert(t('common.error'), t('operator.loc_fetch_error'));
+            Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.loc_fetch_error') });
         } finally {
             setIsLocating(false);
         }
@@ -126,7 +124,7 @@ export default function StartWorkForm() {
         try {
             const { status } = await ImagePicker.requestCameraPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert(t('common.permission_denied'), t('owner.camera_permission'));
+                Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.camera_permission') });
                 return;
             }
 
@@ -141,7 +139,7 @@ export default function StartWorkForm() {
                 setPhotoUri(result.assets[0].uri);
             }
         } catch (error) {
-            Alert.alert(t('common.error'), t('operator.camera_error'));
+            Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.camera_error') });
         }
     };
 
@@ -152,7 +150,7 @@ export default function StartWorkForm() {
         try {
             if (isNewClient) {
                 if (!newClientName || !clientNumber || !district || !tq) {
-                    Alert.alert(t('common.error'), t('operator.missing_details_msg'));
+                    Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.missing_details_msg') });
                     return;
                 }
                 const newClientRes = await createClient({
@@ -165,23 +163,23 @@ export default function StartWorkForm() {
                 clientNameToSend = newClientRes.client.name;
             } else {
                 if (!selectedClient) {
-                    Alert.alert(t('common.error'), t('operator.select_client_msg'));
+                    Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.select_client_msg') });
                     return;
                 }
             }
 
             if (!selectedMachine) {
-                Alert.alert(t('common.error'), t('operator.machine_required_msg'));
+                Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.machine_required_msg') });
                 return;
             }
 
             if (!newLocation) {
-                Alert.alert(t('common.error'), t('operator.location_missing_msg'));
+                Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.location_missing_msg') });
                 return;
             }
 
             if (!photoUri) {
-                Alert.alert(t('common.error'), t('operator.photo_required_msg'));
+                Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.photo_required_msg') });
                 return;
             }
 
@@ -233,8 +231,7 @@ export default function StartWorkForm() {
 
         } catch (error: any) {
             const msg = error?.data?.message || error?.message || t('common.error');
-            setErrorMsg(msg);
-            Alert.alert(t('common.error'), msg);
+            Toast.show({ type: 'error', text1: t('common.error'), text2: msg });
         }
     };
 
@@ -443,18 +440,6 @@ export default function StartWorkForm() {
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
-
-            <Snackbar
-                visible={!!errorMsg}
-                onDismiss={() => setErrorMsg(null)}
-                action={{
-                    label: t('common.ok') || 'OK',
-                    onPress: () => setErrorMsg(null),
-                }}
-                style={{ backgroundColor: colors.danger }}
-            >
-                {errorMsg}
-            </Snackbar>
         </View>
     );
 }

@@ -3,27 +3,26 @@ import { CONFIG } from '@/constants/Config';
 
 export interface FuelLog {
     id: number;
-    machine_id: number;
-    operator_id: number;
-    fuel_liters: string;
-    amount: string;
-    log_date: string;
+    machineId?: number;
+    operatorId?: number;
+    fuelLiters: number | string;
+    amount: number | string;
+    logDate: string;
+    readingBeforeUrl?: string;
+    readingAfterUrl?: string;
+    createdAt: string;
+    machine?: { id: number; name: string; registrationNumber: string; registration_number?: string };
+    operator?: { id: number; name: string };
+    description?: string;
+    
+    // Fallbacks
+    machine_id?: number;
+    operator_id?: number;
+    fuel_liters?: string | number;
+    log_date?: string;
     reading_before_url?: string;
     reading_after_url?: string;
-    reading_before?: string;
-    before_reading_url?: string;
-    reading_after?: string;
-    after_reading_url?: string;
-    reading_before_path?: string;
-    before_reading_path?: string;
-    before_reading?: string;
-    reading_after_path?: string;
-    after_reading_path?: string;
-    after_reading?: string;
-    description?: string;
-    created_at: string;
-    machine?: { id: number; name: string; registration_number: string };
-    operator?: { id: number; name: string };
+    machine_name?: string;
 }
 
 export interface AddFuelLogRequest {
@@ -61,7 +60,12 @@ export const fuelApi = createApi({
     tagTypes: ['FuelLogs'],
     endpoints: (builder) => ({
         // Get Fuel Logs
-        getFuelLogs: builder.query<{ success: boolean; data: { current_page: number; last_page: number; total: number; data: FuelLog[] } }, GetFuelLogsParams>({
+        getFuelLogs: builder.query<{ 
+            success: boolean; 
+            logs: FuelLog[]; 
+            pagination?: { totalItems: number; totalPages: number; currentPage: number; limit: number };
+            data?: { data: FuelLog[]; last_page: number; current_page: number } // Temp fallback
+        }, GetFuelLogsParams>({
             query: (params) => {
                 let url = '/fuel-logs?';
                 if (params.machineId) url += `machineId=${params.machineId}&`;

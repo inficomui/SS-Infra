@@ -1,30 +1,54 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { CONFIG } from '@/constants/Config';
 
-export interface Operator {
+export interface Worker {
     id: number;
     name: string;
     mobile: string;
-    role: 'Operator';
+    role: 'Operator' | 'Driver';
     district: string;
     taluka: string;
+    license_number?: string | null;
+    assigned_vehicle?: string | null;
+    salaryType: 'daily' | 'monthly' | 'none';
+    salaryAmount: string;          // API returns as string e.g. "700.00"
     ownerId: number;
     avatar?: string | null;
     createdAt: string;
-    fixedMonthly?: string;
-    perDayWise?: string;
-    bonusAmount?: string;
 }
 
-export interface AddOperatorRequest {
+/** @deprecated Use Worker instead */
+export type Operator = Worker;
+
+export interface AddWorkerRequest {
     mobile: string;
     name: string;
     district: string;
     taluka: string;
-    fixedMonthly?: string;
-    perDayWise?: string;
-    bonusAmount?: string;
+    role: 'Operator' | 'Driver';
+    // Driver-only
+    license_number?: string;
+    assigned_vehicle?: string;
+    // Salary — use convenience OR explicit fields, not both
+    salaryType?: 'daily' | 'monthly' | 'none';
+    salaryAmount?: number;
+    fixedMonthly?: number;   // shorthand: sets salaryType=monthly automatically
+    perDayWise?: number;     // shorthand: sets salaryType=daily automatically
 }
+
+/** @deprecated Use AddWorkerRequest instead */
+export type AddOperatorRequest = AddWorkerRequest;
+
+export interface GetWorkersParams {
+    role?: 'Operator' | 'Driver';
+    search?: string;
+    district?: string;
+    taluka?: string;
+    salaryType?: 'daily' | 'monthly' | 'none';
+}
+
+/** @deprecated Use GetWorkersParams instead */
+export type GetOperatorsParams = GetWorkersParams;
 
 export interface UpdateSalaryConfigRequest {
     salaryType: 'daily' | 'monthly' | 'none';
@@ -117,15 +141,32 @@ export const ownerApi = createApi({
     baseQuery,
     tagTypes: ['Operators', 'Machines'],
     endpoints: (builder) => ({
-        // Get all operators
-        getOperators: builder.query<{ success: boolean; operators: Operator[] }, void>({
-            query: () => '/operators',
+        // Get all workers (Operators & Drivers) with optional filters
+        getOperators: builder.query<{ success: boolean; workers: Worker[] }, GetWorkersParams | void>({
+            query: (params) => {
+                let url = '/workers';
+                if (params) {
+                    const queryParts: string[] = [];
+                    if (params.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
+                    if (params.role) queryParts.push(`role=${encodeURIComponent(params.role)}`);
+                    if (params.district) queryParts.push(`district=${encodeURIComponent(params.district)}`);
+                    if (params.taluka) queryParts.push(`taluka=${encodeURIComponent(params.taluka)}`);
+                    if (params.salaryType) queryParts.push(`salaryType=${encodeURIComponent(params.salaryType)}`);
+                    if (queryParts.length > 0) url += `?${queryParts.join('&')}`;
+                }
+                return url;
+            },
+            // Map `workers` array to legacy `operators` key so existing UI doesn't break
+            transformResponse: (response: { success: boolean; workers: Worker[] }) => ({
+                ...response,
+                operators: response.workers,   // keep backward compat
+            }),
             providesTags: ['Operators'],
         }),
-        // Add new operator
-        addOperator: builder.mutation<{ success: boolean; message: string; operator: Operator }, AddOperatorRequest>({
+        // Register a new Operator or Driver
+        addOperator: builder.mutation<{ success: boolean; message: string; worker: Worker }, AddWorkerRequest>({
             query: (data) => ({
-                url: '/operators',
+                url: '/workers',
                 method: 'POST',
                 body: data,
             }),

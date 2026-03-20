@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -30,7 +31,7 @@ export default function FinishWorkScreen() {
     const handleTakePhoto = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert(t('finish_work_screen.permission_denied'), t('finish_work_screen.camera_permission'));
+            Toast.show({ type: 'error', text1: t('finish_work_screen.permission_denied'), text2: t('finish_work_screen.camera_permission') });
             return;
         }
 
@@ -49,7 +50,7 @@ export default function FinishWorkScreen() {
     const handlePickPhoto = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-            Alert.alert(t('finish_work_screen.permission_denied'), t('finish_work_screen.gallery_permission'));
+            Toast.show({ type: 'error', text1: t('finish_work_screen.permission_denied'), text2: t('finish_work_screen.gallery_permission') });
             return;
         }
 
@@ -79,12 +80,12 @@ export default function FinishWorkScreen() {
 
     const handleFinish = async () => {
         if (!photoUri) {
-            Alert.alert(t('finish_work_screen.photo_required'), t('finish_work_screen.photo_required_msg'));
+            Toast.show({ type: 'error', text1: t('finish_work_screen.photo_required'), text2: t('finish_work_screen.photo_required_msg') });
             return;
         }
 
         if (!workId) {
-            Alert.alert(t('finish_work_screen.error'), t('finish_work_screen.work_id_missing'));
+            Toast.show({ type: 'error', text1: t('finish_work_screen.error'), text2: t('finish_work_screen.work_id_missing') });
             return;
         }
 
@@ -120,7 +121,7 @@ export default function FinishWorkScreen() {
         } catch (error: any) {
             console.error("Finish Work Error:", error);
             const msg = error?.data?.message || error?.message || t('finish_work_screen.submission_failed');
-            Alert.alert(t('finish_work_screen.error'), msg);
+            Toast.show({ type: 'error', text1: t('finish_work_screen.error'), text2: msg });
         }
     };
 

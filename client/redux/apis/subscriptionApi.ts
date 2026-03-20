@@ -7,7 +7,7 @@ export interface Plan {
     name: string;
     type: string;
     durationDays?: number;
-    price?: number;
+    price?: string | number; // API returns price as string e.g. "499.00"
     features?: string[];
 }
 
@@ -53,8 +53,15 @@ export interface AssignPlanResponse {
 export interface CancelSubscriptionResponse {
     success: boolean;
     message: string;
-    subscription?: Subscription;
-    deletedSubscription?: { id: number; userId: number; userName: string };
+    subscription?: Subscription; // For soft delete (status: 'cancelled')
+    deletedSubscription?: { id: number; userId: number; userName: string }; // For hard delete
+}
+
+export interface GetUserSubscriptionsResponse {
+    success: boolean;
+    user: UserSummary;
+    subscriptions: Subscription[];
+    totalSubscriptions: number;
 }
 
 export interface GetAllSubscriptionsResponse {
@@ -69,7 +76,7 @@ export interface GetAllSubscriptionsResponse {
 }
 
 export interface GetAllSubscriptionsParams {
-    status?: string;
+    status?: 'active' | 'expired' | 'cancelled';
     planId?: number;
     limit?: number;
     page?: number;
@@ -95,10 +102,16 @@ export const subscriptionApi = createApi({
                 params,
             }),
             providesTags: ['Subscriptions'],
+            transformResponse: (response: GetAllSubscriptionsResponse) => {
+                return response;
+            },
         }),
-        getUserSubscriptions: builder.query<{ success: boolean; user: UserSummary; subscriptions: Subscription[] }, number>({
+        getUserSubscriptions: builder.query<GetUserSubscriptionsResponse, number>({
             query: (userId) => `/subscriptions/user/${userId}`,
             providesTags: (result, error, userId) => [{ type: 'UserSubscriptions', id: userId }],
+            transformResponse: (response: GetUserSubscriptionsResponse) => {
+                return response;
+            },
         }),
         assignPlan: builder.mutation<AssignPlanResponse, AssignPlanRequest>({
             query: (body) => ({
@@ -107,12 +120,15 @@ export const subscriptionApi = createApi({
                 body,
             }),
             invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
+            transformResponse: (response: AssignPlanResponse) => {
+                return response;
+            },
         }),
         cancelSubscription: builder.mutation<CancelSubscriptionResponse, { id: number, softDelete?: boolean }>({
-            query: ({ id, softDelete }) => ({
+            query: ({ id, softDelete = false }) => ({
                 url: `/subscriptions/${id}`,
                 method: 'DELETE',
-                params: { softDelete },
+                body: { softDelete }, // softDelete goes in the request body, not query params
             }),
             invalidatesTags: ['Subscriptions', 'UserSubscriptions'],
         }),

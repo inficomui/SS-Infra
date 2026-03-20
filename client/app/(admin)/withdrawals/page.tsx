@@ -60,7 +60,7 @@ export default function WithdrawalsPage() {
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-card border border-border/50 p-6 rounded-md shadow-sm">
                 <div>
                     <h1 className="text-3xl font-black text-foreground tracking-tight">Withdrawal Requests</h1>
-                    <p className="text-sm text-muted-foreground mt-1 font-medium">Manage payout requests from owners and operators.</p>
+                    <p className="text-sm text-muted-foreground mt-1 font-medium">Manage payout requests from owners, operators, and drivers.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <button

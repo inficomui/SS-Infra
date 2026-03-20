@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { Text, TextInput, Button } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAddFuelLogMutation } from '@/redux/apis/fuelApi';
 import { useGetMachinesQuery } from '@/redux/apis/ownerApi';
+import { storage } from '@/redux/storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 
@@ -23,6 +25,18 @@ export default function AddFuelLogScreen() {
     const [readingBefore, setReadingBefore] = useState<any>(null);
     const [readingAfter, setReadingAfter] = useState<any>(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
+
+    // Load pre-selected machine
+    React.useEffect(() => {
+        const loadMachine = async () => {
+            const stored = await storage.getItem('selected_machine');
+            if (stored) {
+                const machine = JSON.parse(stored);
+                setMachineId(machine.id.toString());
+            }
+        };
+        loadMachine();
+    }, []);
 
     // Mutations
     const [addFuelLog, { isLoading }] = useAddFuelLogMutation();
@@ -44,7 +58,7 @@ export default function AddFuelLogScreen() {
 
     const handleSubmit = async () => {
         if (!machineId || !fuelLiters || !amount) {
-            Alert.alert(t('common.error'), t('fuel_management.error_fill_fields'));
+            Toast.show({ type: 'error', text1: t('common.error'), text2: t('fuel_management.error_fill_fields') });
             return;
         }
 
@@ -82,10 +96,10 @@ export default function AddFuelLogScreen() {
 
         try {
             await addFuelLog(formData).unwrap();
-            Alert.alert(t('common.success'), t('fuel_management.success_msg'));
+            Toast.show({ type: 'success', text1: t('common.success'), text2: t('fuel_management.success_msg') });
             router.back();
         } catch (error: any) {
-            Alert.alert(t('common.error'), error?.data?.message || t('fuel_management.error_add_failed'));
+            Toast.show({ type: 'error', text1: t('common.error'), text2: error?.data?.message || t('fuel_management.error_add_failed') });
         }
     };
 

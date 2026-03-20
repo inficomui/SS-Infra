@@ -33,7 +33,8 @@ export const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
         );
 
         if (status === 401) {
-            // Unauthorized - Log out user
+            // Unauthorized — token has expired or is invalid.
+            // Dispatch logout which clears the redux-persist store via PURGE automatically.
             api.dispatch(logout());
 
             // Show alert for session expiry

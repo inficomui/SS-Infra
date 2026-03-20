@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, Avatar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,6 +10,7 @@ import { toggleTheme, selectThemeMode } from '@/redux/slices/themeSlice';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import { useGetMySubscriptionQuery } from '@/redux/apis/subscriptionApi';
 
 export default function OwnerProfileScreen() {
     const router = useRouter();
@@ -18,8 +20,21 @@ export default function OwnerProfileScreen() {
     const themeMode = useSelector(selectThemeMode);
     const { t } = useTranslation();
 
+    const { data: subData } = useGetMySubscriptionQuery();
+    const sub = subData?.subscription;
+    const isSubActive = subData?.isActive ?? false;
+    const subDaysLeft = Math.floor(sub?.daysRemaining ?? 0);
+    const subStatusColor = !isSubActive ? colors.danger
+        : subDaysLeft <= 7 ? colors.danger
+        : subDaysLeft <= 14 ? colors.warning
+        : colors.success;
+    const subStatusLabel = !isSubActive ? 'Inactive'
+        : sub?.status === 'expired' ? 'Expired'
+        : `${subDaysLeft}d left`;
+
     const handleLogout = () => {
         dispatch(logout());
+        // redux-persist will clear the persisted auth state automatically
         router.replace('/login');
     };
 
@@ -80,6 +95,32 @@ export default function OwnerProfileScreen() {
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile_screen.customization')}</Text>
                     <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        {/* Subscription Row */}
+                        <TouchableOpacity onPress={() => router.push('/(owner)/settings' as any)}>
+                            <View style={[styles.menuRow, { borderBottomColor: colors.border }]}>
+                                <View style={styles.menuLeft}>
+                                    <View style={[styles.iconBox, { backgroundColor: colors.background }]}>
+                                        <MaterialCommunityIcons name="crown-outline" size={22} color={subStatusColor} />
+                                    </View>
+                                    <View>
+                                        <Text style={[styles.menuLabel, { color: colors.textMain }]}>Subscription</Text>
+                                        <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '600', marginTop: 1 }}>
+                                            {sub?.plan?.name ?? 'No Active Plan'}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={styles.menuRight}>
+                                    <View style={[styles.subStatusPill, { backgroundColor: subStatusColor + '20' }]}>
+                                        <View style={[styles.subStatusDot, { backgroundColor: subStatusColor }]} />
+                                        <Text style={{ fontSize: 11, fontWeight: '800', color: subStatusColor }}>
+                                            {subStatusLabel}
+                                        </Text>
+                                    </View>
+                                    <MaterialCommunityIcons name="chevron-right" size={20} color={colors.border} />
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+
                         <MenuRow
                             icon="theme-light-dark"
                             label={t('profile_screen.dark_experience')}
@@ -208,4 +249,6 @@ const styles = StyleSheet.create({
     logoutButton: { marginTop: 40, borderRadius: 4, overflow: 'hidden' },
     logoutGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, gap: 12 },
     logoutText: { fontSize: 15, fontWeight: '800', color: '#FFF' },
+    subStatusPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20 },
+    subStatusDot: { width: 6, height: 6, borderRadius: 3 },
 });

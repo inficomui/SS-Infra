@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, Modal } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Text, ActivityIndicator, Divider, Surface } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import { CONFIG } from '@/constants/Config';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
+import ImagePreviewModal from '@/components/ui/ImagePreviewModal';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,8 +22,9 @@ export default function FuelDetailScreen() {
     const { data: logsData, isLoading } = useGetFuelLogsQuery({});
 
     const log = useMemo(() => {
-        if (!logsData?.data?.data) return null;
-        return logsData.data.data.find((l: FuelLog) => l.id.toString() === id);
+        if (!logsData) return null;
+        const list = logsData.logs || logsData.data?.data || [];
+        return list.find((l: FuelLog) => l.id.toString() === id);
     }, [logsData, id]);
 
     // Image Preview State
@@ -64,8 +66,9 @@ export default function FuelDetailScreen() {
     }
 
     // Support multiple field names for robustness
-    const beforeImage = log.reading_before_url || log.reading_before || log.before_reading_url || log.reading_before_path || log.before_reading_path || log.before_reading;
-    const afterImage = log.reading_after_url || log.reading_after || log.after_reading_url || log.reading_after_path || log.after_reading_path || log.after_reading;
+    // Support multiple field names for robustness, prioritizing camelCase
+    const beforeImage = log.readingBeforeUrl || log.reading_before_url;
+    const afterImage = log.readingAfterUrl || log.reading_after_url;
 
     const renderInfoRow = (icon: string, label: string, value: string, subValue?: string) => (
         <View style={styles.infoRow}>
@@ -82,38 +85,11 @@ export default function FuelDetailScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Full Screen Image Preview Modal */}
-            <Modal
+            <ImagePreviewModal
                 visible={previewVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setPreviewVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <TouchableOpacity
-                        style={styles.closePreviewBtn}
-                        onPress={() => setPreviewVisible(false)}
-                        activeOpacity={0.7}
-                    >
-                        <MaterialCommunityIcons name="close" size={32} color="#FFF" />
-                    </TouchableOpacity>
-
-                    {selectedImage ? (
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={styles.fullPreviewImage}
-                            resizeMode="contain"
-                        />
-                    ) : (
-                        <ActivityIndicator color="#FFF" size="large" />
-                    )}
-
-                    <View style={styles.previewFooterContent}>
-                        <Text style={styles.previewFooterLabel}>{t('fuel_management.meter_reading_details')}</Text>
-                        <Text style={styles.previewFooterHint}>{t('fuel_management.pinch_zoom')}</Text>
-                    </View>
-                </View>
-            </Modal>
+                imageUrl={selectedImage}
+                onClose={() => setPreviewVisible(false)}
+            />
 
             {/* Header */}
             <View style={styles.header}>
@@ -143,13 +119,13 @@ export default function FuelDetailScreen() {
                     <View style={styles.quickStats}>
                         <View style={styles.statItem}>
                             <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.fuel_volume')}</Text>
-                            <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuel_liters} L</Text>
+                            <Text style={[styles.statValue, { color: colors.textMain }]}>{log.fuelLiters || log.fuel_liters} L</Text>
                         </View>
                         <View style={[styles.verticalDivider, { backgroundColor: colors.border, opacity: 0.3 }]} />
                         <View style={styles.statItem}>
                             <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('fuel_management.date')}</Text>
                             <Text style={[styles.statValue, { color: colors.textMain }]}>
-                                {new Date(log.log_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                {new Date(log.logDate || log.log_date || '').toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
                             </Text>
                         </View>
                     </View>
@@ -158,11 +134,11 @@ export default function FuelDetailScreen() {
                 {/* Details Section */}
                 <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('fuel_management.transaction_details')}</Text>
                 <View style={[styles.detailsList, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    {renderInfoRow('engine', t('fuel_management.machine'), log.machine?.name || 'N/A', log.machine?.registration_number)}
+                    {renderInfoRow('engine', t('fuel_management.machine'), log.machine?.name || 'N/A', log.machine?.registrationNumber || log.machine?.registration_number)}
                     <Divider style={styles.listDivider} />
                     {renderInfoRow('account-tie', t('fuel_management.operator'), log.operator?.name || 'N/A')}
                     <Divider style={styles.listDivider} />
-                    {renderInfoRow('calendar-clock', t('fuel_management.date_time'), new Date(log.log_date).toLocaleDateString(undefined, {
+                    {renderInfoRow('calendar-clock', t('fuel_management.date_time'), new Date(log.logDate || log.log_date || '').toLocaleDateString(undefined, {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
@@ -189,7 +165,7 @@ export default function FuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: resolveImageUrl(beforeImage) }}
+                                        source={{ uri: resolveImageUrl(beforeImage) || '' }}
                                         style={styles.image}
                                         resizeMode="cover"
                                     />
@@ -216,7 +192,7 @@ export default function FuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: resolveImageUrl(afterImage) }}
+                                        source={{ uri: resolveImageUrl(afterImage) || '' }}
                                         style={styles.image}
                                         resizeMode="cover"
                                     />

@@ -6,9 +6,9 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
-    Alert,
 } from 'react-native';
 import { Text, TextInput as PaperInput, ActivityIndicator, Avatar } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -37,7 +37,7 @@ export default function OperatorEditProfileScreen() {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            Alert.alert(t('edit_profile_screen.update_success'), t('edit_profile_screen.update_success_msg'));
+            Toast.show({ type: 'success', text1: t('common.success'), text2: t('edit_profile_screen.update_success_msg') });
             router.back();
         }, 1500);
     };

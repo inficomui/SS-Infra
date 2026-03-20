@@ -7,7 +7,8 @@ import i18n from '@/utils/i18n';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
-import { useGetActiveWorkQuery, useGetWorkHistoryQuery } from '@/redux/apis/workApi';
+import { useGetMeQuery } from '@/redux/apis/authApi';
+import { useGetActiveWorkQuery, useGetWorkHistoryQuery, useGetDutyStatsQuery } from '@/redux/apis/workApi';
 import { useGetNotificationsQuery, Notification as ApiNotification } from '@/redux/apis/notificationApi';
 import { useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
@@ -43,7 +44,7 @@ export default function OperatorOverview() {
     const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
     const [showMachineModal, setShowMachineModal] = useState(false);
     const { data: machinesData, isLoading: isLoadingMachines } = useGetMachinesQuery();
-    // console.log(JSON.stringify(machinesData));
+
 
     // Active Work Query
     const {
@@ -111,6 +112,14 @@ export default function OperatorOverview() {
     // For now, let's just show completed tasks count, or maybe completed + active if meaningful.
     // Let's stick to "Tasks Done" -> Completed only.
     const tasksDoneCount = completedTasksCount;
+
+    // Additional Stats for Operator (Machine Assets)
+    const { data: statsData } = useGetDutyStatsQuery();
+    const stats = statsData?.stats;
+
+    // Profile Query
+    const { data: userData } = useGetMeQuery();
+    const user = userData?.user;
 
 
     // Load pause state from storage
@@ -297,8 +306,12 @@ export default function OperatorOverview() {
             {/* Header */}
             <View style={styles.header}>
                 <View style={{ flex: 1 }}>
-                    <Text style={[styles.greeting, { color: colors.textMain }]}>{t('overview.title')}</Text>
-                    <Text style={[styles.subtitle, { color: colors.textMuted }]}>{t('overview.subtitle')}</Text>
+                    <Text style={[styles.greeting, { color: colors.textMain }]}>
+                        {t('overview.greeting', { name: user?.name || t('overview.operator') })}
+                    </Text>
+                    <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+                        {selectedMachine ? `${selectedMachine.name} • ${selectedMachine.registration_number}` : t('overview.subtitle')}
+                    </Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
 
@@ -320,7 +333,7 @@ export default function OperatorOverview() {
                 </View>
             </View>
 
-            <ScrollView style={styles.scrollBody} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.scrollBody} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
                 <LinearGradient
                     colors={isDark ? ['#1A1A1A', '#000000'] : ['#FFFFFF', '#F3F4F6']}
@@ -438,14 +451,43 @@ export default function OperatorOverview() {
                         color={colors.primary}
                         colors={colors}
                     />
-                    <MenuIconButton
-                        icon="star-outline"
-                        label={t('overview.plans')}
-                        onPress={() => router.push('/(common)/plans' as any)}
-                        color={colors.warning}
-                        colors={colors}
-                    />
                 </View>
+
+                {/* Machine Assets Snapshot */}
+                {selectedMachine && (
+                    <View style={{ marginBottom: 30 }}>
+                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('overview.machine_assets')}</Text>
+                        <View style={{ gap: 12 }}>
+                            <TouchableOpacity
+                                style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                                onPress={() => router.push('/(operator)/fuel')}
+                            >
+                                <View style={[styles.activityIcon, { backgroundColor: colors.warning + '20' }]}>
+                                    <MaterialCommunityIcons name="gas-station" size={24} color={colors.warning} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.activityTitle, { color: colors.textMain }]}>{t('overview.fuel_logs')}</Text>
+                                    <Text style={[styles.activityTime, { color: colors.textMuted }]}>{t('overview.track_machine_pumps')}</Text>
+                                </View>
+                                <MaterialCommunityIcons name="plus-circle" size={24} color={colors.warning} onPress={() => router.push('/(operator)/fuel/add')} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                                onPress={() => router.push('/(operator)/maintenance')}
+                            >
+                                <View style={[styles.activityIcon, { backgroundColor: colors.primary + '20' }]}>
+                                    <MaterialCommunityIcons name="hammer-wrench" size={24} color={colors.primary} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.activityTitle, { color: colors.textMain }]}>{t('overview.maintenance_records')}</Text>
+                                    <Text style={[styles.activityTime, { color: colors.textMuted }]}>{t('overview.check_service_history')}</Text>
+                                </View>
+                                <MaterialCommunityIcons name="plus-circle" size={24} color={colors.primary} onPress={() => router.push('/(operator)/maintenance/add')} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
 
                 {/* History */}
                 <RecentActivity router={router} colors={colors} />
@@ -553,8 +595,8 @@ function StatItem({ icon, label, value, colors, loading }: any) {
 
 function RecentActivity({ router, colors }: any) {
     const { t } = useTranslation();
-    const { data, isLoading, refetch } = useGetWorkHistoryQuery({ page: 1, limit: 1 });
-    const latestWork = data?.workSessions?.[0];
+    const { data, isLoading, refetch } = useGetWorkHistoryQuery({ page: 1, limit: 5 });
+    const workSessions = data?.workSessions || [];
 
     useFocusEffect(
         useCallback(() => {
@@ -563,7 +605,7 @@ function RecentActivity({ router, colors }: any) {
     );
 
     return (
-        <View>
+        <View style={{ marginBottom: 30 }}>
             <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('overview.recent_activity')}</Text>
                 <TouchableOpacity onPress={() => router.push('/(operator)/work-log')}>
@@ -575,25 +617,34 @@ function RecentActivity({ router, colors }: any) {
                 <View style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border, justifyContent: 'center', height: 80 }]}>
                     <ActivityIndicator color={colors.primary} />
                 </View>
-            ) : latestWork ? (
-                <TouchableOpacity
-                    style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-                    onPress={() => router.push({
-                        pathname: '/(operator)/work-details',
-                        params: { id: latestWork.id }
-                    })}
-                >
-                    <View style={[styles.activityIcon, { backgroundColor: colors.success + '20' }]}>
-                        <MaterialCommunityIcons name="check-circle" size={24} color={colors.success} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={[styles.activityTitle, { color: colors.textMain }]}>{latestWork.clientName}</Text>
-                        <Text style={[styles.activityTime, { color: colors.textMuted }]}>
-                            {formatDate(latestWork.createdAt)} • {formatDuration(latestWork.totalHours || 0)} {t('operator.logged')}
-                        </Text>
-                    </View>
-                    <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
-                </TouchableOpacity>
+            ) : workSessions.length > 0 ? (
+                <View style={{ gap: 12 }}>
+                    {workSessions.map((latestWork: any) => (
+                        <TouchableOpacity
+                            key={latestWork.id}
+                            style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                            onPress={() => router.push({
+                                pathname: '/(operator)/work-details',
+                                params: { id: latestWork.id }
+                            })}
+                        >
+                            <View style={[styles.activityIcon, { backgroundColor: (latestWork.status === 'completed' ? colors.success : colors.primary) + '20' }]}>
+                                <MaterialCommunityIcons
+                                    name={latestWork.status === 'completed' ? "check-circle" : "clock-outline"}
+                                    size={24}
+                                    color={latestWork.status === 'completed' ? colors.success : colors.primary}
+                                />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.activityTitle, { color: colors.textMain }]} numberOfLines={1}>{latestWork.clientName}</Text>
+                                <Text style={[styles.activityTime, { color: colors.textMuted }]}>
+                                    {formatDate(latestWork.createdAt)} • {formatDuration(latestWork.totalHours || 0)} {t('overview.logged')}
+                                </Text>
+                            </View>
+                            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />
+                        </TouchableOpacity>
+                    ))}
+                </View>
             ) : (
                 <View style={[styles.activityCard, { backgroundColor: colors.card, borderColor: colors.border, padding: 24, justifyContent: 'center' }]}>
                     <Text style={{ color: colors.textMuted, textAlign: 'center' }}>{t('overview.no_recent_activity')}</Text>
@@ -621,11 +672,11 @@ const styles = StyleSheet.create({
     subtitle: { fontSize: 13, fontWeight: '500' },
     profileCircle: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     scrollBody: { flex: 1, paddingHorizontal: 24 },
-    statusCard: { borderRadius: 4, padding: 24, marginTop: 10, marginBottom: 30 },
+    statusCard: { borderRadius: 16, padding: 24, marginTop: 10, marginBottom: 24 },
     statusHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
     statusLabel: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
     statusValue: { fontSize: 20, fontWeight: '900', marginTop: 4 },
-    statusBadgeContainer: { flexDirection: 'row', alignItems: 'center', borderRadius: 4, paddingHorizontal: 12, paddingVertical: 6, gap: 6 },
+    statusBadgeContainer: { flexDirection: 'row', alignItems: 'center', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, gap: 6 },
     statusIndicatorDot: { width: 8, height: 8, borderRadius: 4 },
     statusBadgeText: { fontWeight: '900', fontSize: 11, letterSpacing: 0.5 },
     timerContainer: { alignItems: 'center', marginVertical: 30 },
@@ -641,22 +692,22 @@ const styles = StyleSheet.create({
     statDivider: { width: 1, height: 30 },
     sectionTitle: { fontSize: 18, fontWeight: '900', marginBottom: 16 },
     menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 30 },
-    menuItem: { width: (width - 60) / 2, borderRadius: 4, padding: 20, alignItems: 'center', borderWidth: 1 },
-    menuIconBox: { width: 56, height: 56, borderRadius: 4, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+    menuItem: { width: (width - 60) / 2, borderRadius: 12, padding: 20, alignItems: 'center', borderWidth: 1 },
+    menuIconBox: { width: 56, height: 56, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
     menuLabel: { fontSize: 14, fontWeight: '800' },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    activityCard: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 4, borderWidth: 1, gap: 16 },
-    activityIcon: { width: 48, height: 48, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    activityCard: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, borderWidth: 1, gap: 16 },
+    activityIcon: { width: 48, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     activityTitle: { fontSize: 15, fontWeight: '800' },
     activityTime: { fontSize: 12, fontWeight: '600', marginTop: 2 },
     bottomBar: { position: 'absolute', bottom: 0, width: '100%', padding: 24, borderTopWidth: 1 },
-    startBtn: { height: 64, borderRadius: 4, overflow: 'hidden' },
+    startBtn: { height: 64, borderRadius: 16, overflow: 'hidden' },
     gradient: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
     startBtnText: { color: '#000', fontWeight: '900', fontSize: 16, letterSpacing: 1 },
     activeControls: { flexDirection: 'row', gap: 12, height: 64 },
     controlBtn: { flex: 1, borderRadius: 4, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
     controlText: { fontWeight: '900', fontSize: 14 },
-    finishBtn: { flex: 1.5, borderRadius: 4, overflow: 'hidden' },
+    finishBtn: { flex: 1.5, borderRadius: 16, overflow: 'hidden' },
 
     // Machine Card Styles
     machineCard: { padding: 16, borderRadius: 4, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 30 },

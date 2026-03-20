@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, Avatar } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -42,6 +43,7 @@ export default function OperatorProfileScreen() {
 
     const handleLogout = () => {
         dispatch(logout());
+        // redux-persist will clear the persisted auth state automatically
         router.replace('/login');
     };
 

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, Modal } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
 import { formatDate } from '../../../utils/formatters';
+import ImagePreviewModal from '@/components/ui/ImagePreviewModal';
 
 const { width } = Dimensions.get('window');
 
@@ -45,46 +46,21 @@ export default function MaintenanceDetailsScreen() {
         );
     }
 
-    const { machine, service_date, service_type, cost, description, mechanic_name } = record;
+    const { machine, serviceDate, service_date, serviceType, service_type, cost, description, mechanic_name } = record;
+    const resolvedServiceDate = serviceDate || service_date || '';
+    const resolvedServiceType = serviceType || service_type;
 
-    // Robust field access for images
-    const serviceImg = record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
-    const invoiceImg = record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path;
+    // Robust field access for images, prioritizing camelCase
+    const serviceImg = record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
+    const invoiceImg = record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path;
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Full Screen Image Preview Modal */}
-            <Modal
+            <ImagePreviewModal
                 visible={previewVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setPreviewVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <TouchableOpacity
-                        style={styles.closePreviewBtn}
-                        onPress={() => setPreviewVisible(false)}
-                        activeOpacity={0.7}
-                    >
-                        <MaterialCommunityIcons name="close" size={32} color="#FFF" />
-                    </TouchableOpacity>
-
-                    {selectedImage ? (
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={styles.fullPreviewImage}
-                            resizeMode="contain"
-                        />
-                    ) : (
-                        <ActivityIndicator color="#FFF" size="large" />
-                    )}
-
-                    <View style={styles.previewFooterContent}>
-                        <Text style={styles.previewFooterLabel}>{t('maintenance_records.details_title')}</Text>
-                        <Text style={styles.previewFooterHint}>{t('fuel_management.pinch_zoom')}</Text>
-                    </View>
-                </View>
-            </Modal>
+                imageUrl={selectedImage}
+                onClose={() => setPreviewVisible(false)}
+            />
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
@@ -103,7 +79,7 @@ export default function MaintenanceDetailsScreen() {
                         </View>
                         <View>
                             <Text style={[styles.machineName, { color: colors.textMain }]}>{machine?.name || t('maintenance_records.unknown_machine')}</Text>
-                            <Text style={[styles.dateText, { color: colors.textMuted }]}>{formatDate(service_date)}</Text>
+                            <Text style={[styles.dateText, { color: colors.textMuted }]}>{formatDate(resolvedServiceDate)}</Text>
                         </View>
                     </View>
                 </View>
@@ -116,7 +92,7 @@ export default function MaintenanceDetailsScreen() {
                     </View>
                     <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.service_type')}</Text>
-                        <Text style={[styles.typeText, { color: colors.textMain }]}>{service_type}</Text>
+                        <Text style={[styles.typeText, { color: colors.textMain }]}>{resolvedServiceType}</Text>
                     </View>
                 </View>
 
@@ -139,7 +115,7 @@ export default function MaintenanceDetailsScreen() {
                             style={[styles.imageWrapper, { borderColor: colors.border }]}
                         >
                             <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>{t('maintenance_records.service_photo')}</Text>
-                            <Image source={{ uri: resolveImageUrl(serviceImg) }} style={styles.fullImage} resizeMode="cover" />
+                            <Image source={{ uri: resolveImageUrl(serviceImg) || '' }} style={styles.fullImage} resizeMode="cover" />
                             <View style={styles.magnifyIcon}>
                                 <MaterialCommunityIcons name="magnify-plus" size={20} color="#FFF" />
                             </View>
@@ -158,7 +134,7 @@ export default function MaintenanceDetailsScreen() {
                             style={[styles.imageWrapper, { borderColor: colors.border, marginTop: 16 }]}
                         >
                             <Text style={[styles.imageLabel, { backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff' }]}>{t('maintenance_records.invoice_photo')}</Text>
-                            <Image source={{ uri: resolveImageUrl(invoiceImg) }} style={styles.fullImage} resizeMode="cover" />
+                            <Image source={{ uri: resolveImageUrl(invoiceImg) || '' }} style={styles.fullImage} resizeMode="cover" />
                             <View style={styles.magnifyIcon}>
                                 <MaterialCommunityIcons name="magnify-plus" size={20} color="#FFF" />
                             </View>

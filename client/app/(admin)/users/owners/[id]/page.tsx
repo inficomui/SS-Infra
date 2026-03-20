@@ -14,7 +14,7 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
     const router = useRouter()
     const { data, isLoading, error, refetch } = useGetOwnerDetailsQuery(id)
 
-    const [activeTab, setActiveTab] = useState<'overview' | 'machines' | 'operators' | 'referrals'>('overview')
+    const [activeTab, setActiveTab] = useState<'overview' | 'machines' | 'personnel' | 'referrals'>('overview')
     const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false)
 
     if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin h-10 w-10 text-blue-600" /></div>
@@ -128,7 +128,7 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                     { label: 'Machines Fleet', value: stats?.totalMachines || 0, icon: Truck, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
-                    { label: 'Active Operators', value: stats?.totalOperators || 0, icon: Users, color: 'text-emerald-500', bgColor: 'bg-emerald-500/10' },
+                    { label: 'Active Personnel', value: stats?.totalOperators || 0, icon: Users, color: 'text-emerald-500', bgColor: 'bg-emerald-500/10' },
                     { label: 'Works Executed', value: stats?.totalWorkSessions || 0, icon: Activity, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
                     { label: 'Growth Network', value: stats?.totalReferrals || 0, icon: Network, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
                 ].map((stat, idx) => (
@@ -156,7 +156,7 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
 
             {/* Navigation Tabs */}
             <div className="bg-card border border-border/50 p-1 rounded-md shadow-sm flex items-center max-w-fit overflow-x-auto no-scrollbar">
-                {['overview', 'machines', 'operators', 'referrals'].map((tab) => (
+                {['overview', 'machines', 'personnel', 'referrals'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab as any)}
@@ -174,7 +174,7 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                             />
                         )}
-                        <span className="relative z-10">{tab}</span>
+                        <span className="relative z-10">{tab === 'personnel' ? 'Operators & Drivers' : tab}</span>
                     </button>
                 ))}
             </div>
@@ -297,9 +297,9 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
                         </motion.div>
                     )}
 
-                    {activeTab === 'operators' && (
+                    {activeTab === 'personnel' && (
                         <motion.div
-                            key="operators"
+                            key="personnel"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
@@ -313,7 +313,17 @@ export default function OwnerDetailsPage({ params }: { params: Promise<{ id: str
                                             {op.name?.[0]}
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-black text-foreground tracking-tight text-lg">{op.name}</h4>
+                                            <div className="flex items-center gap-3">
+                                                <h4 className="font-black text-foreground tracking-tight text-lg">{op.name}</h4>
+                                                <span className={clsx(
+                                                    "px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-md border",
+                                                    op.role === 'Driver' 
+                                                        ? "bg-blue-500/10 text-blue-600 border-blue-500/20"
+                                                        : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                                )}>
+                                                    {op.role || 'Operator'}
+                                                </span>
+                                            </div>
                                             <p className="text-sm font-bold text-muted-foreground opacity-60 flex items-center gap-2 mt-1">
                                                 <Phone className="h-3 w-3" /> {op.mobile}
                                             </p>

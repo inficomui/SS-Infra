@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const navItems = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { name: 'Owners', href: '/users/owners', icon: Users },
-        { name: 'Operators', href: '/users/operators', icon: User },
+        { name: 'Operators & Drivers', href: '/users/operators', icon: User },
         { name: 'Plans', href: '/plans', icon: CreditCard },
         { name: 'Subscriptions', href: '/subscriptions', icon: ClipboardList },
         { name: 'Withdrawals', href: '/withdrawals', icon: Wallet },

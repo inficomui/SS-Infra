@@ -26,7 +26,8 @@ export default function OperatorsPage() {
         mobile: '',
         district: '',
         taluka: '',
-        referralCode: ''
+        referralCode: '',
+        role: 'Operator'
     })
 
     const [createOperator, { isLoading: isCreating }] = useCreateOperatorMutation()
@@ -51,7 +52,8 @@ export default function OperatorsPage() {
             mobile: operator.mobile,
             district: operator.district,
             taluka: operator.taluka,
-            referralCode: operator.referralCode || ''
+            referralCode: operator.referralCode || '',
+            role: operator.role || 'Operator'
         })
         setIsModalOpen(true)
     }
@@ -83,7 +85,7 @@ export default function OperatorsPage() {
                 toast.success('Operator created successfully')
             }
             setIsModalOpen(false)
-            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '' })
+            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '', role: 'Operator' })
             setEditingOperator(null)
         } catch (err: any) {
             console.error('Failed to save operator:', err)
@@ -100,7 +102,7 @@ export default function OperatorsPage() {
     const closeModal = () => {
         setIsModalOpen(false)
         setEditingOperator(null)
-        setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '' })
+        setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '', role: 'Operator' })
     }
 
     const operators = data?.operators || []
@@ -115,8 +117,8 @@ export default function OperatorsPage() {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card border border-border/50 p-6 rounded-md shadow-sm">
                 <div>
-                    <h2 className="text-2xl font-bold text-foreground tracking-tight">Operators Management</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Manage field operators and their assignments</p>
+                    <h2 className="text-2xl font-bold text-foreground tracking-tight">Operators & Drivers</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Manage field operators, drivers and their assignments</p>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -148,13 +150,13 @@ export default function OperatorsPage() {
                     <button
                         onClick={() => {
                             setEditingOperator(null)
-                            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '' })
+                            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '', role: 'Operator' })
                             setIsModalOpen(true)
                         }}
                         className="flex items-center px-5 py-2.5 bg-primary text-primary-foreground font-medium rounded-md hover:opacity-90 transition-all shadow-lg shadow-primary/25 shrink-0"
                     >
                         <Plus className="h-5 w-5 mr-2" />
-                        Add Operator
+                        Add User
                     </button>
                 </div>
             </div>
@@ -170,7 +172,8 @@ export default function OperatorsPage() {
                         <table className="min-w-full divide-y divide-border/50">
                             <thead className="bg-muted/30">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Operator Details</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">User Details</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Location</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Referral</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Assigned Owner</th>
@@ -213,6 +216,16 @@ export default function OperatorsPage() {
                                                     </div>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={clsx(
+                                                "inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium border uppercase tracking-wider",
+                                                operator.role === 'Driver'
+                                                    ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
+                                                    : "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800"
+                                            )}>
+                                                {operator.role || 'Operator'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col">
@@ -331,9 +344,9 @@ export default function OperatorsPage() {
                             >
                                 <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
                                     <div>
-                                        <h3 className="text-xl font-bold text-foreground">{editingOperator ? 'Edit Operator' : 'Add New Operator'}</h3>
+                                        <h3 className="text-xl font-bold text-foreground">{editingOperator ? 'Edit User' : 'Add New User'}</h3>
                                         <p className="text-sm text-muted-foreground mt-1">
-                                            {editingOperator ? 'Update operator details' : 'Enter the details for the new operator.'}
+                                            {editingOperator ? 'Update details' : 'Enter the details for the new operator or driver.'}
                                         </p>
                                     </div>
                                     <button onClick={closeModal} className="text-muted-foreground hover:text-foreground p-2 hover:bg-muted rounded-md transition-colors">
@@ -371,6 +384,24 @@ export default function OperatorsPage() {
                                                     value={formData.mobile}
                                                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                                                 />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-foreground">Role</label>
+                                            <div className="relative">
+                                                <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <select
+                                                    value={formData.role}
+                                                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                                    className="block w-full pl-10 pr-3 py-2.5 bg-muted/50 border border-transparent rounded-md text-sm focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
+                                                >
+                                                    <option value="Operator">Operator</option>
+                                                    <option value="Driver">Driver</option>
+                                                </select>
+                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground">
+                                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -431,7 +462,7 @@ export default function OperatorsPage() {
                                             className="px-5 py-2.5 bg-primary text-primary-foreground rounded-md shadow-lg shadow-primary/25 text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 flex items-center"
                                         >
                                             {(isCreating || isUpdating) && <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />}
-                                            {editingOperator ? 'Update Operator' : 'Create Operator'}
+                                            {editingOperator ? 'Update' : 'Create'}
                                         </button>
                                     </div>
                                 </form>
