@@ -6,6 +6,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGenerateBillMutation } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
+import { resolveImageUrl } from '../../utils/formatters';
 
 export default function CreateBillScreen() {
     const router = useRouter();
@@ -118,7 +119,7 @@ export default function CreateBillScreen() {
 
                 {params.afterWorkPhoto && (
                     <View style={[styles.photoStatus, { backgroundColor: colors.success + '10', borderColor: colors.success + '30' }]}>
-                        <Image source={{ uri: params.afterWorkPhoto as string }} style={styles.photoThumb} />
+                        <Image source={{ uri: resolveImageUrl(params.afterWorkPhoto as string) }} style={styles.photoThumb} />
                         <View>
                             <Text style={[styles.statusTitle, { color: colors.success }]}>{t('create_bill_screen.work_verified')}</Text>
                             <Text style={[styles.statusSub, { color: colors.textMuted }]}>{t('create_bill_screen.proof_attached')}</Text>

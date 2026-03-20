@@ -6,7 +6,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { formatDate } from '../../../utils/formatters';
+import { formatDate, resolveImageUrl } from '@/utils/formatters';
+import { CONFIG } from '@/constants/Config';
+import { Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 export default function OwnerFuelLogsScreen() {
@@ -91,8 +93,16 @@ export default function OwnerFuelLogsScreen() {
         >
             <View style={styles.cardHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
-                    <View style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}>
-                        <MaterialCommunityIcons name="gas-station" size={24} color={colors.primary} />
+                    <View style={[styles.iconBox, { backgroundColor: colors.primary + '15', overflow: 'hidden' }]}>
+                        {((log.readingBeforeUrl || log.reading_before_url) || (log.readingAfterUrl || log.reading_after_url)) ? (
+                            <Image 
+                                source={{ uri: resolveImageUrl(log.readingBeforeUrl || log.reading_before_url || log.readingAfterUrl || log.reading_after_url) }} 
+                                style={{ width: '100%', height: '100%' }}
+                                resizeMode="cover"
+                            />
+                        ) : (
+                            <MaterialCommunityIcons name="gas-station" size={24} color={colors.primary} />
+                        )}
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>

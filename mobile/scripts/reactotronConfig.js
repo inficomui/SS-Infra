@@ -30,9 +30,9 @@ const configureReactotron = (appName = 'React Native App', useRedux = true) => {
         networking: {
           ignoreUrls: /symbolicate/, // Ignore metro symbolicate requests
         },
-        editor: false, 
+        editor: false,
         errors: { veto: (stackFrame) => false }, // let everything through
-        overlay: false, 
+        overlay: false,
       });
 
     if (useRedux) {
@@ -40,11 +40,9 @@ const configureReactotron = (appName = 'React Native App', useRedux = true) => {
     }
 
     reactotron.connect();
-    
+
     // Clear logs on start
     Reactotron.clear?.();
-    
-    console.log('Reactotron Configured:', appName);
   }
 
   return reactotron;

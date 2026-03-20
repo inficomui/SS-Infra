@@ -142,7 +142,7 @@ export const ownerApi = createApi({
     tagTypes: ['Operators', 'Machines'],
     endpoints: (builder) => ({
         // Get all workers (Operators & Drivers) with optional filters
-        getOperators: builder.query<{ success: boolean; workers: Worker[] }, GetWorkersParams | void>({
+        getOperators: builder.query<{ success: boolean; workers: Worker[]; operators: Worker[] }, GetWorkersParams | void>({
             query: (params) => {
                 let url = '/workers';
                 if (params) {
@@ -212,6 +212,9 @@ export const ownerApi = createApi({
         getMachines: builder.query<{ success: boolean; machines: Machine[] }, void>({
             query: () => '/machines',
             providesTags: ['Machines'],
+            transformResponse: (response: any) => {
+                return response;
+            },
         }),
         // Add new machine
         addMachine: builder.mutation<{ success: boolean; message: string; machine: Machine }, FormData>({

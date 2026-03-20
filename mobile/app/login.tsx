@@ -84,11 +84,20 @@ export default function LoginScreen() {
             return;
         }
         try {
+            console.log("Sending OTP for mobile:", cleanMobile);
             const response: any = await sendOtp({ mobile: cleanMobile }).unwrap();
+            console.log("Send OTP Success Response:", JSON.stringify(response, null, 2));
+
             if (response?.success) {
                 setIsOtpSent(true);
                 if (response.devOtp) setDevOtp(response.devOtp);
                 Toast.show({ type: 'success', text1: t('auth.otp_success') });
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: t('auth.otp_failed'),
+                    text2: response?.message || t('common.error')
+                });
             }
         } catch (error: any) {
             console.error("Send OTP Catch Error:", JSON.stringify(error, null, 2));
@@ -106,7 +115,9 @@ export default function LoginScreen() {
             Keyboard.dismiss();
             try {
                 const cleanMobile = mobileNumber.replace(/[^0-9]/g, '');
+                console.log("Verifying OTP for mobile:", cleanMobile, "OTP:", otp);
                 const response = await verifyOtp({ mobile: cleanMobile, otp }).unwrap();
+                console.log("Verify OTP Success Response:", JSON.stringify(response, null, 2));
 
                 // Extract token and user, handling potential nesting
                 const token = (response as any).token || (response as any).data?.token;
@@ -135,6 +146,7 @@ export default function LoginScreen() {
                     }
                 } else {
                     // Show error message from backend if available, otherwise default to login_failed
+                    console.log("Verify OTP - Credentials missing in response although status was successful");
                     const errorMessage = (response as any).message || (response as any).data?.message || t('common.error');
                     Toast.show({
                         type: 'error',

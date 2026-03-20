@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert, Platform } from 'react-native';
 import { Text, TextInput, Button, Menu } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -35,8 +35,8 @@ export default function AddMaintenanceScreen() {
 
     const pickImage = async (type: 'service' | 'invoice') => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: false,
+            mediaTypes: ['images'],
+            allowsEditing: true,
             aspect: [4, 3],
             quality: 0.5,
         });
@@ -53,28 +53,57 @@ export default function AddMaintenanceScreen() {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('machine_id', machineId);
-        formData.append('service_type', serviceType);
-        formData.append('cost', cost);
-        formData.append('service_date', serviceDate.toISOString().split('T')[0]);
-        formData.append('description', description);
+            const formData = new FormData();
+            
+            // Send both camelCase and snake_case for maximum compatibility
+            formData.append('machineId', machineId);
+            formData.append('machine_id', machineId);
+            
+            formData.append('serviceType', serviceType);
+            formData.append('service_type', serviceType);
+            
+            formData.append('cost', cost);
+            formData.append('description', description);
+            
+            const dateStr = serviceDate.toISOString().split('T')[0];
+            formData.append('serviceDate', dateStr);
+            formData.append('service_date', dateStr);
 
-        if (serviceImage) {
-            formData.append('service_image', {
-                uri: serviceImage.uri,
-                type: 'image/jpeg',
-                name: 'service_photo.jpg',
-            } as any);
-        }
+            if (serviceImage) {
+                const filename = serviceImage.uri.split('/').pop() || 'service_photo.jpg';
+                const match = /\.(\w+)$/.exec(filename);
+                const type = match ? `image/${match[1]}` : `image/jpeg`;
+                
+                // Clean URI for different platforms
+                const cleanUri = Platform.OS === 'ios' ? serviceImage.uri.replace('file://', '') : serviceImage.uri;
+                
+                const fileObj = {
+                    uri: cleanUri,
+                    type: type,
+                    name: filename,
+                };
+                
+                formData.append('serviceImage', fileObj as any);
+                formData.append('service_image', fileObj as any);
+            }
 
-        if (invoiceImage) {
-            formData.append('invoice_image', {
-                uri: invoiceImage.uri,
-                type: 'image/jpeg',
-                name: 'invoice_photo.jpg',
-            } as any);
-        }
+            if (invoiceImage) {
+                const filename = invoiceImage.uri.split('/').pop() || 'invoice.jpg';
+                const match = /\.(\w+)$/.exec(filename);
+                const type = match ? `image/${match[1]}` : `image/jpeg`;
+                
+                // Clean URI for different platforms
+                const cleanUri = Platform.OS === 'ios' ? invoiceImage.uri.replace('file://', '') : invoiceImage.uri;
+                
+                const fileObj = {
+                    uri: cleanUri,
+                    type: type,
+                    name: filename,
+                };
+                
+                formData.append('invoiceImage', fileObj as any);
+                formData.append('invoice_image', fileObj as any);
+            }
 
         try {
             await addMaintenance(formData).unwrap();

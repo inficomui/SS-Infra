@@ -78,7 +78,11 @@ export default function MaintenanceRecordsScreen() {
     };
 
     const renderItem = ({ item: record }: { item: any }) => {
-        const photo = record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
+        const photo = record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
+        const invoicePhoto = record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path;
+        const serviceDate = record.serviceDate || record.service_date;
+        const serviceType = record.serviceType || record.service_type;
+
         return (
             <TouchableOpacity
                 onPress={() => router.push({ pathname: '/(owner)/maintenance/[id]', params: { id: record.id, data: JSON.stringify(record) } })}
@@ -98,7 +102,7 @@ export default function MaintenanceRecordsScreen() {
                         </TouchableOpacity>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.machineName, { color: colors.textMain }]} numberOfLines={1}>{record.machine?.name || t('maintenance_records.unknown_machine')}</Text>
-                            <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(record.service_date)}</Text>
+                            <Text style={[styles.subText, { color: colors.textMuted }]}>{formatDate(serviceDate)}</Text>
                         </View>
                     </View>
                     <Text style={[styles.amountText, { color: colors.textMain }]}>₹{record.cost}</Text>
@@ -107,7 +111,7 @@ export default function MaintenanceRecordsScreen() {
                 <View style={[styles.statsRow, { borderColor: colors.border }]}>
                     <View style={styles.statItem}>
                         <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.service_type')}</Text>
-                        <Text style={[styles.statValue, { color: colors.textMain }]}>{record.service_type || ''}</Text>
+                        <Text style={[styles.statValue, { color: colors.textMain }]}>{serviceType || ''}</Text>
                     </View>
                     <View style={[styles.divider, { backgroundColor: colors.border }]} />
                     <View style={styles.statItem}>
@@ -118,7 +122,7 @@ export default function MaintenanceRecordsScreen() {
                             ) : (
                                 <MaterialCommunityIcons name="camera-off" size={18} color={colors.textMuted} />
                             )}
-                            {(record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) ? (
+                            {invoicePhoto ? (
                                 <MaterialCommunityIcons name="file-document" size={18} color={colors.success} />
                             ) : (
                                 <MaterialCommunityIcons name="file-document-outline" size={18} color={colors.textMuted} />

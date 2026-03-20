@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Platform } from 'react-native';
 import { Text, TextInput, Button, Menu } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
@@ -46,7 +46,7 @@ export default function DriverAddMaintenanceScreen() {
 
     const pickImage = async (type: 'service' | 'invoice') => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [4, 3],
             quality: 0.5,
@@ -64,24 +64,55 @@ export default function DriverAddMaintenanceScreen() {
         }
 
         const formData = new FormData();
+        
+        // Send both camelCase and snake_case for maximum compatibility
+        formData.append('machineId', machineId);
         formData.append('machine_id', machineId);
+        
+        formData.append('serviceType', serviceType);
         formData.append('service_type', serviceType);
+        
         formData.append('cost', cost);
-        formData.append('service_date', serviceDate.toISOString().split('T')[0]);
         formData.append('description', description);
+        
+        const dateStr = serviceDate.toISOString().split('T')[0];
+        formData.append('serviceDate', dateStr);
+        formData.append('service_date', dateStr);
 
         if (serviceImage) {
             const filename = serviceImage.uri.split('/').pop() || 'service_photo.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-            formData.append('service_image', { uri: serviceImage.uri, type: type, name: filename } as any);
+            
+            // Clean URI for different platforms
+            const cleanUri = Platform.OS === 'ios' ? serviceImage.uri.replace('file://', '') : serviceImage.uri;
+            
+            const fileObj = {
+                uri: cleanUri,
+                type: type,
+                name: filename,
+            };
+            
+            formData.append('serviceImage', fileObj as any);
+            formData.append('service_image', fileObj as any);
         }
 
         if (invoiceImage) {
-            const filename = invoiceImage.uri.split('/').pop() || 'invoice_photo.jpg';
+            const filename = invoiceImage.uri.split('/').pop() || 'invoice.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-            formData.append('invoice_image', { uri: invoiceImage.uri, type: type, name: filename } as any);
+            
+            // Clean URI for different platforms
+            const cleanUri = Platform.OS === 'ios' ? invoiceImage.uri.replace('file://', '') : invoiceImage.uri;
+            
+            const fileObj = {
+                uri: cleanUri,
+                type: type,
+                name: filename,
+            };
+            
+            formData.append('invoiceImage', fileObj as any);
+            formData.append('invoice_image', fileObj as any);
         }
 
         try {

@@ -7,8 +7,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useRecordPaymentMutation } from '@/redux/apis/workApi';
-import { formatDate, formatDuration } from '../../utils/formatters';
+import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function InvoicePreviewScreen() {
     const router = useRouter();
@@ -33,8 +34,10 @@ export default function InvoicePreviewScreen() {
     const [recordPayment, { isLoading: isRecording }] = useRecordPaymentMutation();
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentAmount, setPaymentAmount] = useState(totalAmount);
-    const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
-    const [nextPaymentDate, setNextPaymentDate] = useState('');
+    const [paymentDate, setPaymentDate] = useState(new Date());
+    const [nextPaymentDate, setNextPaymentDate] = useState<Date | null>(null);
+    const [showPaymentDatePicker, setShowPaymentDatePicker] = useState(false);
+    const [showNextPaymentDatePicker, setShowNextPaymentDatePicker] = useState(false);
     const [paymentNotes, setPaymentNotes] = useState('');
     const [paymentStatus, setPaymentStatus] = useState<'pending' | 'partially_paid' | 'paid'>('pending');
     const [paidAmount, setPaidAmount] = useState(0);
@@ -110,8 +113,8 @@ export default function InvoicePreviewScreen() {
             const result = await recordPayment({
                 invoiceId,
                 amount,
-                paymentDate,
-                nextPaymentDate: nextPaymentDate || undefined,
+                paymentDate: paymentDate.toISOString().split('T')[0],
+                nextPaymentDate: nextPaymentDate ? nextPaymentDate.toISOString().split('T')[0] : undefined,
                 notes: paymentNotes
             }).unwrap();
 
@@ -246,7 +249,7 @@ export default function InvoicePreviewScreen() {
                         <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('invoice_preview_screen.work_proof')}</Text>
                         <View style={styles.imageContainer}>
                             <Image
-                                source={{ uri: photoUri }}
+                                source={{ uri: resolveImageUrl(photoUri) }}
                                 style={styles.proofImage}
                                 resizeMode="cover"
                             />
@@ -337,24 +340,39 @@ export default function InvoicePreviewScreen() {
 
                             <View style={styles.inputGroup}>
                                 <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('invoice_preview_screen.payment_date')}</Text>
-                                <TextInput
-                                    style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card }]}
-                                    value={paymentDate}
-                                    onChangeText={setPaymentDate}
-                                    placeholder={t('invoice_preview_screen.date_format_placeholder')}
-                                    placeholderTextColor={colors.textMuted}
-                                />
+                                <TouchableOpacity
+                                    onPress={() => setShowPaymentDatePicker(true)}
+                                    style={[styles.dateInput, { borderColor: colors.border, backgroundColor: colors.card }]}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                                        <MaterialCommunityIcons name="calendar" size={20} color={colors.primary} />
+                                        <Text style={{ color: colors.textMain, fontWeight: '600' }}>{formatDate(paymentDate)}</Text>
+                                    </View>
+                                    <MaterialCommunityIcons name="chevron-down" size={20} color={colors.textMuted} />
+                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.inputGroup}>
                                 <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('invoice_preview_screen.next_payment_date')}</Text>
-                                <TextInput
-                                    style={[styles.input, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.card }]}
-                                    value={nextPaymentDate}
-                                    onChangeText={setNextPaymentDate}
-                                    placeholder={t('invoice_preview_screen.date_format_placeholder')}
-                                    placeholderTextColor={colors.textMuted}
-                                />
+                                <TouchableOpacity
+                                    onPress={() => setShowNextPaymentDatePicker(true)}
+                                    style={[styles.dateInput, { borderColor: colors.border, backgroundColor: colors.card }]}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                                        <MaterialCommunityIcons name="calendar-clock" size={20} color={colors.primary} />
+                                        <Text style={{ color: colors.textMain, fontWeight: '600' }}>
+                                            {nextPaymentDate ? formatDate(nextPaymentDate) : t('invoice_preview_screen.select_date_placeholder')}
+                                        </Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                        {nextPaymentDate && (
+                                            <TouchableOpacity onPress={() => setNextPaymentDate(null)} style={{ marginRight: 8 }}>
+                                                <MaterialCommunityIcons name="close-circle" size={16} color={colors.danger} />
+                                            </TouchableOpacity>
+                                        )}
+                                        <MaterialCommunityIcons name="chevron-down" size={20} color={colors.textMuted} />
+                                    </View>
+                                </TouchableOpacity>
                                 <Text style={{ fontSize: 11, color: colors.textMuted, marginTop: 4 }}>
                                     {t('invoice_preview_screen.partial_pay_hint')}
                                 </Text>
@@ -387,6 +405,30 @@ export default function InvoicePreviewScreen() {
                     </View>
                 </KeyboardAvoidingView>
             </Modal>
+
+            {showPaymentDatePicker && (
+                <DateTimePicker
+                    value={paymentDate}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(e, date) => {
+                        setShowPaymentDatePicker(false);
+                        if (date) setPaymentDate(date);
+                    }}
+                />
+            )}
+
+            {showNextPaymentDatePicker && (
+                <DateTimePicker
+                    value={nextPaymentDate || new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(e, date) => {
+                        setShowNextPaymentDatePicker(false);
+                        if (date) setNextPaymentDate(date);
+                    }}
+                />
+            )}
         </View>
     );
 }
@@ -441,6 +483,7 @@ const styles = StyleSheet.create({
     inputGroup: { marginBottom: 16 },
     inputLabel: { fontSize: 12, fontWeight: '700', marginBottom: 8, textTransform: 'uppercase' },
     input: { height: 50, borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, fontSize: 16, fontWeight: '600' },
+    dateInput: { height: 50, borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     confirmBtn: { height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
     confirmBtnText: { color: '#000', fontWeight: '900', fontSize: 16, letterSpacing: 1 }
 });

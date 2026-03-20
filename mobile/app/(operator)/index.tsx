@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert, Platform, Modal as RNModal } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Alert, Platform, Modal as RNModal, Image } from 'react-native';
 import { Text, Badge, ActivityIndicator, Modal, Portal, Menu, IconButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -395,7 +395,14 @@ export default function OperatorOverview() {
                     onPress={() => setShowMachineModal(true)}
                 >
                     <View style={styles.machineIconBox}>
-                        <MaterialCommunityIcons name="excavator" size={24} color={selectedMachine ? colors.primary : colors.textMuted} />
+                        {selectedMachine && (selectedMachine.photo_url || selectedMachine.photoUrl || selectedMachine.photo_path) ? (
+                            <Image
+                                source={{ uri: resolveImageUrl(selectedMachine.photo_url || selectedMachine.photoUrl || selectedMachine.photo_path) }}
+                                style={{ width: '100%', height: '100%', borderRadius: 4 }}
+                            />
+                        ) : (
+                            <MaterialCommunityIcons name="excavator" size={24} color={selectedMachine ? colors.primary : colors.textMuted} />
+                        )}
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.machineLabel, { color: colors.textMuted }]}>{t('overview.current_machine')}</Text>
@@ -512,30 +519,40 @@ export default function OperatorOverview() {
                     <ScrollView style={{ maxHeight: 400 }}>
                         {isLoadingMachines ? (
                             <ActivityIndicator color={colors.primary} style={{ margin: 20 }} />
-                        ) : machinesData?.machines?.map((machine: any) => (
-                            <TouchableOpacity
-                                key={machine.id}
-                                style={[
-                                    styles.machineItem,
-                                    {
-                                        backgroundColor: selectedMachine?.id === machine.id ? colors.primary + '15' : 'transparent',
-                                        borderColor: selectedMachine?.id === machine.id ? colors.primary : colors.border
-                                    }
-                                ]}
-                                onPress={() => handleSelectMachine(machine)}
-                            >
-                                <View style={[styles.machineItemIcon, { backgroundColor: selectedMachine?.id === machine.id ? colors.primary : colors.border }]}>
-                                    <MaterialCommunityIcons name="excavator" size={20} color={selectedMachine?.id === machine.id ? '#FFF' : colors.textMuted} />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.machineItemName, { color: colors.textMain }]}>{machine.name}</Text>
-                                    <Text style={[styles.machineItemSub, { color: colors.textMuted }]}>{machine.registration_number}</Text>
-                                </View>
-                                {selectedMachine?.id === machine.id && (
-                                    <MaterialCommunityIcons name="check-circle" size={24} color={colors.primary} />
-                                )}
-                            </TouchableOpacity>
-                        ))}
+                        ) : machinesData?.machines?.map((machine: any) => {
+                            const machinePhoto = machine.photo_url || machine.photoUrl || machine.photo_path || machine.machine_photo;
+                            return (
+                                <TouchableOpacity
+                                    key={machine.id}
+                                    style={[
+                                        styles.machineItem,
+                                        {
+                                            backgroundColor: selectedMachine?.id === machine.id ? colors.primary + '15' : 'transparent',
+                                            borderColor: selectedMachine?.id === machine.id ? colors.primary : colors.border
+                                        }
+                                    ]}
+                                    onPress={() => handleSelectMachine(machine)}
+                                >
+                                    <View style={[styles.machineItemIcon, { backgroundColor: selectedMachine?.id === machine.id ? colors.primary : colors.border }]}>
+                                        {machinePhoto ? (
+                                            <Image
+                                                source={{ uri: resolveImageUrl(machinePhoto) }}
+                                                style={{ width: '100%', height: '100%', borderRadius: 4 }}
+                                            />
+                                        ) : (
+                                            <MaterialCommunityIcons name="excavator" size={20} color={selectedMachine?.id === machine.id ? '#FFF' : colors.textMuted} />
+                                        )}
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={[styles.machineItemName, { color: colors.textMain }]}>{machine.name}</Text>
+                                        <Text style={[styles.machineItemSub, { color: colors.textMuted }]}>{machine.registration_number}</Text>
+                                    </View>
+                                    {selectedMachine?.id === machine.id && (
+                                        <MaterialCommunityIcons name="check-circle" size={24} color={colors.primary} />
+                                    )}
+                                </TouchableOpacity>
+                            );
+                        })}
                         {machinesData?.success && machinesData.machines.length === 0 && (
                             <Text style={{ textAlign: 'center', padding: 20, color: colors.textMuted }}>{t('common.no_machines')}</Text>
                         )}

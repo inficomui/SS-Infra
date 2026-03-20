@@ -165,12 +165,16 @@ export default function StartDutyScreen() {
             const formData = new FormData();
             formData.append('machine_id', selectedMachine.id.toString());
             formData.append('machineId', selectedMachine.id.toString());
+            
             formData.append('start_location', location);
-            formData.append('siteAddress', location); // Common with operator
+            formData.append('siteAddress', location);
             formData.append('site_address', location);
 
             formData.append('start_meter_reading', meterReading);
+            formData.append('startMeterReading', meterReading);
+            
             formData.append('clientId', clientIdToSend);
+            formData.append('client_id', clientIdToSend);
 
             if (coords) {
                 formData.append('siteLatitude', coords.latitude.toString());
@@ -186,18 +190,16 @@ export default function StartDutyScreen() {
             // Ensure URI is correctly formatted for the Platform
             const cleanUri = Platform.OS === 'android' ? photoUri : photoUri.replace('file://', '');
 
-            formData.append('start_meter_photo', {
+            const fileObj = {
                 uri: Platform.OS === 'android' ? photoUri : cleanUri,
                 name: filename,
                 type: photoType
-            } as any);
+            };
 
-            // Backup photo field for compatibility
-            formData.append('beforePhoto', {
-                uri: Platform.OS === 'android' ? photoUri : cleanUri,
-                name: filename,
-                type: photoType
-            } as any);
+            formData.append('start_meter_photo', fileObj as any);
+            formData.append('startMeterPhoto', fileObj as any);
+            formData.append('beforePhoto', fileObj as any);
+            formData.append('before_photo', fileObj as any);
 
             formData.append('client_id', clientIdToSend);
             formData.append('role', 'Driver');

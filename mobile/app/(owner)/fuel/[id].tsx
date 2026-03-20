@@ -6,9 +6,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import { CONFIG } from '@/constants/Config';
-import { resolveImageUrl } from '../../../utils/imageHelpers';
-import { formatDate } from '../../../utils/formatters';
+import { resolveImageUrl } from '@/utils/imageHelpers';
+import { formatDate } from '@/utils/formatters';
 import { useTranslation } from 'react-i18next';
+import ImagePreviewModal from '@/components/ui/ImagePreviewModal';
 
 const { width, height } = Dimensions.get('window');
 
@@ -81,38 +82,11 @@ export default function OwnerFuelDetailScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Full Screen Image Preview Modal */}
-            <Modal
+            <ImagePreviewModal
                 visible={previewVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setPreviewVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <TouchableOpacity
-                        style={styles.closePreviewBtn}
-                        onPress={() => setPreviewVisible(false)}
-                        activeOpacity={0.7}
-                    >
-                        <MaterialCommunityIcons name="close" size={32} color="#FFF" />
-                    </TouchableOpacity>
-
-                    {selectedImage ? (
-                        <Image
-                            source={{ uri: selectedImage }}
-                            style={styles.fullPreviewImage}
-                            resizeMode="contain"
-                        />
-                    ) : (
-                        <ActivityIndicator color="#FFF" size="large" />
-                    )}
-
-                    <View style={styles.previewFooterContent}>
-                        <Text style={styles.previewFooterLabel}>{t('fuel_management.meter_reading_details')}</Text>
-                        <Text style={styles.previewFooterHint}>{t('fuel_management.pinch_zoom')}</Text>
-                    </View>
-                </View>
-            </Modal>
+                imageUrl={selectedImage}
+                onClose={() => setPreviewVisible(false)}
+            />
 
             {/* Header */}
             <View style={styles.header}>
@@ -184,9 +158,9 @@ export default function OwnerFuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: resolveImageUrl(beforeImage) }}
+                                        source={{ uri: resolveImageUrl(beforeImage) || '' }}
                                         style={styles.image}
-                                        resizeMode="cover"
+                                        resizeMode="contain"
                                     />
                                     <View style={styles.magnifyIcon}>
                                         <MaterialCommunityIcons name="magnify-plus" size={20} color="#FFF" />
@@ -211,9 +185,9 @@ export default function OwnerFuelDetailScreen() {
                                     style={{ flex: 1 }}
                                 >
                                     <Image
-                                        source={{ uri: resolveImageUrl(afterImage) }}
+                                        source={{ uri: resolveImageUrl(afterImage) || '' }}
                                         style={styles.image}
-                                        resizeMode="cover"
+                                        resizeMode="contain"
                                     />
                                     <View style={styles.magnifyIcon}>
                                         <MaterialCommunityIcons name="magnify-plus" size={20} color="#FFF" />

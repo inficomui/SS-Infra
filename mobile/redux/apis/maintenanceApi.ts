@@ -15,7 +15,7 @@ export interface MaintenanceRecord {
     createdAt: string;
     machine?: { id: number; name: string; registrationNumber: string; registration_number?: string };
     operator?: { id: number; name: string };
-    
+
     // Fallbacks
     machine_id?: number;
     operator_id?: number;
@@ -55,15 +55,23 @@ export const maintenanceApi = createApi({
                 return url;
             },
             providesTags: ['Maintenance'],
+            transformResponse: (response: any) => {
+                return response;
+            },
         }),
         // Add Maintenance Record (Multipart)
         addMaintenanceRecord: builder.mutation<{ success: boolean; message: string; data: MaintenanceRecord }, FormData>({
-            query: (formData) => ({
-                url: '/maintenance-records',
-                method: 'POST',
-                body: formData,
-            }),
+            query: (formData) => {
+                return {
+                    url: '/maintenance-records',
+                    method: 'POST',
+                    body: formData,
+                };
+            },
             invalidatesTags: ['Maintenance'],
+            transformResponse: (response: any) => {
+                return response;
+            },
         }),
     }),
 });

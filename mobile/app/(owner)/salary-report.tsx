@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
-import { useGetSalaryReportQuery, useGetOperatorsQuery } from '@/redux/apis/ownerApi';
+import { useGetSalaryReportQuery, useGetOperatorsQuery, Worker } from '@/redux/apis/ownerApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDate } from '../../utils/formatters';
 
@@ -39,7 +39,7 @@ export default function SalaryReportScreen() {
     // Filtered Operators
     const filteredOperators = useMemo(() => {
         if (!operatorsData?.operators) return [];
-        return operatorsData.operators.filter(op =>
+        return (operatorsData.operators as Worker[]).filter((op: Worker) =>
             op.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             op.mobile.includes(searchQuery)
         );
@@ -291,7 +291,7 @@ export default function SalaryReportScreen() {
                             </TouchableOpacity>
 
                             {/* Filtered List */}
-                            {filteredOperators.map(op => (
+                            {filteredOperators.map((op: Worker) => (
                                 <TouchableOpacity
                                     key={op.id}
                                     style={[styles.modalItem, { borderBottomColor: colors.border }]}

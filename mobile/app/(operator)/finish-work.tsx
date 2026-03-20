@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -102,12 +102,19 @@ export default function FinishWorkScreen() {
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
 
-            // @ts-ignore
-            formData.append('afterPhoto', {
-                uri: photoUri,
+            // Clean URI for different platforms
+            const cleanUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+
+            const fileObj = {
+                uri: cleanUri,
                 name: filename,
                 type: type
-            });
+            };
+
+            formData.append('afterPhoto', fileObj as any);
+            formData.append('after_photo', fileObj as any);
+            formData.append('end_meter_photo', fileObj as any);
+            formData.append('endMeterPhoto', fileObj as any);
 
             await finishWork(formData).unwrap();
 

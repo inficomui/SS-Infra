@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Platform } from 'react-native';
 import { Text, TextInput, Button } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
@@ -44,7 +44,7 @@ export default function AddFuelLogScreen() {
 
     const pickImage = async (type: 'before' | 'after') => {
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: false,
             aspect: [4, 3],
             quality: 0.5,
@@ -63,33 +63,54 @@ export default function AddFuelLogScreen() {
         }
 
         const formData = new FormData();
+        
+        // Send both camelCase and snake_case for maximum compatibility
+        formData.append('machineId', machineId);
         formData.append('machine_id', machineId);
+        
+        formData.append('fuelLiters', fuelLiters);
         formData.append('fuel_liters', fuelLiters);
+        
         formData.append('amount', amount);
-        formData.append('log_date', logDate.toISOString().split('T')[0]);
+        
+        const dateStr = logDate.toISOString().split('T')[0];
+        formData.append('logDate', dateStr);
+        formData.append('log_date', dateStr);
 
         if (readingBefore) {
             const filename = readingBefore.uri.split('/').pop() || 'reading_before.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-            formData.append('reading_before_image', {
-                uri: readingBefore.uri,
+            
+            // Clean URI for different platforms
+            const cleanUri = Platform.OS === 'ios' ? readingBefore.uri.replace('file://', '') : readingBefore.uri;
+            
+            const fileObj = {
+                uri: cleanUri,
                 type: type,
                 name: filename,
-            } as any);
+            };
+            
+            formData.append('readingBeforeImage', fileObj as any);
+            formData.append('reading_before_image', fileObj as any);
         }
 
         if (readingAfter) {
             const filename = readingAfter.uri.split('/').pop() || 'reading_after.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-            formData.append('reading_after_image', {
-                uri: readingAfter.uri,
+            
+            // Clean URI for different platforms
+            const cleanUri = Platform.OS === 'ios' ? readingAfter.uri.replace('file://', '') : readingAfter.uri;
+            
+            const fileObj = {
+                uri: cleanUri,
                 type: type,
                 name: filename,
-            } as any);
+            };
+            
+            formData.append('readingAfterImage', fileObj as any);
+            formData.append('reading_after_image', fileObj as any);
         }
 
 

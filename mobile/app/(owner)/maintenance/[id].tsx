@@ -44,11 +44,13 @@ export default function MaintenanceDetailsScreen() {
         );
     }
 
-    const { machine, service_date, service_type, cost, description, mechanic_name } = record;
+    const { machine, cost, description } = record;
+    const service_date = record.serviceDate || record.service_date;
+    const service_type = record.serviceType || record.service_type;
 
-    // Robust field access for images
-    const serviceImg = record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
-    const invoiceImg = record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path;
+    // Robust field access for images, prioritizing camelCase from new documentation
+    const serviceImg = record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path;
+    const invoiceImg = record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path;
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>

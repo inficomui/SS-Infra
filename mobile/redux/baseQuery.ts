@@ -62,5 +62,10 @@ export const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryE
         }
     }
 
+    if (!result.error) {
+        const requestUrl = typeof args === 'string' ? args : args.url;
+        console.log(`[API Success] ${requestUrl}:`, JSON.stringify(result.data, null, 2));
+    }
+
     return result;
 };

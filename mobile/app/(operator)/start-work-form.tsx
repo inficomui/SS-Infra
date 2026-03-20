@@ -189,6 +189,7 @@ export default function StartWorkForm() {
 
             if (selectedMachine?.id) {
                 formData.append('machineId', selectedMachine.id.toString());
+                formData.append('machine_id', selectedMachine.id.toString());
             }
 
             if (coords) {
@@ -206,11 +207,19 @@ export default function StartWorkForm() {
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
 
-            formData.append('beforePhoto', {
-                uri: photoUri,
+            // Clean URI for different platforms
+            const cleanUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+
+            const fileObj = {
+                uri: cleanUri,
                 name: filename,
                 type: type
-            } as any);
+            };
+
+            formData.append('beforePhoto', fileObj as any);
+            formData.append('before_photo', fileObj as any);
+            formData.append('start_meter_photo', fileObj as any);
+            formData.append('startMeterPhoto', fileObj as any);
 
             const response = await startWork(formData).unwrap();
             const session = response.workSession;

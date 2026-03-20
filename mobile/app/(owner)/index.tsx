@@ -21,7 +21,7 @@ import { useGetNotificationsQuery, Notification as ApiNotification } from '@/red
 import { useGetMySubscriptionQuery, GetMySubscriptionResponse } from '@/redux/apis/subscriptionApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
-import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
+import { formatDate, formatDuration, resolveImageUrl } from '@/utils/formatters';
 import { t } from 'i18next';
 import Toast from 'react-native-toast-message';
 

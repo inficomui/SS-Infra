@@ -34,10 +34,10 @@ export default function MachinesListScreen() {
     const [machineToDelete, setMachineToDelete] = useState<any>(null);
 
     const rawData = machinesData as any;
-    const machines = Array.isArray(rawData?.machines) 
-        ? rawData.machines 
+    const machines = Array.isArray(rawData?.machines)
+        ? rawData.machines
         : (Array.isArray(rawData?.data) ? rawData.data : []);
-    
+
     const operators = operatorsData?.workers || (operatorsData as any)?.operators || [];
 
     const getOperatorName = (id: number) => {
@@ -141,10 +141,10 @@ export default function MachinesListScreen() {
                     <ActivityIndicator style={{ marginTop: 40 }} color={colors.primary} />
                 ) : errorMessage ? (
                     <View style={styles.emptyContainer}>
-                        <MaterialCommunityIcons 
-                            name={isSubscriptionExpired ? "credit-card-off-outline" : "alert-circle-outline"} 
-                            size={80} 
-                            color={colors.danger || '#EF4444'} 
+                        <MaterialCommunityIcons
+                            name={isSubscriptionExpired ? "credit-card-off-outline" : "alert-circle-outline"}
+                            size={80}
+                            color={colors.danger || '#EF4444'}
                             style={{ marginBottom: 16 }}
                         />
                         <Text style={[styles.emptyText, { color: colors.textMain, fontWeight: '900', fontSize: 20 }]}>
@@ -154,8 +154,8 @@ export default function MachinesListScreen() {
                             {errorMessage}
                         </Text>
                         {isSubscriptionExpired && (
-                            <TouchableOpacity 
-                                onPress={() => router.push('/(common)/plans' as any)} 
+                            <TouchableOpacity
+                                onPress={() => router.push('/(common)/plans' as any)}
                                 style={{ marginTop: 30, backgroundColor: colors.primary, paddingVertical: 14, paddingHorizontal: 32, borderRadius: 12 }}
                             >
                                 <Text style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Renew Plan Now</Text>
