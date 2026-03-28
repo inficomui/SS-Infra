@@ -51,8 +51,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "9b194746-3a52-422d-af56-c6eeeb676c42"
+        "projectId": "c0914bd0-4a18-4a8d-999c-cb929977c61a"
       }
-    }
+    },
+    "owner": "inficomui"
   }
 }

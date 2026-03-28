@@ -37,13 +37,23 @@ export default function WithdrawalRequestScreen() {
     };
 
     const handleSubmit = async () => {
-        if (!validate()) return;
+        setErrors({});
+        if (!validate()) {
+            Toast.show({
+                type: 'error',
+                text1: t('common.validation_error'),
+                text2: t('wallet.please_fill_required')
+            });
+            return;
+        }
 
         try {
-            await requestWithdrawal({
+            const result = await requestWithdrawal({
                 amount: Number(amount),
                 bankDetails
             }).unwrap();
+
+            console.log('[Withdrawal Success]:', result);
 
             Toast.show({
                 type: 'success',
@@ -53,10 +63,11 @@ export default function WithdrawalRequestScreen() {
 
             setTimeout(() => router.back(), 1500);
         } catch (error: any) {
+            console.error('[Withdrawal Error]:', error);
             Toast.show({
                 type: 'error',
                 text1: t('wallet.submission_failed'),
-                text2: error?.data?.message || t('wallet.failed_submit')
+                text2: error?.data?.message || error?.message || t('wallet.failed_submit')
             });
         }
     };

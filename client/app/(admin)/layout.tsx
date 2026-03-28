@@ -21,6 +21,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const router = useRouter()
     const pathname = usePathname()
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [isMounted, setIsMounted] = useState(false)
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     // Close sidebar on mobile route change
     useEffect(() => {
@@ -68,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="min-h-screen bg-muted/20 flex overflow-hidden font-sans">
             {/* Sidebar Backdrop (Mobile) */}
             <AnimatePresence>
-                {isSidebarOpen && (window.innerWidth < 1024) && (
+                {isMounted && isSidebarOpen && (typeof window !== 'undefined' && window.innerWidth < 1024) && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -83,81 +88,117 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <motion.aside
                 initial={false}
                 animate={{
-                    x: isSidebarOpen ? 0 : '-100%',
-                    width: isSidebarOpen ? (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 280 : '100%') : 0
+                    width: isSidebarOpen ? 280 : 0,
+                    x: isSidebarOpen ? 0 : -280,
+                    opacity: isSidebarOpen ? 1 : 0
                 }}
-                transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 200 }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 className={clsx(
-                    "fixed lg:static inset-y-0 left-0 z-50 bg-card text-foreground shadow-2xl flex flex-col border-r border-border",
-                    "lg:shadow-none lg:w-72 xl:w-72 w-80"
+                    "fixed lg:sticky top-0 inset-y-0 left-0 z-50 bg-card text-foreground flex flex-col border-r border-border shadow-[20px_0_40px_-15px_rgba(0,0,0,0.05)] dark:shadow-[20px_0_40px_-15px_rgba(0,0,0,0.3)] transition-colors duration-500",
+                    !isSidebarOpen && "pointer-events-none"
                 )}
-                style={{
-                    transform: !isSidebarOpen ? 'translateX(-100%)' : 'none',
-                    position: typeof window !== 'undefined' && window.innerWidth < 1024 ? 'fixed' : 'relative'
-                }}
             >
                 {/* Sidebar Header */}
-                <div className="h-20 flex items-center justify-between px-6 border-b border-border bg-muted/20 backdrop-blur-xl">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-linear-to-br from-primary to-yellow-600 rounded-md shadow-lg shadow-primary/20 flex items-center justify-center transform rotate-3 group-hover:rotate-0 transition-transform">
-                            <Shield className="h-6 w-6 text-primary-foreground" />
+                <div className="h-24 flex items-center justify-between px-8 border-b border-border">
+                    <div className="flex items-center gap-3.5 group cursor-pointer" onClick={() => router.push('/dashboard')}>
+                        <div className="h-11 w-11 bg-linear-to-br from-primary via-primary to-yellow-600 rounded-md shadow-[0_0_20px_-5px_#facc15] flex items-center justify-center transform group-hover:rotate-6 transition-all duration-500">
+                            <Shield className="h-6 w-6 text-black" strokeWidth={2.5} />
                         </div>
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight text-foreground leading-none">SS <span className="text-primary italic">Infra</span></h1>
-                            <span className="text-[10px] text-muted-foreground font-bold tracking-widest uppercase opacity-70">Admin Console</span>
+                        <div className="transition-all duration-300">
+                            <h1 className="text-xl font-black tracking-tighter text-foreground leading-none">
+                                SS <span className="text-primary italic">INFRA</span>
+                            </h1>
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span className="text-[9px] text-muted-foreground font-black tracking-[0.2em] uppercase opacity-70">Console v1.2</span>
+                            </div>
                         </div>
                     </div>
-                    <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-muted-foreground hover:text-foreground p-2 hover:bg-muted rounded-md transition-colors">
-                        <X className="h-6 w-6" />
+                    <button 
+                        onClick={() => setIsSidebarOpen(false)} 
+                        className="lg:hidden text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-2 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-md transition-all active:scale-95"
+                    >
+                        <X className="h-5 w-5" />
                     </button>
                 </div>
 
                 {/* Nav Items */}
-                <nav className="flex-1 overflow-y-auto py-8 px-4 space-y-1.5 custom-scrollbar">
-                    <p className="px-5 text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] mb-4">Operations Hub</p>
-                    {navItems.map((item) => {
-                        const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
-                        return (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={clsx(
-                                    "group flex items-center px-5 py-3.5 text-sm font-bold rounded-md transition-all duration-300 relative overflow-hidden",
-                                    isActive
-                                        ? 'bg-primary text-primary-foreground shadow-xl shadow-primary/20'
-                                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:translate-x-1'
-                                )}
-                            >
-                                <item.icon className={clsx(
-                                    "mr-3.5 h-5 w-5 transition-transform group-hover:scale-110",
-                                    isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary'
-                                )} />
-                                {item.name}
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="active-nav-indicator"
-                                        className="absolute right-4 h-1.5 w-1.5 rounded-md bg-primary-foreground/50"
-                                    />
-                                )}
-                            </Link>
-                        )
-                    })}
-                </nav>
+                <div className="flex-1 overflow-y-auto py-10 px-6 space-y-8 custom-scrollbar">
+                    <div className="space-y-2">
+                        <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-4 opacity-70">Core Management</p>
+                        <div className="space-y-1">
+                            {navItems.slice(0, 3).map((item) => {
+                                const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+                                return (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className={clsx(
+                                            "group flex items-center px-4 py-3.5 text-sm font-bold rounded-md transition-all duration-500 relative overflow-hidden",
+                                            isActive
+                                                ? 'bg-primary text-black shadow-[0_10px_20px_-10px_#facc15]'
+                                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                                        )}
+                                    >
+                                        <item.icon className={clsx(
+                                            "mr-3.5 h-5 w-5 transition-transform duration-500 group-hover:scale-110",
+                                            isActive ? 'text-black' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-primary'
+                                        )} strokeWidth={isActive ? 2.5 : 2} />
+                                        {item.name}
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="active-nav-glow"
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-black/60 rounded-r-full"
+                                            />
+                                        )}
+                                    </Link>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-4 opacity-70">Financial Deck</p>
+                        <div className="space-y-1">
+                            {navItems.slice(3).map((item) => {
+                                const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+                                return (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className={clsx(
+                                            "group flex items-center px-4 py-3.5 text-sm font-bold rounded-md transition-all duration-500 relative overflow-hidden",
+                                            isActive
+                                                ? 'bg-primary text-black shadow-[0_10px_20px_-10px_#facc15]'
+                                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                                        )}
+                                    >
+                                        <item.icon className={clsx(
+                                            "mr-3.5 h-5 w-5 transition-transform duration-500 group-hover:scale-110",
+                                            isActive ? 'text-black' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-primary'
+                                        )} strokeWidth={isActive ? 2.5 : 2} />
+                                        {item.name}
+                                    </Link>
+                                )
+                            })}
+                        </div>
+                    </div>
+                </div>
 
                 {/* User Profile Footer */}
-                <div className="p-4 border-t border-border bg-muted/5">
-                    <div className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all border border-border/50 group cursor-pointer">
-                        <div className="h-10 w-10 rounded-md bg-linear-to-tr from-primary/80 to-yellow-600 flex items-center justify-center text-primary-foreground font-black shrink-0 shadow-lg shadow-primary/10">
+                <div className="p-6 border-t border-border bg-muted/20">
+                    <div className="flex items-center gap-3.5 p-3 rounded-lg bg-card border border-border group hover:border-primary/30 transition-all duration-500">
+                        <div className="h-10 w-10 rounded-md bg-linear-to-tr from-primary to-yellow-600 flex items-center justify-center text-black font-black shrink-0 shadow-lg shadow-primary/20">
                             {user?.name?.[0]?.toUpperCase() || 'A'}
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-xs font-black text-foreground truncate">{user?.name || 'Administrator'}</p>
-                            <p className="text-[10px] font-bold text-muted-foreground/70 truncate uppercase tracking-tighter">System Level Auth</p>
+                            <p className="text-[9px] font-black text-muted-foreground truncate uppercase tracking-tighter opacity-70">Sys-Admin Node</p>
                         </div>
                         <button
                             onClick={handleLogout}
                             title="Sign Out"
-                            className="p-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-all"
+                            className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-md transition-all"
                         >
                             <LogOut className="h-4 w-4" />
                         </button>
@@ -166,42 +207,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </motion.aside>
 
             {/* Main Content Wrapper */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden bg-muted/20 relative">
+            <div className="flex-1 flex flex-col min-h-screen bg-background relative overflow-hidden">
                 {/* Top Header */}
-                <header className="bg-background/80 backdrop-blur-md border-b border-border h-20 flex items-center justify-between px-6 sm:px-8 z-30 sticky top-0 transition-all">
-                    <div className="flex items-center gap-4">
+                <header className="bg-background/80 backdrop-blur-xl border-b border-border h-20 flex items-center justify-between px-8 z-40 sticky top-0 transition-all">
+                    <div className="flex items-center gap-6">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="lg:hidden p-2 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors border border-transparent hover:border-border"
+                            className="p-2.5 text-muted-foreground hover:text-primary rounded-md hover:bg-muted transition-all border border-border shadow-sm"
                         >
-                            <Menu className="h-6 w-6" />
+                            <Menu className="h-5 w-5" />
                         </button>
 
-                        <div className="flex flex-col">
-                            <h2 className="text-lg font-bold text-foreground capitalize flex items-center gap-2">
-                                {pathname?.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}
-                            </h2>
-                            <div className="hidden sm:flex text-xs text-muted-foreground gap-1 items-center">
-                                <span className='opacity-60'>SS Infra</span>
-                                <span className='opacity-40'>/</span>
-                                <span className='text-primary opacity-80 capitalize'>{pathname?.split('/').pop()?.replace(/-/g, ' ') || 'Dashboard'}</span>
+                        <div className="hidden sm:flex flex-col">
+                            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                                <span>SS Infra</span>
+                                <ChevronRight className="h-3 w-3 opacity-30" />
+                                <span className={clsx(
+                                    "transition-colors",
+                                    pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
+                                )}>Console</span>
                             </div>
+                            <h2 className="text-xl font-black text-foreground tracking-tight capitalize mt-0.5">
+                                {pathname?.split('/').pop()?.replace(/-/g, ' ') || 'Overview'}
+                            </h2>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-4">
-                        <div className="hidden md:flex items-center bg-muted/50 rounded-md px-3 py-1.5 border border-transparent hover:border-border transition-colors">
-                            <Globe className="h-3.5 w-3.5 text-muted-foreground mr-2" />
-                            <span className="text-xs font-medium text-muted-foreground">Admin Portal v1.2</span>
+                    <div className="flex items-center gap-4">
+                        <div className="hidden lg:flex items-center gap-2 bg-muted rounded-md px-4 py-2 border border-border">
+                            <Globe className="h-4 w-4 text-primary animate-pulse" />
+                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Admin Node: Active</span>
                         </div>
 
-                        <button className="p-2.5 text-muted-foreground hover:text-primary rounded-md hover:bg-muted transition-all relative group">
-                            <Bell className="h-5 w-5 group-hover:animate-swing" />
-                            <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-md bg-red-500 ring-2 ring-background animate-pulse"></span>
-                        </button>
-
-                        <div className="h-8 w-px bg-border mx-1 opacity-50"></div>
-                        <ModeToggle />
+                        <div className="flex items-center gap-2">
+                            <button className="p-3 text-muted-foreground hover:text-primary rounded-md hover:bg-muted transition-all relative group border border-transparent hover:border-border">
+                                <Bell className="h-5 w-5 group-hover:animate-swing" />
+                                <span className="absolute top-3 right-3 h-2 w-2 rounded-full bg-red-600 ring-2 ring-background shadow-[0_0_10px_rgba(220,38,38,0.5)]"></span>
+                            </button>
+                            <ModeToggle />
+                        </div>
                     </div>
                 </header>
 

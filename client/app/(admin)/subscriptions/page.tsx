@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export default function SubscriptionsPage() {
     const [page, setPage] = useState(1)
-    const [statusFilter, setStatusFilter] = useState<string>('')
+    const [statusFilter, setStatusFilter] = useState<"active" | "expired" | "cancelled" | "">('')
 
     // Queries
     const { data, isLoading, error, refetch } = useGetAllSubscriptionsQuery({
@@ -98,18 +98,26 @@ export default function SubscriptionsPage() {
             className="space-y-8 relative"
         >
             {/* Header & Actions */}
-            <div className="bg-card border border-border/50 p-6 sm:p-8 rounded-md shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                <div>
-                    <h2 className="text-3xl font-black text-foreground tracking-tight">Access Subscriptions</h2>
-                    <p className="text-sm text-muted-foreground mt-1 font-medium">Monitor and control system-wide user plan memberships.</p>
+            <div className="bg-card dark:bg-zinc-900 border border-zinc-200/50 dark:border-white/5 p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 transition-all">
+                <div className="flex items-center gap-5">
+                    <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shrink-0">
+                        <ShieldCheck className="h-7 w-7 text-primary" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-black text-foreground dark:text-white tracking-tight">Access Subscriptions</h2>
+                        <p className="text-sm font-medium text-muted-foreground dark:text-zinc-400 mt-1 flex items-center gap-2">
+                             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            System-Wide Identity & License Control
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 px-5 py-3 bg-primary text-primary-foreground font-bold rounded-md hover:bg-primary/90 transition-all shadow-md active:scale-95"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-black font-black rounded-xl hover:opacity-90 transition-all shadow-xl shadow-primary/25 active:scale-95 shrink-0"
                     >
-                        <UserPlus className="h-5 w-5" />
+                        <UserPlus className="h-5 w-5" strokeWidth={3} />
                         Assign Plan
                     </button>
 
@@ -120,57 +128,57 @@ export default function SubscriptionsPage() {
                             setStatusFilter('')
                             refetch()
                         }}
-                        className="p-3 bg-muted/50 text-muted-foreground hover:text-primary hover:bg-muted border border-transparent hover:border-border/50 rounded-md transition-all"
+                        className="p-3 text-muted-foreground hover:text-primary hover:bg-zinc-100 dark:hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-zinc-200 dark:hover:border-white/10"
                         title="Sync Subscriptions"
                     >
                         <RefreshCw className="h-5 w-5" />
                     </button>
 
-                    <div className="relative flex-1 min-w-[200px]">
+                    <div className="relative flex-1 min-w-[200px] group">
                         <select
                             value={statusFilter}
                             onChange={(e) => {
                                 setPage(1)
-                                setStatusFilter(e.target.value)
+                                setStatusFilter(e.target.value as "active" | "expired" | "cancelled" | "")
                             }}
-                            className="w-full pl-4 pr-10 py-3 bg-muted/30 border border-border/50 rounded-md text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none appearance-none cursor-pointer"
+                            className="w-full pl-11 pr-4 py-3 bg-muted/30 dark:bg-white/5 border border-transparent focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold placeholder:text-zinc-400 dark:text-white appearance-none cursor-pointer"
                         >
                             <option value="">All Statuses</option>
                             <option value="active">Active Memberships</option>
                             <option value="expired">Expired Plans</option>
                             <option value="cancelled">Cancelled Access</option>
                         </select>
-                        <Filter className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
                     </div>
                 </div>
             </div>
 
             {/* List Overview */}
-            <div className="bg-card shadow-2xl shadow-black/5 rounded-md overflow-hidden border border-border/60">
+            <div className="bg-card dark:bg-zinc-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl overflow-hidden border border-zinc-200/50 dark:border-white/5 transition-all">
                 {isLoading ? (
-                    <div className="flex flex-col justify-center items-center h-96 space-y-4">
-                        <Loader2 className="animate-spin h-10 w-10 text-primary" />
-                        <p className="text-sm font-bold text-muted-foreground animate-pulse">Syncing subscription vault...</p>
+                    <div className="flex flex-col justify-center items-center h-80 space-y-4">
+                        <Loader2 className="animate-spin h-10 w-10 text-primary" strokeWidth={3} />
+                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest animate-pulse">Syncing subscription vault...</p>
                     </div>
                 ) : error ? (
-                    <div className="flex flex-col justify-center items-center h-96 text-destructive space-y-2">
+                    <div className="flex flex-col justify-center items-center h-80 text-destructive space-y-2">
                         <AlertCircle className="h-12 w-12" />
                         <p className="font-black">Identity Vault Connection Failed</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-border/30">
-                            <thead className="bg-muted/20">
+                        <table className="min-w-full">
+                            <thead className="bg-muted/30 dark:bg-zinc-800/50 border-b border-zinc-200/50 dark:border-white/5">
                                 <tr>
-                                    <th className="px-8 py-5 text-left text-xs font-black text-muted-foreground uppercase tracking-widest">Subscriber Details</th>
-                                    <th className="px-8 py-5 text-left text-xs font-black text-muted-foreground uppercase tracking-widest">Plan Tier</th>
-                                    <th className="px-8 py-5 text-left text-xs font-black text-muted-foreground uppercase tracking-widest">Validation Status</th>
-                                    <th className="px-8 py-5 text-left text-xs font-black text-muted-foreground uppercase tracking-widest">Term Duration</th>
-                                    <th className="px-8 py-5 text-left text-xs font-black text-muted-foreground uppercase tracking-widest">Revenue Impact</th>
-                                    <th className="px-8 py-5 text-right text-xs font-black text-muted-foreground uppercase tracking-widest">Management</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Subscriber Details</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Plan Tier</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Validation Status</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Term Duration</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Revenue Impact</th>
+                                    <th className="px-8 py-5 text-right text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Management</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-border/20">
+                            <tbody className="divide-y divide-zinc-200/50 dark:divide-white/5">
                                 {subscriptions.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-8 py-24 text-center">
@@ -188,7 +196,7 @@ export default function SubscriptionsPage() {
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.03 }}
-                                        className="group hover:bg-muted/10 transition-colors"
+                                        className="group hover:bg-muted/30 dark:hover:bg-zinc-800/50 transition-all"
                                     >
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <div className="flex items-center">
@@ -196,8 +204,8 @@ export default function SubscriptionsPage() {
                                                     {sub.user?.name?.[0]?.toUpperCase() || 'U'}
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-black text-foreground group-hover:text-primary transition-colors">{sub.user?.name}</div>
-                                                    <div className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mt-0.5">
+                                                    <div className="text-sm font-black text-foreground dark:text-white group-hover:text-primary transition-colors tracking-tight">{sub.user?.name}</div>
+                                                    <div className="text-xs text-muted-foreground dark:text-zinc-500 font-bold flex items-center gap-1.5 mt-1 border border-transparent group-hover:border-zinc-200 dark:group-hover:border-white/10 px-2 py-0.5 rounded-lg transition-all w-fit bg-muted/30 dark:bg-white/5">
                                                         <Hash className="h-3 w-3" /> {sub.user?.mobile}
                                                     </div>
                                                 </div>
@@ -205,8 +213,8 @@ export default function SubscriptionsPage() {
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <div className="inline-flex flex-col">
-                                                <span className="text-sm font-black text-foreground">{sub.plan?.name}</span>
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-2 py-0.5 bg-muted/50 rounded mt-1 inline-block w-fit">{sub.plan?.type}</span>
+                                                <span className="text-sm font-black text-foreground dark:text-white tracking-tight">{sub.plan?.name}</span>
+                                                <span className="text-[9px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.1em] px-2 py-0.5 bg-muted/50 dark:bg-white/5 border border-zinc-200/50 dark:border-white/5 rounded-md mt-1.5 inline-block w-fit">{sub.plan?.type}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
@@ -221,7 +229,7 @@ export default function SubscriptionsPage() {
                                                 </div>
                                                 {sub.status === 'active' && (
                                                     <span className="text-[10px] text-emerald-600/70 font-bold ml-1 flex items-center gap-1">
-                                                        <Clock className="h-2.5 w-2.5" /> {sub.daysRemaining} days left
+                                                        <Clock className="h-2.5 w-2.5" /> {Math.floor(sub.daysRemaining)} days left
                                                     </span>
                                                 )}
                                             </div>
@@ -233,10 +241,10 @@ export default function SubscriptionsPage() {
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
-                                            <div className="text-sm font-black text-foreground">
+                                            <div className="text-sm font-black text-foreground dark:text-white tracking-tighter">
                                                 {sub.plan?.price !== undefined ? (
-                                                    <span className="flex items-center">
-                                                        <span className="text-zinc-400 font-medium mr-1">₹</span>
+                                                    <span className="flex items-center gap-1">
+                                                        <span className="text-zinc-400 dark:text-zinc-600 font-bold text-[10px]">₹</span>
                                                         {sub.plan.price.toLocaleString()}
                                                     </span>
                                                 ) : '-'}

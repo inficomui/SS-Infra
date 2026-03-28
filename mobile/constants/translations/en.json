@@ -12,6 +12,8 @@
         "success": "Success",
         "confirm": "Confirm",
         "loading": "Loading...",
+        "validation_error": "Validation Error",
+        "please_fill_required": "Please fill all required fields.",
         "select_machine": "Select Machine",
         "no_machines": "No machines found.",
         "error_language": "Failed to change language",
@@ -63,7 +65,15 @@
         "completed": "Completed",
         "in_progress": "In Progress",
         "no_sessions_found": "No sessions found",
-        "status": "Status"
+        "status": "Status",
+        "greeting": "Hello, {{name}}",
+        "operator": "Operator",
+        "machine_assets": "Machine Assets",
+        "fuel_logs": "Fuel Logs",
+        "track_machine_pumps": "Track fuel refills & consumption",
+        "maintenance_records": "Maintenance Records",
+        "check_service_history": "Check service history & health",
+        "logged": "Logged"
     },
     "owner": {
         "good_morning": "Good Morning",
@@ -543,7 +553,8 @@
         "view_salary_bonuses": "View salary & bonuses",
         "view_all_transactions": "View all transactions",
         "wallet_info_msg": "Your wallet balance includes all payments received from owners",
-        "withdrawal_info_msg": "Withdrawals are processed within 1-2 business days"
+        "withdrawal_info_msg": "Withdrawals are processed within 1-2 business days",
+        "please_fill_required": "Please fill all required bank details"
     },
     "fleet": {
         "title": "Fleet Network",

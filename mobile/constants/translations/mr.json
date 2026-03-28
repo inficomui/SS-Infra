@@ -12,6 +12,8 @@
         "success": "यश",
         "confirm": "पुष्टी करा",
         "loading": "लोड होत आहे...",
+        "validation_error": "सत्यापन त्रुटी",
+        "please_fill_required": "कृपया सर्व आवश्यक फील्ड भरा.",
         "select_machine": "मशीन निवडा",
         "no_machines": "कोणतीही मशीन सापडली नाही.",
         "error_language": "भाषा बदलण्यात त्रुटी",
@@ -63,7 +65,15 @@
         "completed": "पूर्ण",
         "in_progress": "प्रगतीपथावर",
         "no_sessions_found": "कोणतेही सत्र आढळले नाही",
-        "status": "स्थिती"
+        "status": "स्थिती",
+        "greeting": "नमस्कार, {{name}}",
+        "operator": "ऑपरेटर",
+        "machine_assets": "मशीन मालमत्ता",
+        "fuel_logs": "इंधन लॉग",
+        "track_machine_pumps": "इंधन रिफिल आणि वापर ट्रॅक करा",
+        "maintenance_records": "रखरखाव रेकॉर्ड",
+        "check_service_history": "सेवा इतिहास आणि आरोग्य तपासा",
+        "logged": "नोंदणी केली"
     },
     "owner": {
         "good_morning": "शुभ सकाळ",
@@ -543,7 +553,8 @@
         "view_salary_bonuses": "पगार आणि बोनस पहा",
         "view_all_transactions": "सर्व व्यवहार पहा",
         "wallet_info_msg": "तुमच्या वॉलेट शिल्लकमध्ये मालकांकडून मिळालेले सर्व पेमेंट समाविष्ट आहेत",
-        "withdrawal_info_msg": "निकासी १-२ व्यवसाय दिवसात प्रक्रिया केली जाते"
+        "withdrawal_info_msg": "निकासी १-२ व्यवसाय दिवसात प्रक्रिया केली जाते",
+        "please_fill_required": "कृपया सर्व आवश्यक बँक तपशील भरा"
     },
     "fleet": {
         "title": "फ्लीट नेटवर्क",

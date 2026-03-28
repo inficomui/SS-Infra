@@ -32,6 +32,8 @@ export default function LoginPage() {
                 dispatch(setCredentials({ user: result.admin, token: result.token }))
                 toast.success('Welcome Back, Admin!')
                 router.push('/dashboard')
+            } else {
+                toast.error(result.message || 'Invalid credentials.')
             }
         } catch (err: any) {
             console.error('Login failed', err)
@@ -101,19 +103,19 @@ export default function LoginPage() {
             </div>
 
             {/* Right Panel - Polished Form */}
-            <div className="w-full lg:w-[55%] flex items-center justify-center p-6 sm:p-12 md:p-20 bg-zinc-50 dark:bg-[#0c0c0e]">
+            <div className="w-full lg:w-[55%] flex items-center justify-center p-6 sm:p-12 md:p-20 bg-background">
                 <div className="w-full max-w-md">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
-                        className="bg-white dark:bg-[#121214] p-8 sm:p-12 rounded-md shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-zinc-100 dark:border-white/[0.05]"
+                        className="bg-card p-8 sm:p-12 rounded-md shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-border"
                     >
                         <div className="mb-10 text-center sm:text-left">
-                            <h2 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+                            <h2 className="text-4xl font-extrabold tracking-tight text-foreground">
                                 Welcome back
                             </h2>
-                            <p className="mt-3 text-zinc-500 dark:text-zinc-400 font-medium">
+                            <p className="mt-3 text-muted-foreground font-medium">
                                 Enter your credentials to manage your estate.
                             </p>
                         </div>
@@ -121,7 +123,7 @@ export default function LoginPage() {
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="space-y-5">
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 ml-1">Account Identifier</label>
+                                    <label className="block text-sm font-bold text-muted-foreground ml-1">Account Identifier</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <Mail className="h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
@@ -129,7 +131,7 @@ export default function LoginPage() {
                                         <input
                                             type="text"
                                             required
-                                            className="block w-full pl-12 pr-4 py-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                                            className="block w-full pl-12 pr-4 py-4 bg-muted/50 border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                                             placeholder="Email or Mobile"
                                             value={loginInput}
                                             onChange={(e) => setLoginInput(e.target.value)}
@@ -139,7 +141,7 @@ export default function LoginPage() {
 
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between ml-1">
-                                        <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">Secret Token</label>
+                                        <label className="block text-sm font-bold text-muted-foreground">Secret Token</label>
                                         <a href="#" className="text-xs font-bold text-primary hover:text-yellow-600 transition-colors uppercase tracking-wider">
                                             Forgot?
                                         </a>
@@ -151,7 +153,7 @@ export default function LoginPage() {
                                         <input
                                             type={showPassword ? 'text' : 'password'}
                                             required
-                                            className="block w-full pl-12 pr-12 py-4 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                                            className="block w-full pl-12 pr-12 py-4 bg-muted/50 border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                                             placeholder="••••••••"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}

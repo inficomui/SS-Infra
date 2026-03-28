@@ -126,25 +126,35 @@ export default function PlansPage() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
         >
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card border border-border/50 p-6 rounded-md shadow-sm">
-                <div>
-                    <h2 className="text-2xl font-bold text-foreground tracking-tight">Subscription Plans</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Manage pricing tiers and features for your customers</p>
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-card border border-border p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all">
+                <div className="flex items-center gap-5">
+                    <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shrink-0">
+                        <Zap className="h-7 w-7 text-primary" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-black text-foreground tracking-tight">Subscription Plans</h2>
+                        <p className="text-sm font-medium text-muted-foreground mt-1 flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-yellow-500 animate-pulse"></span>
+                            Pricing Architecture & Yield Control
+                        </p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-3">
+
+                <div className="flex items-center gap-4 w-full sm:w-auto">
                     <button
                         type="button"
                         onClick={() => refetch()}
-                        className="p-2.5 text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-md transition-all border border-transparent hover:border-border/50"
-                        title="Refresh Plans"
+                        className="p-3 text-muted-foreground hover:text-primary hover:bg-zinc-100 dark:hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-zinc-200 dark:hover:border-white/10"
+                        title="Sync with Node"
                     >
                         <RefreshCw className="h-5 w-5" />
                     </button>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="flex items-center px-5 py-2.5 bg-primary text-black font-bold rounded-md hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                        className="flex items-center px-6 py-3 bg-primary text-black font-black rounded-xl hover:opacity-90 transition-all shadow-xl shadow-primary/25 active:scale-95 shrink-0"
                     >
-                        <Plus className="h-5 w-5 mr-2" />
+                        <Plus className="h-5 w-5 mr-2" strokeWidth={3} />
                         Create New Plan
                     </button>
                 </div>
@@ -163,8 +173,10 @@ export default function PlansPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
                             className={clsx(
-                                "group relative bg-card rounded-md overflow-hidden border transition-all duration-300",
-                                !plan.isActive ? "border-dashed border-border opacity-70" : "border-border hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1"
+                                "group relative bg-card rounded-[2rem] overflow-hidden border transition-all duration-500",
+                                !plan.isActive 
+                                    ? "border-dashed border-border opacity-70" 
+                                    : "border-border hover:border-primary/50 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.4)] hover:-translate-y-2"
                             )}
                         >
                             {!plan.isActive && (
@@ -175,20 +187,20 @@ export default function PlansPage() {
 
                             {/* Card Header */}
                             <div className="p-8 pb-0">
-                                <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-black transition-colors duration-300">
-                                    {plan.price > 1000 ? <Crown className="h-6 w-6 text-primary group-hover:text-black" /> :
-                                        plan.price > 0 ? <Zap className="h-6 w-6 text-primary group-hover:text-black" /> :
-                                            <Star className="h-6 w-6 text-primary group-hover:text-black" />}
+                                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20 group-hover:bg-primary group-hover:border-primary transition-all duration-500 group-hover:rotate-6">
+                                    {plan.price > 1000 ? <Crown className="h-7 w-7 text-primary group-hover:text-black" strokeWidth={2.5} /> :
+                                        plan.price > 0 ? <Zap className="h-7 w-7 text-primary group-hover:text-black" strokeWidth={2.5} /> :
+                                            <Star className="h-7 w-7 text-primary group-hover:text-black" strokeWidth={2.5} />}
                                 </div>
-                                <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{plan.name}</h3>
-                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2 min-h-[40px]">{plan.description}</p>
+                                <h3 className="text-2xl font-black text-foreground dark:text-white group-hover:text-primary transition-colors tracking-tight">{plan.name}</h3>
+                                <p className="text-sm font-medium text-muted-foreground dark:text-zinc-400 mt-2 line-clamp-2 min-h-[40px] opacity-80">{plan.description}</p>
                             </div>
 
                             {/* Pricing */}
-                            <div className="p-8 pt-6">
-                                <div className="flex items-baseline">
-                                    <span className="text-4xl font-extrabold text-foreground tracking-tight">₹{plan.price}</span>
-                                    <span className="ml-2 text-sm font-medium text-muted-foreground">/ {plan.durationDays} days</span>
+                            <div className="p-8 pt-8">
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-5xl font-black text-foreground tracking-tighter">₹{plan.price}</span>
+                                    <span className="text-xs font-black text-muted-foreground uppercase tracking-widest bg-muted/30 px-2 py-1 rounded-md">/ {plan.durationDays} days</span>
                                 </div>
                             </div>
 
@@ -196,11 +208,11 @@ export default function PlansPage() {
                             <div className="px-8 pb-8">
                                 <ul className="space-y-4">
                                     {plan.features?.map((feature: string, idx: number) => (
-                                        <li key={idx} className="flex items-start">
-                                            <div className="mr-3 mt-0.5 shrink-0 h-5 w-5 rounded-md bg-green-500/10 flex items-center justify-center">
-                                                <Check className="h-3 w-3 text-green-500" />
+                                        <li key={idx} className="flex items-start group/feature">
+                                            <div className="mr-3 mt-0.5 shrink-0 h-5 w-5 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center border border-emerald-500/20 group-hover/feature:bg-emerald-500 transition-all">
+                                                <Check className="h-3 w-3 text-emerald-500 group-hover/feature:text-white" strokeWidth={3} />
                                             </div>
-                                            <span className="text-sm text-muted-foreground">{feature}</span>
+                                            <span className="text-sm font-bold text-muted-foreground dark:text-zinc-400 group-hover/feature:text-foreground dark:group-hover/feature:text-white transition-colors">{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -229,13 +241,13 @@ export default function PlansPage() {
                     {/* Add New Plan Placeholder */}
                     <button
                         onClick={() => handleOpenModal()}
-                        className="group flex flex-col items-center justify-center p-8 border-2 border-dashed border-border rounded-md hover:border-primary/50 hover:bg-primary/5 transition-all text-center min-h-[400px]"
+                        className="group flex flex-col items-center justify-center p-8 border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-3xl hover:border-primary/50 hover:bg-primary/5 transition-all text-center min-h-[400px]"
                     >
-                        <div className="h-16 w-16 rounded-md bg-muted group-hover:bg-primary/20 flex items-center justify-center transition-colors mb-4">
-                            <Plus className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <div className="h-16 w-16 rounded-2xl bg-muted dark:bg-white/5 group-hover:bg-primary flex items-center justify-center transition-all duration-500 mb-6 group-hover:rotate-12 group-hover:scale-110">
+                            <Plus className="h-8 w-8 text-muted-foreground dark:text-zinc-500 group-hover:text-black transition-colors" strokeWidth={3} />
                         </div>
-                        <span className="text-lg font-semibold text-foreground">Create New Plan</span>
-                        <span className="text-sm text-muted-foreground mt-1">Add a new pricing tier</span>
+                        <span className="text-xl font-black text-foreground dark:text-white group-hover:text-primary transition-colors">Create New Plan</span>
+                        <span className="text-sm font-medium text-muted-foreground dark:text-zinc-500 mt-2 opacity-60">Architect a new pricing tier</span>
                     </button>
                 </div>
             )}
@@ -254,66 +266,66 @@ export default function PlansPage() {
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="bg-card w-full max-w-xl rounded-md shadow-2xl pointer-events-auto border border-border/50 flex flex-col max-h-[90vh]"
+                                className="bg-card w-full max-w-xl rounded-3xl shadow-2xl pointer-events-auto border border-border flex flex-col max-h-[90vh] overflow-hidden"
                             >
-                                <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20 shrink-0">
+                                <div className="p-8 border-b border-border flex justify-between items-center bg-muted/20 shrink-0">
                                     <div>
-                                        <h3 className="text-xl font-bold text-foreground">
-                                            {editingPlan ? 'Edit Plan' : 'Create New Plan'}
+                                        <h3 className="text-2xl font-black text-foreground dark:text-white tracking-tight">
+                                            {editingPlan ? 'Refine Architecture' : 'Architect New Plan'}
                                         </h3>
-                                        <p className="text-sm text-muted-foreground">Configure plan details and pricing</p>
+                                        <p className="text-sm font-medium text-muted-foreground dark:text-zinc-500 mt-1">Configure parameters and yield factors</p>
                                     </div>
-                                    <button onClick={handleCloseModal} className="text-muted-foreground hover:text-foreground p-2 hover:bg-muted rounded-md transition-colors">
+                                    <button onClick={handleCloseModal} className="text-muted-foreground hover:text-foreground dark:hover:text-white p-2.5 hover:bg-muted dark:hover:bg-white/5 rounded-xl transition-all active:scale-95">
                                         <X className="h-5 w-5" />
                                     </button>
                                 </div>
 
                                 <div className="overflow-y-auto">
-                                    <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-medium text-foreground">Plan Name</label>
+                                    <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                                        <div className="space-y-6">
+                                            <div className="space-y-3">
+                                                <label className="text-xs font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest ml-1">Plan Specification</label>
                                                 <input
                                                     type="text"
                                                     required
                                                     value={formData.name}
                                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                    placeholder="e.g. Pro Plan"
-                                                    className="block w-full px-3 py-2.5 bg-muted/30 border border-border rounded-md text-sm focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                                    placeholder="e.g. Enterprise Tier"
+                                                    className="block w-full px-4 py-3.5 bg-muted/30 dark:bg-white/5 border border-transparent focus:border-primary/50 dark:focus:border-primary/50 focus:bg-background dark:focus:bg-zinc-950 focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold placeholder:text-zinc-400 dark:text-white"
                                                 />
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-foreground">Price (₹)</label>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div className="space-y-3">
+                                                    <label className="text-xs font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest ml-1">Asset Yield (₹)</label>
                                                     <input
                                                         type="number"
                                                         required
                                                         min="0"
                                                         value={formData.price}
                                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                                        className="block w-full px-3 py-2.5 bg-muted/30 border border-border rounded-md text-sm focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                                        className="block w-full px-4 py-3.5 bg-muted/30 dark:bg-white/5 border border-transparent focus:border-primary/50 focus:bg-background dark:focus:bg-zinc-950 focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold dark:text-white"
                                                     />
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-foreground">Duration (Days)</label>
+                                                <div className="space-y-3">
+                                                    <label className="text-xs font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest ml-1">Tenure (Days)</label>
                                                     <input
                                                         type="number"
                                                         required
                                                         min="1"
                                                         value={formData.durationDays}
                                                         onChange={(e) => setFormData({ ...formData, durationDays: e.target.value })}
-                                                        className="block w-full px-3 py-2.5 bg-muted/30 border border-border rounded-md text-sm focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                                        className="block w-full px-4 py-3.5 bg-muted/30 dark:bg-white/5 border border-transparent focus:border-primary/50 focus:bg-background dark:focus:bg-zinc-950 focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold dark:text-white"
                                                     />
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-medium text-foreground">Type</label>
+                                            <div className="space-y-3">
+                                                <label className="text-xs font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest ml-1">Category</label>
                                                 <select
                                                     value={formData.type}
                                                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                                    className="block w-full px-3 py-2.5 bg-muted/30 border border-border rounded-md text-sm focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                                                    className="block w-full px-4 py-3.5 bg-muted/30 dark:bg-white/5 border border-transparent focus:border-primary/50 focus:bg-background dark:focus:bg-zinc-950 focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold outline-none dark:text-white appearance-none"
                                                 >
                                                     <option value="trial">Trial</option>
                                                     <option value="monthly">Monthly</option>
@@ -379,20 +391,20 @@ export default function PlansPage() {
                                             </label>
                                         </div>
 
-                                        <div className="pt-4 flex justify-end space-x-3">
+                                        <div className="pt-6 flex justify-end gap-4">
                                             <button
                                                 type="button"
                                                 onClick={handleCloseModal}
-                                                className="px-5 py-2.5 border border-border rounded-md text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
+                                                className="px-6 py-3 border border-zinc-200 dark:border-white/10 rounded-xl text-sm font-black text-muted-foreground hover:bg-muted dark:hover:bg-white/5 transition-all active:scale-95"
                                             >
                                                 Cancel
                                             </button>
                                             <button
                                                 type="submit"
                                                 disabled={isCreating || isUpdating}
-                                                className="px-5 py-2.5 bg-primary text-black rounded-md shadow-lg shadow-primary/20 text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                                                className="px-8 py-3 bg-primary text-black rounded-xl shadow-xl shadow-primary/25 text-sm font-black hover:opacity-90 transition-all disabled:opacity-50 active:scale-95"
                                             >
-                                                {isCreating || isUpdating ? 'Saving...' : 'Save Plan'}
+                                                {isCreating || isUpdating ? 'Processing...' : 'Deploy Plan'}
                                             </button>
                                         </div>
                                     </form>

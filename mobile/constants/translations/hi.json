@@ -12,6 +12,8 @@
         "success": "सफलता",
         "confirm": "पुष्टि करें",
         "loading": "लोड हो रहा है...",
+        "validation_error": "सत्यापन त्रुटि",
+        "please_fill_required": "कृपया सभी आवश्यक फ़ील्ड भरें।",
         "select_machine": "मशीन चुनें",
         "no_machines": "कोई मशीन नहीं मिली।",
         "error_language": "भाषा बदलने में विफल",
@@ -59,11 +61,19 @@
         "error_pause": "स्थानीय रूप से कार्य रोकने में विफल।",
         "error_resume": "स्थानीय रूप से कार्य फिर से शुरू करने में विफल।",
         "error_machine": "मशीन चयन सहेजने में विफल।",
-        "no_recent_activity": "कोई हालिया गतिविधि नहीं मिली。",
+        "no_recent_activity": "कोई हालिया गतिविधि नहीं मिली।",
         "completed": "पूर्ण",
         "in_progress": "प्रगति पर",
         "no_sessions_found": "कोई सत्र नहीं मिला",
-        "status": "स्थिति"
+        "status": "स्थिति",
+        "greeting": "नमस्ते, {{name}}",
+        "operator": "ऑपरेटर",
+        "machine_assets": "मशीन संपत्तियां",
+        "fuel_logs": "ईंधन लॉग",
+        "track_machine_pumps": "ईंधन रिफिल और खपत को ट्रैक करें",
+        "maintenance_records": "रखरखाव रिकॉर्ड",
+        "check_service_history": "सेवा इतिहास और स्थिति की जांच करें",
+        "logged": "दर्ज किया गया"
     },
     "owner": {
         "good_morning": "शुभ प्रभात",
@@ -543,7 +553,8 @@
         "view_salary_bonuses": "वेतन और बोनस देखें",
         "view_all_transactions": "सभी लेन-देन देखें",
         "wallet_info_msg": "आपके वॉलेट बैलेंस में मालिकों से प्राप्त सभी भुगतान शामिल हैं",
-        "withdrawal_info_msg": "निकासी 1-2 व्यावसायिक दिनों के भीतर संसाधित की जाती है"
+        "withdrawal_info_msg": "निकासी 1-2 व्यावसायिक दिनों के भीतर संसाधित की जाती है",
+        "please_fill_required": "कृपया सभी आवश्यक बैंक विवरण भरें"
     },
     "fleet": {
         "title": "फ्लीट नेटवर्क",

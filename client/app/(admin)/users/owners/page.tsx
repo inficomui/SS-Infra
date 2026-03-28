@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useGetOwnersQuery, useCreateOwnerMutation, useUpdateOwnerMutation, useDeleteOwnerMutation } from '@/redux/apis/usersApi'
 import { Loader2, Search, Plus, MapPin, User, X, Check, Filter, MoreHorizontal, ChevronLeft, ChevronRight, Phone, Hash, Edit2, Trash2, RefreshCw, CreditCard } from 'lucide-react'
 import Link from 'next/link'
@@ -13,6 +13,15 @@ export default function OwnersPage() {
     const [page, setPage] = useState(1)
     const [search, setSearch] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
+    
+    // Proper Debounce Logic
+    React.useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search)
+        }, 500)
+        return () => clearTimeout(handler)
+    }, [search])
+
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingOwner, setEditingOwner] = useState<any>(null)
 
@@ -35,7 +44,6 @@ export default function OwnersPage() {
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value)
-        setTimeout(() => setDebouncedSearch(e.target.value), 500)
     }
 
     const { data, isLoading, refetch } = useGetOwnersQuery({
@@ -113,36 +121,31 @@ export default function OwnersPage() {
             className="space-y-6"
         >
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card border border-border/50 p-6 rounded-xl shadow-sm">
-                <div>
-                    <h2 className="text-3xl font-black text-foreground tracking-tight">Owners Management</h2>
-                    <p className="text-sm font-medium text-muted-foreground mt-1">Manage infrastructure owners and their details</p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-card border border-border p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all">
+                <div className="flex items-center gap-5">
+                    <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shrink-0">
+                        <User className="h-7 w-7 text-primary" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-black text-foreground tracking-tight">Owners Management</h2>
+                        <p className="text-sm font-medium text-muted-foreground mt-1 flex items-center gap-2">
+                             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            System Network Infrastructure Control
+                        </p>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setPage(1)
-                            setSearch('')
-                            setDebouncedSearch('')
-                            refetch()
-                        }}
-                        className="p-2.5 bg-muted/50 text-muted-foreground hover:text-primary hover:bg-muted border border-transparent hover:border-border/50 rounded-md transition-all"
-                        title="Reset & Refresh"
-                    >
-                        <RefreshCw className="h-4 w-4" />
-                    </button>
-                    <div className="relative flex-1 sm:w-72 group">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-foreground transition-colors" />
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="relative flex-1 sm:w-80 group">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         </div>
                         <input
                             type="text"
-                            placeholder="Search by name, mobile..."
+                            placeholder="Find records..."
                             value={search}
                             onChange={handleSearch}
-                            className="block w-full pl-10 pr-3 py-2.5 bg-muted/30 border border-border/50 focus:border-primary focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-lg text-sm transition-all font-medium"
+                            className="block w-full pl-11 pr-4 py-3 bg-muted/30 border border-transparent focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold placeholder:text-muted-foreground"
                         />
                     </div>
                     <button
@@ -151,34 +154,35 @@ export default function OwnersPage() {
                             setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '' })
                             setIsModalOpen(true)
                         }}
-                        className="flex items-center px-5 py-2.5 bg-primary text-primary-foreground font-medium rounded-md hover:opacity-90 transition-all shadow-lg shadow-primary/25 shrink-0"
+                        className="flex items-center px-6 py-3 bg-primary text-black font-black rounded-xl hover:opacity-90 transition-all shadow-xl shadow-primary/25 active:scale-95 shrink-0"
                     >
-                        <Plus className="h-5 w-5 mr-2" />
-                        Add Owner
+                        <Plus className="h-5 w-5 mr-2" strokeWidth={3} />
+                        Register New
                     </button>
                 </div>
             </div>
 
             {/* List Content */}
-            <div className="bg-card shadow-sm rounded-xl overflow-hidden border border-border/60">
+            <div className="bg-card shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl overflow-hidden border border-border transition-all">
                 {isLoading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <Loader2 className="animate-spin h-8 w-8 text-primary" />
+                    <div className="flex flex-col justify-center items-center h-80 space-y-4">
+                        <Loader2 className="animate-spin h-10 w-10 text-primary" strokeWidth={3} />
+                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Accessing Vault...</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-border/50">
-                            <thead className="bg-muted/40 border-b border-border/60">
+                        <table className="min-w-full">
+                            <thead className="bg-muted/30 border-b border-border">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Owner Details</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Location</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Referral</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Stats</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest">Joined Date</th>
-                                    <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Entity Details</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Geographic Node</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Ledger Referral</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Fleet Stats</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Verification</th>
+                                    <th scope="col" className="relative px-8 py-5"><span className="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-card divide-y divide-border/50">
+                            <tbody className="divide-y divide-border bg-transparent">
                                 {owners.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-6 py-16 text-center text-muted-foreground">
@@ -278,8 +282,8 @@ export default function OwnersPage() {
 
                 {pagination && (
                     <div className="bg-card px-6 py-4 flex items-center justify-between border-t border-border/50">
-                        <div className="text-sm text-muted-foreground">
-                            Showing <span className="font-medium text-foreground">{((page - 1) * 10) + 1}</span> to <span className="font-medium text-foreground">{Math.min(page * 10, pagination.totalCount || 0)}</span> of <span className="font-medium text-foreground">{pagination.totalCount}</span> results
+                        <div className="text-sm text-muted-foreground flex items-center gap-1">
+                            Showing <span className="font-black text-foreground">{(pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0) > 0 ? ((page - 1) * 10) + 1 : 0}</span> to <span className="font-black text-foreground">{Math.min(page * 10, pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0)}</span> of <span className="font-black text-foreground">{pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0}</span> results
                         </div>
                         <div className="flex items-center space-x-2">
                             <button
