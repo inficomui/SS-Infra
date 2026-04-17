@@ -106,11 +106,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </div>
                         <div className="transition-all duration-300">
                             <h1 className="text-xl font-black tracking-tighter text-foreground leading-none">
-                                SS <span className="text-primary italic">INFRA</span>
+                                SS <span className="text-primary italic">ADMIN</span>
                             </h1>
                             <div className="flex items-center gap-1.5 mt-1.5">
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span className="text-[9px] text-muted-foreground font-black tracking-[0.2em] uppercase opacity-70">Console v1.2</span>
+                                <span className="text-[9px] text-muted-foreground font-black tracking-[0.2em] uppercase opacity-70">Admin Panel</span>
                             </div>
                         </div>
                     </div>
@@ -125,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {/* Nav Items */}
                 <div className="flex-1 overflow-y-auto py-10 px-6 space-y-8 custom-scrollbar">
                     <div className="space-y-2">
-                        <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-4 opacity-70">Core Management</p>
+                        <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-4 opacity-70">Manage</p>
                         <div className="space-y-1">
                             {navItems.slice(0, 3).map((item) => {
                                 const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
@@ -158,7 +158,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </div>
 
                     <div className="space-y-2">
-                        <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-4 opacity-70">Financial Deck</p>
+                        <p className="px-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-4 opacity-70">Payments</p>
                         <div className="space-y-1">
                             {navItems.slice(3).map((item) => {
                                 const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
@@ -193,11 +193,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-xs font-black text-foreground truncate">{user?.name || 'Administrator'}</p>
-                            <p className="text-[9px] font-black text-muted-foreground truncate uppercase tracking-tighter opacity-70">Sys-Admin Node</p>
+                            <p className="text-[9px] font-black text-muted-foreground truncate uppercase tracking-tighter opacity-70">Main Admin</p>
                         </div>
                         <button
                             onClick={handleLogout}
-                            title="Sign Out"
+                            title="Logout"
                             className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-md transition-all"
                         >
                             <LogOut className="h-4 w-4" />
@@ -220,12 +220,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                         <div className="hidden sm:flex flex-col">
                             <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                                <span>SS Infra</span>
+                                <span>SS Admin</span>
                                 <ChevronRight className="h-3 w-3 opacity-30" />
                                 <span className={clsx(
                                     "transition-colors",
                                     pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
-                                )}>Console</span>
+                                )}>Admin Panel</span>
                             </div>
                             <h2 className="text-xl font-black text-foreground tracking-tight capitalize mt-0.5">
                                 {pathname?.split('/').pop()?.replace(/-/g, ' ') || 'Overview'}
@@ -236,7 +236,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div className="flex items-center gap-4">
                         <div className="hidden lg:flex items-center gap-2 bg-muted rounded-md px-4 py-2 border border-border">
                             <Globe className="h-4 w-4 text-primary animate-pulse" />
-                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Admin Node: Active</span>
+                            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Admin: Active</span>
                         </div>
 
                         <div className="flex items-center gap-2">

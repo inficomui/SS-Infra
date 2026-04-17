@@ -68,17 +68,17 @@ export default function LoginPage() {
 
                         <div className="space-y-4">
                             <h1 className="text-6xl font-black text-white tracking-tighter leading-none">
-                                SS <span className="text-primary italic">INFRA</span>
+                                SS <span className="text-primary italic">ADMIN</span>
                                 <span className="block h-1.5 w-24 bg-primary mt-4 rounded-md"></span>
                             </h1>
                             <p className="text-xl text-zinc-400 font-medium leading-relaxed max-w-sm">
-                                Infrastructure Management, <span className="text-zinc-200">Simplified.</span>
+                                Admin Panel, <span className="text-zinc-200">Simplified.</span>
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-6 pt-4">
                             {[
-                                { icon: ShieldCheck, text: "Secure Enterprise Access" },
+                                { icon: ShieldCheck, text: "Admin Panel Access" },
                                 { icon: ArrowRight, text: "Real-time Monitoring" }
                             ].map((item, idx) => (
                                 <motion.div
@@ -98,7 +98,7 @@ export default function LoginPage() {
 
                 {/* Bottom Footer for Left Side */}
                 <div className="absolute bottom-8 left-12">
-                    <p className="text-xs text-zinc-600 font-semibold tracking-widest uppercase">Admin Portal v1.2</p>
+                    <p className="text-xs text-zinc-600 font-semibold tracking-widest uppercase">Admin Panel</p>
                 </div>
             </div>
 
@@ -116,14 +116,14 @@ export default function LoginPage() {
                                 Welcome back
                             </h2>
                             <p className="mt-3 text-muted-foreground font-medium">
-                                Enter your credentials to manage your estate.
+                                Enter your login details to manage the system.
                             </p>
                         </div>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="space-y-5">
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-muted-foreground ml-1">Account Identifier</label>
+                                    <label className="block text-sm font-bold text-muted-foreground ml-1">Login ID</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <Mail className="h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
@@ -141,7 +141,7 @@ export default function LoginPage() {
 
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between ml-1">
-                                        <label className="block text-sm font-bold text-muted-foreground">Secret Token</label>
+                                        <label className="block text-sm font-bold text-muted-foreground">Password</label>
                                         <a href="#" className="text-xs font-bold text-primary hover:text-yellow-600 transition-colors uppercase tracking-wider">
                                             Forgot?
                                         </a>
@@ -176,7 +176,7 @@ export default function LoginPage() {
                                     className="h-5 w-5 rounded-md border-zinc-300 dark:border-zinc-700 text-primary focus:ring-primary/20 transition-all cursor-pointer"
                                 />
                                 <label htmlFor="remember" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 cursor-pointer select-none">
-                                    Keep me signed in
+                                    Remember me
                                 </label>
                             </div>
 
@@ -189,7 +189,7 @@ export default function LoginPage() {
                                     <Loader2 className="animate-spin h-6 w-6" />
                                 ) : (
                                     <>
-                                        Sign in to Console <ArrowRight className="ml-2 h-5 w-5" />
+                                        Login <ArrowRight className="ml-2 h-5 w-5" />
                                     </>
                                 )}
                             </button>

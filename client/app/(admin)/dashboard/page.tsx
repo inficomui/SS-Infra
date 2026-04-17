@@ -65,7 +65,7 @@ export default function Dashboard() {
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatsCard
-                    title="Gross Revenue"
+                    title="Total Earnings"
                     value={`₹${stats.recharges?.totalAmount?.toLocaleString() || '0'}`}
                     icon={CreditCard}
                     trend="+12.5%"
@@ -74,7 +74,7 @@ export default function Dashboard() {
                     bgColor="bg-emerald-500/10"
                 />
                 <StatsCard
-                    title="Platform Network"
+                    title="Total Users"
                     value={stats.users?.totalUsers || 0}
                     icon={Users}
                     trend="+5.2%"
@@ -83,7 +83,7 @@ export default function Dashboard() {
                     bgColor="bg-blue-500/10"
                 />
                 <StatsCard
-                    title="Active Fleet"
+                    title="Active Drivers"
                     value={stats.users?.totalOperators || 0}
                     icon={Shield}
                     trend="+2.4%"
@@ -92,7 +92,7 @@ export default function Dashboard() {
                     bgColor="bg-indigo-500/10"
                 />
                 <StatsCard
-                    title="Pending Ops"
+                    title="Waiting Tasks"
                     value={stats.recharges?.pendingCount || 0}
                     icon={Activity}
                     trend="-1.5%"
@@ -109,8 +109,8 @@ export default function Dashboard() {
                 <div className="lg:col-span-2 bg-card border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl p-8 relative overflow-hidden group">
                     <div className="flex justify-between items-center mb-10">
                         <div>
-                            <h3 className="font-black text-xl text-foreground tracking-tight">Financial Intelligence</h3>
-                            <p className="text-sm text-muted-foreground font-medium mt-1">Daily transaction flow & network growth</p>
+                            <h3 className="font-black text-xl text-foreground tracking-tight">Money Stats</h3>
+                            <p className="text-sm text-muted-foreground font-medium mt-1">Daily sales & new users</p>
                         </div>
                         <div className="h-12 w-12 bg-primary/5 rounded-xl flex items-center justify-center border border-primary/20 group-hover:rotate-6 transition-transform">
                             <TrendingUp className="h-6 w-6 text-primary" />
@@ -177,8 +177,8 @@ export default function Dashboard() {
                 <div className="bg-card border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl p-8 relative group overflow-hidden">
                     <div className="flex justify-between items-center mb-10">
                         <div>
-                            <h3 className="font-black text-xl text-foreground tracking-tight">Growth Scale</h3>
-                            <p className="text-sm text-muted-foreground font-medium mt-1">Monthly user acquisition velocity</p>
+                            <h3 className="font-black text-xl text-foreground tracking-tight">User Growth</h3>
+                            <p className="text-sm text-muted-foreground font-medium mt-1">New users per month</p>
                         </div>
                         <div className="h-12 w-12 bg-primary/5 rounded-xl flex items-center justify-center border border-primary/20 group-hover:rotate-6 transition-transform">
                             <UserPlus className="h-6 w-6 text-primary" />
@@ -222,8 +222,8 @@ export default function Dashboard() {
                 {/* Recent Identifiers */}
                 <div className="bg-card border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl overflow-hidden flex flex-col">
                     <div className="p-8 border-b border-zinc-200/50 dark:border-white/5 flex justify-between items-center bg-muted/20 dark:bg-zinc-800/20">
-                        <h3 className="font-black text-xl text-foreground dark:text-white tracking-tight">New Identifiers</h3>
-                        <button className="text-[10px] font-black text-primary px-4 py-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all uppercase tracking-widest border border-primary/20">System Deck</button>
+                        <h3 className="font-black text-xl text-foreground dark:text-white tracking-tight">New Users</h3>
+                        <button className="text-[10px] font-black text-primary px-4 py-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all uppercase tracking-widest border border-primary/20">Full List</button>
                     </div>
                     <div className="divide-y divide-border/20 flex-1">
                         {stats.recentSignups?.slice(0, 5).map((signup: any, idx: number) => (
@@ -265,8 +265,8 @@ export default function Dashboard() {
                 {/* Recent Ledger */}
                 <div className="bg-card border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl overflow-hidden flex flex-col">
                     <div className="p-8 border-b border-zinc-200/50 dark:border-white/5 flex justify-between items-center bg-muted/20 dark:bg-zinc-800/20">
-                        <h3 className="font-black text-xl text-foreground dark:text-white tracking-tight">Ledger Stream</h3>
-                        <button className="text-[10px] font-black text-primary px-4 py-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all uppercase tracking-widest border border-primary/20">Full Audit</button>
+                        <h3 className="font-black text-xl text-foreground dark:text-white tracking-tight">Recent Payments</h3>
+                        <button className="text-[10px] font-black text-primary px-4 py-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-all uppercase tracking-widest border border-primary/20">See All</button>
                     </div>
                     <div className="divide-y divide-border/20 flex-1">
                         {stats.recentRecharges?.slice(0, 5).map((txn: any, idx: number) => (
@@ -303,7 +303,7 @@ export default function Dashboard() {
                                     )}>
                                         {txn.status}
                                     </span>
-                                    <span className="text-[10px] text-zinc-500 font-bold mt-2 opacity-40">Verifying Node</span>
+                                    <span className="text-[10px] text-zinc-500 font-bold mt-2 opacity-40">System checking...</span>
                                 </div>
                             </motion.div>
                         ))}

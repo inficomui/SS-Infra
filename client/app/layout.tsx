@@ -15,8 +15,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SS Infra Admin Panel",
-  description: "Admin Panel for SS Infra Applications",
+  title: "SS Admin Panel",
+  description: "Admin Panel for SS Projects",
 };
 
 export default function RootLayout({

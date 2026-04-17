@@ -66,8 +66,8 @@ export default function Home() {
               <Shield className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tight leading-none">SS <span className="text-primary italic">Infra</span></h1>
-              <span className="text-[10px] text-muted-foreground font-bold tracking-[0.2em] uppercase opacity-80">Official Portal</span>
+              <h1 className="text-xl font-black tracking-tight leading-none">SS <span className="text-primary italic">Admin</span></h1>
+              <span className="text-[10px] text-muted-foreground font-bold tracking-[0.2em] uppercase opacity-80">Admin Panel</span>
             </div>
           </div>
 
@@ -84,13 +84,13 @@ export default function Home() {
             {isAuthenticated ? (
               <Link href="/dashboard" className="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-bold text-primary-foreground bg-primary rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary/30">
                 <span className="relative z-10 flex items-center gap-2">
-                  Console <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  Admin Panel <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Link>
             ) : (
               <Link href="/login" className="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-bold border-2 border-primary text-foreground rounded-lg overflow-hidden transition-all hover:bg-primary hover:text-primary-foreground">
                 <span className="relative z-10 flex items-center gap-2">
-                  Sign In <Lock className="h-4 w-4" />
+                  Login <Lock className="h-4 w-4" />
                 </span>
               </Link>
             )}
@@ -115,30 +115,30 @@ export default function Home() {
             >
               <motion.div variants={fadeIn} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 text-sm font-semibold text-muted-foreground mb-8 backdrop-blur-md">
                 <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
-                SS Infra Platform v2.0 is Live
+                SS Admin is Live
               </motion.div>
 
               <motion.h1 variants={fadeIn} className="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[1.1]">
-                Next-Gen <br className="hidden md:block" />
+                Simple <br className="hidden md:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-600">
-                  Infrastructure
-                </span> Control
+                  Admin
+                </span> Panel
               </motion.h1>
 
               <motion.p variants={fadeIn} className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
-                Empower your operations with enterprise-grade management, real-time analytics, and secure administrative controls.
+                Manage everything easily with our simple admin panel and real-time tools.
               </motion.p>
 
               <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 {isAuthenticated ? (
                   <Link href="/dashboard" className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground text-lg font-bold rounded-xl hover:scale-105 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
                     <Layers className="h-5 w-5" />
-                    Enter Dashboard
+                    Go to Admin
                   </Link>
                 ) : (
                   <Link href="/login" className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground text-lg font-bold rounded-xl hover:scale-105 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
                     <Lock className="h-5 w-5" />
-                    Secure Login
+                    Login
                   </Link>
                 )}
                 <Link href="#features" className="w-full sm:w-auto px-8 py-4 bg-muted hover:bg-muted/80 text-foreground text-lg font-bold rounded-xl transition-all flex items-center justify-center gap-3 border border-border/50">
@@ -184,7 +184,7 @@ export default function Home() {
                 </div>
                 <div className="relative z-10 flex flex-col items-center">
                   <Shield className="h-16 w-16 text-primary mb-4 opacity-50" />
-                  <span className="text-xl font-bold text-muted-foreground/50">SS Infra Admin Architecture</span>
+                  <span className="text-xl font-bold text-muted-foreground/50">Admin Panel at Admin Node</span>
                 </div>
               </div>
             </motion.div>
@@ -231,11 +231,11 @@ export default function Home() {
         <section className="py-32 relative overflow-hidden">
           <div className="absolute inset-0 bg-primary/5"></div>
           <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-            <h2 className="text-4xl md:text-6xl font-black mb-6">Ready to elevate your <br /> management flow?</h2>
-            <p className="text-xl text-muted-foreground mb-10">Join the administrative echelon. Access the SS Infra console today.</p>
+            <h2 className="text-4xl md:text-6xl font-black mb-6">Ready to manage <br /> your system?</h2>
+            <p className="text-xl text-muted-foreground mb-10">Access the admin panel today.</p>
 
             <Link href={isAuthenticated ? "/dashboard" : "/login"} className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground text-lg font-bold rounded-xl hover:scale-105 transition-all shadow-xl shadow-primary/20">
-              {isAuthenticated ? "Go to Dashboard" : "Authenticate Now"}
+              {isAuthenticated ? "Go to Admin Panel" : "Login Now"}
               <ChevronRight className="h-5 w-5" />
             </Link>
           </div>
@@ -247,7 +247,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
             <Shield className="h-6 w-6 text-primary" />
-            <span className="font-bold tracking-tight">SS Infra Platform</span>
+            <span className="font-bold tracking-tight">Admin System</span>
           </div>
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} SS Infra Operations. All rights reserved.
