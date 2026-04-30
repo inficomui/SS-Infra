@@ -7,12 +7,17 @@ import { useGenerateBillMutation } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
 import { resolveImageUrl } from '../../utils/formatters';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
+import { useAppSelector } from '@/redux/hooks';
+import Toast from 'react-native-toast-message';
 
 export default function CreateBillScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const params = useLocalSearchParams();
     const [generateBill, { isLoading: isSubmitting }] = useGenerateBillMutation();
+    const { performMutation } = useOfflineMutation();
+    const { isOnline } = useAppSelector(state => state.offline);
     const { t } = useTranslation();
 
     const initialSeconds = Number(params.elapsedSeconds) || 0;
@@ -51,36 +56,51 @@ export default function CreateBillScreen() {
                     text: t('create_bill_screen.confirm'),
                     onPress: async () => {
                         try {
-                            // Store result to access invoice details
-                            const result = await generateBill({
+                            const requestBody = {
                                 workSessionId: workId,
                                 hourlyRate: parseFloat(rate),
                                 totalHours: parseFloat(hours),
                                 totalAmount: parseFloat(totalAmount),
                                 description: description
-                            }).unwrap();
+                            };
 
-                            Alert.alert(t('create_bill_screen.success'), t('create_bill_screen.invoice_success'), [
-                                {
-                                    text: t('create_bill_screen.view_invoice'),
-                                    onPress: () => {
-                                        router.replace({
-                                            pathname: '/(operator)/invoice-preview',
-                                            params: {
-                                                invoiceNumber: result.invoice?.invoice_number || 'INV-' + Date.now().toString().slice(-6),
-                                                clientName: clientName,
-                                                totalAmount: totalAmount,
-                                                totalHours: hours,
-                                                hourlyRate: rate,
-                                                description: description,
-                                                date: new Date().toISOString(),
-                                                photoUri: params.afterWorkPhoto,
-                                                invoiceId: result.invoice?.id
+                            const result = await performMutation(generateBill, requestBody, {
+                                endpoint: '/billing/generate',
+                                method: 'POST',
+                                description: `Generate invoice for work ${workId}`
+                            });
+
+                            if (result.success) {
+                                // If offline, result.invoice might be null or partial
+                                const invoiceNum = result.invoice?.invoice_number || 'INV-PENDING-' + Date.now().toString().slice(-4);
+                                const invId = result.invoice?.id || `pending_${Date.now()}`;
+
+                                Alert.alert(
+                                    result.offline ? t('create_bill_screen.success') + " (Offline)" : t('create_bill_screen.success'),
+                                    result.offline ? "Invoice generated and queued for sync." : t('create_bill_screen.invoice_success'),
+                                    [
+                                        {
+                                            text: t('create_bill_screen.view_invoice'),
+                                            onPress: () => {
+                                                router.replace({
+                                                    pathname: '/(operator)/invoice-preview',
+                                                    params: {
+                                                        invoiceNumber: invoiceNum,
+                                                        clientName: clientName,
+                                                        totalAmount: totalAmount,
+                                                        totalHours: hours,
+                                                        hourlyRate: rate,
+                                                        description: description,
+                                                        date: new Date().toISOString(),
+                                                        photoUri: params.afterWorkPhoto,
+                                                        invoiceId: invId,
+                                                        isOffline: result.offline ? 'true' : 'false'
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
-                                }
-                            ]);
+                                        }
+                                    ]);
+                            }
                         } catch (error: any) {
                             const errData = error?.data || error;
                             const msg = errData?.message || t('create_bill_screen.billing_unavailable');

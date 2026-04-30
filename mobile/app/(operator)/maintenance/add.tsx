@@ -9,6 +9,7 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAddMaintenanceRecordMutation } from '@/redux/apis/maintenanceApi';
 import { useGetMachinesQuery } from '@/redux/apis/ownerApi';
 import { storage } from '@/redux/storage';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 
@@ -43,10 +44,37 @@ export default function OperatorAddMaintenanceScreen() {
     const serviceTypes = ['Maintenance', 'Repair', 'Oil Change', 'Tyre Replacement', 'Hydraulic Service', 'Breakdown', 'Other'];
 
     // Mutations
+    const { performMutation } = useOfflineMutation();
     const [addMaintenance, { isLoading }] = useAddMaintenanceRecordMutation();
     const { data: machinesData } = useGetMachinesQuery();
 
-    const pickImage = async (type: 'service' | 'invoice') => {
+    const takePhoto = async (type: 'service' | 'invoice') => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.camera_permission') });
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.5,
+        });
+
+        if (!result.canceled) {
+            if (type === 'service') setServiceImage(result.assets[0]);
+            else setInvoiceImage(result.assets[0]);
+        }
+    };
+
+    const pickImageFromGallery = async (type: 'service' | 'invoice') => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.gallery_permission') });
+            return;
+        }
+
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
@@ -60,68 +88,71 @@ export default function OperatorAddMaintenanceScreen() {
         }
     };
 
+    const pickImage = (type: 'service' | 'invoice') => {
+        import('react-native').then(({ Alert }) => {
+            Alert.alert(
+                t('maintenance_records.attachments'),
+                t('operator.site_location_desc'),
+                [
+                    { text: t('operator.camera') || 'Camera', onPress: () => takePhoto(type) },
+                    { text: t('common.cancel'), style: "cancel" }
+                ]
+            );
+        });
+    };
+
     const handleSubmit = async () => {
         if (!machineId || !serviceType || !cost) {
             Toast.show({ type: 'error', text1: t('common.error'), text2: t('maintenance_records.fill_required') });
             return;
         }
 
-        const formData = new FormData();
-        
-        // Send both camelCase and snake_case for maximum compatibility
-        formData.append('machineId', machineId);
-        formData.append('machine_id', machineId);
-        
-        formData.append('serviceType', serviceType);
-        formData.append('service_type', serviceType);
-        
-        formData.append('cost', cost);
-        formData.append('description', description);
-        
         const dateStr = serviceDate.toISOString().split('T')[0];
-        formData.append('serviceDate', dateStr);
-        formData.append('service_date', dateStr);
+
+        const requestBody: any = {
+            machineId: Number(machineId),
+            machine_id: Number(machineId),
+            serviceType,
+            service_type: serviceType,
+            cost,
+            description,
+            serviceDate: dateStr,
+            service_date: dateStr,
+        };
 
         if (serviceImage) {
             const filename = serviceImage.uri.split('/').pop() || 'service_photo.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-            
-            // Clean URI for different platforms
             const cleanUri = Platform.OS === 'ios' ? serviceImage.uri.replace('file://', '') : serviceImage.uri;
-            
-            const fileObj = {
-                uri: cleanUri,
-                type: type,
-                name: filename,
-            };
-            
-            formData.append('serviceImage', fileObj as any);
-            formData.append('service_image', fileObj as any);
+            requestBody.serviceImage = { uri: cleanUri, type, name: filename };
+            requestBody.service_image = requestBody.serviceImage;
         }
 
         if (invoiceImage) {
             const filename = invoiceImage.uri.split('/').pop() || 'invoice.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-            
-            // Clean URI for different platforms
             const cleanUri = Platform.OS === 'ios' ? invoiceImage.uri.replace('file://', '') : invoiceImage.uri;
-            
-            const fileObj = {
-                uri: cleanUri,
-                type: type,
-                name: filename,
-            };
-            
-            formData.append('invoiceImage', fileObj as any);
-            formData.append('invoice_image', fileObj as any);
+            requestBody.invoiceImage = { uri: cleanUri, type, name: filename };
+            requestBody.invoice_image = requestBody.invoiceImage;
         }
 
         try {
-            await addMaintenance(formData).unwrap();
-            Toast.show({ type: 'success', text1: t('common.success'), text2: t('maintenance_records.log_success') });
-            router.back();
+            const response = await performMutation(addMaintenance, requestBody, {
+                endpoint: '/maintenance-records',
+                method: 'POST',
+                description: `Maintenance record for machine #${machineId}`
+            });
+
+            if (response.success) {
+                Toast.show({
+                    type: response.offline ? 'info' : 'success',
+                    text1: response.offline ? 'Saved Offline' : t('common.success'),
+                    text2: response.offline ? 'Record will sync when online' : t('maintenance_records.log_success')
+                });
+                router.back();
+            }
         } catch (error: any) {
             Toast.show({ type: 'error', text1: t('common.error'), text2: error?.data?.message || t('maintenance_records.log_error') });
         }

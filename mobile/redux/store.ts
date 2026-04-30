@@ -13,8 +13,11 @@ import { bookingApi } from './apis/bookingApi';
 import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import driverReducer from './slices/driverSlice';
+import offlineReducer from './slices/offlineSlice';
+import cacheReducer from './slices/cacheSlice';
 import { storage } from './storage';
 import notificationReducer from './slices/notificationSlice';
+import settingsReducer from './slices/settingsSlice';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 
 const rootReducer = combineReducers({
@@ -31,12 +34,15 @@ const rootReducer = combineReducers({
     theme: themeReducer,
     driver: driverReducer,
     notifications: notificationReducer,
+    settings: settingsReducer,
+    offline: offlineReducer,
+    cache: cacheReducer,
 });
 
 const persistConfig = {
     key: 'root',
     storage: storage,
-    whitelist: ['auth', 'theme', 'notifications', 'driver'],
+    whitelist: ['auth', 'theme', 'notifications', 'settings', 'driver', 'offline', 'cache'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

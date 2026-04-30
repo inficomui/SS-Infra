@@ -9,9 +9,12 @@ import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, logout } from '@/redux/slices/authSlice';
 import { toggleTheme, selectThemeMode } from '@/redux/slices/themeSlice';
+import { setNotificationsEnabled } from '@/redux/slices/settingsSlice';
+import { RootState } from '@/redux/store';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
 import { Machine } from '@/redux/apis/ownerApi';
+import { useGetDutyStatsQuery } from '@/redux/apis/workApi';
 
 export default function OperatorProfileScreen() {
     const router = useRouter();
@@ -20,6 +23,10 @@ export default function OperatorProfileScreen() {
     const { colors, isDark } = useAppTheme();
     const user = useSelector(selectCurrentUser);
     const themeMode = useSelector(selectThemeMode);
+    const { notificationsEnabled } = useSelector((state: RootState) => state.settings);
+
+    const { data: dutyStats } = useGetDutyStatsQuery();
+    const stats = dutyStats?.stats;
 
     const [assignedMachine, setAssignedMachine] = useState<Machine | null>(null);
 
@@ -66,10 +73,12 @@ export default function OperatorProfileScreen() {
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('profile.operator_hub')}</Text>
-                <View style={{ width: 44 }} />
+                <TouchableOpacity onPress={() => router.push('/(operator)/settings' as any)} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <MaterialCommunityIcons name="cog-outline" size={24} color={colors.textMain} />
+                </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
                 {/* Profile Identity Card */}
                 <LinearGradient
                     colors={isDark ? ['#111', '#000'] : ['#FFF', '#F9F9F9']}
@@ -93,87 +102,74 @@ export default function OperatorProfileScreen() {
                     </View>
 
                     <View style={[styles.statsRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
-                        <StatItem label={t('profile.rating')} value="4.9" icon="star" color="#FACC15" colors={colors} />
+                        <StatItem label={t('profile.rating') || "Rating"} value={stats?.rating || "4.9"} icon="star" color="#FACC15" colors={colors} />
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-                        <StatItem label={t('profile.hours')} value="1.2k" icon="clock-outline" color={colors.primary} colors={colors} />
+                        <StatItem label={t('profile.hours') || "Hours"} value={stats?.totalHours || "1.2k"} icon="clock-outline" color={colors.primary} colors={colors} />
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-                        <StatItem label={t('profile.jobs')} value="48" icon="briefcase-check" color={colors.success} colors={colors} />
+                        <StatItem label={t('profile.jobs') || "Jobs"} value={stats?.totalJobs || "48"} icon="briefcase-check" color={colors.success} colors={colors} />
                     </View>
                 </LinearGradient>
 
-                {/* Settings Section */}
+                {/* Professional Identity */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.preferences')}</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.experience_skills') || "Experience & Skills"}</Text>
                     <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <MenuRow
-                            icon="account-edit-outline"
-                            label={t('profile.edit_profile')}
-                            colors={colors}
-                            onPress={() => router.push('/(operator)/edit-profile' as any)}
-                        />
-                        <MenuRow
-                            icon="theme-light-dark"
-                            label={t('profile.dark_mode')}
-                            colors={colors}
-                            right={
-                                <Switch
-                                    value={isDark}
-                                    onValueChange={() => { dispatch(toggleTheme()); }}
-                                    trackColor={{ true: colors.primary, false: colors.border }}
-                                    thumbColor={isDark ? '#FFF' : '#F4F3F4'}
-                                />
-                            }
-                        />
-                        <MenuRow
-                            icon="bell-outline"
-                            label={t('profile.notifications')}
-                            colors={colors}
-                            right={<Switch value={true} onValueChange={() => { }} trackColor={{ true: colors.primary }} />}
-                        />
-                        <MenuRow
-                            icon="translate"
-                            label={t('common.change_language') || "Change Language"}
-                            colors={colors}
-                            onPress={() => router.push('/language-selection')}
-                        />
+                        <View style={styles.skillItem}>
+                            <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('profile.machine_expertise') || "Machine Expertise"}</Text>
+                            <Text style={[styles.detailValue, { color: colors.textMain }]}>Excavator, Backhoe Loader</Text>
+                        </View>
+                        <View style={[styles.skillItem, { borderTopWidth: 1, borderTopColor: colors.border }]}>
+                            <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('profile.total_experience') || "Total Experience"}</Text>
+                            <Text style={[styles.detailValue, { color: colors.textMain }]}>5 Years • {t('profile.pro_level')}</Text>
+                        </View>
+                        <View style={[styles.skillItem, { borderTopWidth: 1, borderTopColor: colors.border }]}>
+                            <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('profile.license_status') || "License Status"}</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <MaterialCommunityIcons name="check-decagram" size={16} color={colors.success} />
+                                <Text style={[styles.detailValue, { color: colors.success }]}>{t('profile.active_verified')}</Text>
+                            </View>
+                        </View>
                     </View>
                 </View>
 
                 {/* Equipment Section */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.equipment')}</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.equipment_assignment') || "Equipment Assignment"}</Text>
                     <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MenuRow
                             icon="excavator"
                             label={assignedMachine ? `${assignedMachine.name} (${assignedMachine.registration_number || assignedMachine.registrationNumber})` : t('profile.no_machine')}
                             colors={colors}
-                            onPress={() => { }} // Disabled for now, or could link to selector
+                            onPress={() => { }}
                             right={assignedMachine ? <MaterialCommunityIcons name="check-circle" size={20} color={colors.success} /> : null}
                         />
                     </View>
                 </View>
 
-                {/* Info Section */}
+                {/* Detailed Profile Info */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.information')}</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.detailed_info') || "Detailed Info"}</Text>
+                    <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <View style={styles.skillItem}>
+                            <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('profile.assigned_organization') || "Assigned Organization"}</Text>
+                            <Text style={[styles.detailValue, { color: colors.textMain }]}>SS Infra Software</Text>
+                        </View>
+                        <View style={[styles.skillItem, { borderTopWidth: 1, borderTopColor: colors.border }]}>
+                            <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('profile.working_area') || "Working Area"}</Text>
+                            <Text style={[styles.detailValue, { color: colors.textMain }]}>{user?.district}, {user?.taluka}</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* Quick Access to Settings */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.quick_settings') || "Quick Settings"}</Text>
                     <View style={[styles.menuContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MenuRow
-                            icon="shield-check-outline"
-                            label={t('profile.privacy_policy')}
+                            icon="cog-outline"
+                            label={t('profile.global_settings') || "Global Settings"}
                             colors={colors}
-                            onPress={() => router.push('/(operator)/privacy-policy' as any)}
-                        />
-                        <MenuRow
-                            icon="information-outline"
-                            label={t('profile.about_us')}
-                            colors={colors}
-                            onPress={() => router.push('/(operator)/about' as any)}
-                        />
-                        <MenuRow
-                            icon="help-circle-outline"
-                            label={t('profile.support')}
-                            colors={colors}
-                            onPress={() => router.push('/(operator)/support' as any)}
+                            onPress={() => router.push('/(operator)/settings' as any)} 
                         />
                     </View>
                 </View>
@@ -191,7 +187,7 @@ export default function OperatorProfileScreen() {
                     </LinearGradient>
                 </TouchableOpacity>
 
-                <View style={{ height: 40 }} />
+                <View style={{ height: 20 }} />
             </ScrollView>
         </View>
     );
@@ -226,10 +222,10 @@ function MenuRow({ icon, label, right, onPress, colors }: any) {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { paddingTop: 60, paddingHorizontal: 24, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    iconButton: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    iconButton: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
     content: { flex: 1, paddingHorizontal: 24 },
-    profileCard: { padding: 24, borderRadius: 4, alignItems: 'center', marginBottom: 30, borderWidth: 1 },
+    profileCard: { padding: 24, borderRadius: 12, alignItems: 'center', marginBottom: 30, borderWidth: 1 },
     avatarContainer: { position: 'relative', marginBottom: 16 },
     badge: { position: 'absolute', bottom: 0, right: 0, width: 22, height: 22, borderRadius: 11, borderWidth: 3, justifyContent: 'center', alignItems: 'center' },
     userName: { fontSize: 22, fontWeight: '900', marginBottom: 4 },
@@ -254,11 +250,17 @@ const styles = StyleSheet.create({
     statDivider: { width: 1, height: 30 },
     section: { marginTop: 30 },
     sectionTitle: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16, marginLeft: 4 },
-    menuContainer: { borderRadius: 4, overflow: 'hidden', borderWidth: 1 },
+    menuContainer: { borderRadius: 12, overflow: 'hidden', borderWidth: 1 },
     menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1 },
     menuLeft: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-    iconBox: { width: 40, height: 40, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    iconBox: { width: 40, height: 40, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
     menuLabel: { fontSize: 15, fontWeight: '700' },
+
+    // Detail & Skill Styles
+    skillItem: { padding: 16, gap: 2 },
+    detailLabel: { fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
+    detailValue: { fontSize: 15, fontWeight: '600' },
+
     logoutButton: { marginTop: 40, borderRadius: 4, overflow: 'hidden' },
     logoutGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, gap: 12 },
     logoutText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },

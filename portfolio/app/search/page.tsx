@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function SearchPage() {
     return (
-        <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white">
+        <main className="min-h-screen bg-zinc-50 dark:bg-background text-zinc-900 dark:text-white">
             <Navbar />
             <div className="pt-28">
                 <ServiceListing />

@@ -16,11 +16,13 @@ import { useAddOperatorMutation } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Toast from 'react-native-toast-message';
 import { MAHARASHTRA_DATA } from '@/constants/maharashtraData';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 
 export default function AddOperatorScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const { colors } = useAppTheme();
+    const { performMutation } = useOfflineMutation();
     const [addOperator, { isLoading: isAdding }] = useAddOperatorMutation();
 
     const [formData, setFormData] = useState({
@@ -96,22 +98,36 @@ export default function AddOperatorScreen() {
                 }
             }
 
-            const result = await addOperator(registerPayload).unwrap();
-
-            const workerName = result.worker?.name ?? formData.name;
-            const successMsgKey = formData.role === 'Operator'
-                ? 'owner.op_added_success_msg'
-                : 'owner.dr_added_success_msg';
-
-            Toast.show({
-                type: 'success',
-                text1: formData.role === 'Operator'
-                    ? t('owner.op_registered_success')
-                    : t('owner.dr_registered_success', { defaultValue: 'Driver Registered Successfully' }),
-                text2: t(successMsgKey, { name: workerName }),
+            const response = await performMutation(addOperator, registerPayload, {
+                endpoint: '/workers',
+                method: 'POST',
+                description: `Register ${formData.role}: ${formData.name}`
             });
 
-            setTimeout(() => router.back(), 1500);
+            if (response.success) {
+                if (response.offline) {
+                    Toast.show({
+                        type: 'info',
+                        text1: t('common.saved_offline') || 'Saved Offline',
+                        text2: t('owner.worker_sync_later') || `${formData.role} will be registered when you're online.`,
+                    });
+                } else {
+                    const workerName = response.data?.worker?.name ?? formData.name;
+                    const successMsgKey = formData.role === 'Operator'
+                        ? 'owner.op_added_success_msg'
+                        : 'owner.dr_added_success_msg';
+
+                    Toast.show({
+                        type: 'success',
+                        text1: formData.role === 'Operator'
+                            ? t('owner.op_registered_success')
+                            : t('owner.dr_registered_success', { defaultValue: 'Driver Registered Successfully' }),
+                        text2: t(successMsgKey, { name: workerName }),
+                    });
+                }
+
+                setTimeout(() => router.back(), 1500);
+            }
 
         } catch (error: any) {
             console.error('Register Worker Error:', JSON.stringify(error, null, 2));
@@ -171,8 +187,17 @@ export default function AddOperatorScreen() {
                 <View style={{ width: 44 }} />
             </View>
 
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+            >
+                <ScrollView 
+                    style={styles.scrollView} 
+                    contentContainerStyle={styles.scrollContent} 
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
                     <View style={styles.iconHeader}>
                         <View style={[styles.mainIcon, { backgroundColor: colors.primary + '15' }]}>
                             <MaterialCommunityIcons
@@ -396,14 +421,14 @@ export default function AddOperatorScreen() {
                     </View>
 
                     <TouchableOpacity onPress={handleSubmit} disabled={isProcessing} style={styles.submitButton}>
-                        <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                            {isProcessing ? <ActivityIndicator color="#000" /> : (
+                        <LinearGradient colors={['#0284C7', '#38BDF8']} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                            {isProcessing ? <ActivityIndicator color="#fff" /> : (
                                 <>
                                     <MaterialCommunityIcons
                                         name={formData.role === 'Operator' ? 'account-check' : 'card-account-details-outline'}
-                                        size={20} color="#000"
+                                        size={20} color="#fff"
                                     />
-                                    <Text style={styles.submitText}>
+                                    <Text style={[styles.submitText, { color: '#fff' }]}>
                                         {t('owner.save_register_op')}
                                     </Text>
                                 </>

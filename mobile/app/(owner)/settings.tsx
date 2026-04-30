@@ -8,13 +8,20 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
 import { useGetMySubscriptionQuery } from '@/redux/apis/subscriptionApi';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { setNotificationsEnabled, setSoundEnabled, setAutoSync } from '@/redux/slices/settingsSlice';
+import { toggleTheme } from '@/redux/slices/themeSlice';
+import i18n from '@/utils/i18n';
+
 export default function SettingsScreen() {
     const router = useRouter();
+    const dispatch = useDispatch();
     const { t } = useTranslation();
-    const { colors } = useAppTheme();
-    const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
-    const [soundEnabled, setSoundEnabled] = React.useState(true);
-    const [autoSync, setAutoSync] = React.useState(true);
+    const { colors, isDark } = useAppTheme();
+
+    // Redux Settings
+    const { notificationsEnabled, soundEnabled, autoSync } = useSelector((state: RootState) => state.settings);
 
     const { data: subData, isLoading: loadingSub } = useGetMySubscriptionQuery();
 
@@ -26,9 +33,9 @@ export default function SettingsScreen() {
 
     const statusColor =
         !isActive || sub?.status === 'expired' ? colors.danger
-        : daysLeft <= 7 ? colors.danger
-        : daysLeft <= 14 ? colors.warning
-        : colors.success;
+            : daysLeft <= 7 ? colors.danger
+                : daysLeft <= 14 ? colors.warning
+                    : colors.success;
 
     const formatDate = (dateStr: string) => {
         if (!dateStr) return '—';
@@ -200,10 +207,25 @@ export default function SettingsScreen() {
                     <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.general')}</Text>
                     <List.Item
                         title={t('settings.language')}
-                        description="English / हिन्दी / मराठी"
+                        description={i18n.language === 'en' ? 'English' : i18n.language === 'hi' ? 'हिन्दी' : 'मराठी'}
                         left={() => <List.Icon icon="web" color={colors.primary} />}
                         right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />}
-                        onPress={() => { }}
+                        onPress={() => router.push('/language-selection')}
+                        titleStyle={{ color: colors.textMain }}
+                        descriptionStyle={{ color: colors.textMuted }}
+                    />
+                    <List.Item
+                        title={t('profile.dark_mode')}
+                        description={t('settings.dark_mode_desc')}
+                        left={() => <List.Icon icon="theme-light-dark" color={colors.primary} />}
+                        right={() => (
+                            <Switch
+                                value={isDark}
+                                onValueChange={() => { dispatch(toggleTheme()); }}
+                                trackColor={{ false: '#767577', true: colors.primary }}
+                                thumbColor={isDark ? '#f4f3f4' : '#f4f3f4'}
+                            />
+                        )}
                         titleStyle={{ color: colors.textMain }}
                         descriptionStyle={{ color: colors.textMuted }}
                     />
@@ -211,21 +233,34 @@ export default function SettingsScreen() {
                         title={t('settings.notifications')}
                         description={t('settings.notifications_desc')}
                         left={() => <List.Icon icon="bell-outline" color={colors.primary} />}
-                        right={() => <Switch value={notificationsEnabled} onValueChange={setNotificationsEnabled} trackColor={{ false: '#767577', true: colors.primary }} thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'} />}
-                        onPress={() => { }}
+                        right={() => (
+                            <Switch
+                                value={notificationsEnabled}
+                                onValueChange={(val) => { dispatch(setNotificationsEnabled(val)); }}
+                                trackColor={{ false: '#767577', true: colors.primary }}
+                                thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'}
+                            />
+                        )}
                         titleStyle={{ color: colors.textMain }}
                         descriptionStyle={{ color: colors.textMuted }}
                     />
                 </View>
 
+                {/* ─── Preferences ─── */}
                 <View style={[styles.section, { borderBottomColor: colors.border }]}>
                     <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.preferences')}</Text>
                     <List.Item
                         title={t('settings.sound_effects')}
                         description={t('settings.sound_effects_desc')}
                         left={() => <List.Icon icon="volume-high" color={colors.primary} />}
-                        right={() => <Switch value={soundEnabled} onValueChange={setSoundEnabled} trackColor={{ false: '#767577', true: colors.primary }} thumbColor={soundEnabled ? '#f4f3f4' : '#f4f3f4'} />}
-                        onPress={() => { }}
+                        right={() => (
+                            <Switch
+                                value={soundEnabled}
+                                onValueChange={(val) => { dispatch(setSoundEnabled(val)); }}
+                                trackColor={{ false: '#767577', true: colors.primary }}
+                                thumbColor={soundEnabled ? '#f4f3f4' : '#f4f3f4'}
+                            />
+                        )}
                         titleStyle={{ color: colors.textMain }}
                         descriptionStyle={{ color: colors.textMuted }}
                     />
@@ -233,13 +268,53 @@ export default function SettingsScreen() {
                         title={t('settings.auto_sync')}
                         description={t('settings.auto_sync_desc')}
                         left={() => <List.Icon icon="sync" color={colors.primary} />}
-                        right={() => <Switch value={autoSync} onValueChange={setAutoSync} trackColor={{ false: '#767577', true: colors.primary }} thumbColor={autoSync ? '#f4f3f4' : '#f4f3f4'} />}
-                        onPress={() => { }}
+                        right={() => (
+                            <Switch
+                                value={autoSync}
+                                onValueChange={(val) => { dispatch(setAutoSync(val)); }}
+                                trackColor={{ false: '#767577', true: colors.primary }}
+                                thumbColor={autoSync ? '#f4f3f4' : '#f4f3f4'}
+                            />
+                        )}
                         titleStyle={{ color: colors.textMain }}
                         descriptionStyle={{ color: colors.textMuted }}
                     />
                 </View>
 
+                {/* ─── Information & Support ─── */}
+                <View style={[styles.section, { borderBottomColor: colors.border }]}>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.information')}</Text>
+                    <List.Item
+                        title={t('profile.about_us')}
+                        left={() => <List.Icon icon="information-outline" color={colors.primary} />}
+                        right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />}
+                        onPress={() => router.push('/(owner)/about' as any)}
+                        titleStyle={{ color: colors.textMain }}
+                    />
+                    <List.Item
+                        title={t('profile.support')}
+                        left={() => <List.Icon icon="help-circle-outline" color={colors.primary} />}
+                        right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />}
+                        onPress={() => router.push('/(owner)/support' as any)}
+                        titleStyle={{ color: colors.textMain }}
+                    />
+                    <List.Item
+                        title={t('profile.privacy_policy')}
+                        left={() => <List.Icon icon="shield-check-outline" color={colors.primary} />}
+                        right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />}
+                        onPress={() => router.push('/(owner)/privacy-policy' as any)}
+                        titleStyle={{ color: colors.textMain }}
+                    />
+                    <List.Item
+                        title={t('settings.terms_service')}
+                        left={() => <List.Icon icon="file-document-outline" color={colors.primary} />}
+                        right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textMuted} />}
+                        onPress={() => router.push('/(owner)/terms' as any)}
+                        titleStyle={{ color: colors.textMain }}
+                    />
+                </View>
+
+                {/* ─── Advanced ─── */}
                 <View style={[styles.section, { borderBottomColor: 'transparent' }]}>
                     <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.advanced')}</Text>
                     <List.Item
@@ -250,14 +325,6 @@ export default function SettingsScreen() {
                         titleStyle={{ color: colors.textMain }}
                         descriptionStyle={{ color: colors.textMuted }}
                     />
-                    <List.Item
-                        title={t('settings.factory_reset')}
-                        description={t('settings.factory_reset_desc')}
-                        left={() => <List.Icon icon="restore" color={colors.danger} />}
-                        onPress={() => alert(t('settings.reset_complete'))}
-                        titleStyle={{ color: colors.textMain }}
-                        descriptionStyle={{ color: colors.textMuted }}
-                    />
                 </View>
 
                 <View style={{ height: 60 }} />
@@ -265,6 +332,7 @@ export default function SettingsScreen() {
         </View>
     );
 }
+
 
 function SubStat({ label, value, icon, color, colors, large }: any) {
     return (

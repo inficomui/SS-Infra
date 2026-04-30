@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useGetOwnersQuery, useCreateOwnerMutation, useUpdateOwnerMutation, useDeleteOwnerMutation } from '@/redux/apis/usersApi'
-import { Loader2, Search, Plus, MapPin, User, X, Check, Filter, MoreHorizontal, ChevronLeft, ChevronRight, Phone, Hash, Edit2, Trash2, RefreshCw, CreditCard } from 'lucide-react'
+import { Loader2, Search, Plus, MapPin, User, X, Check, Filter, MoreHorizontal, ChevronLeft, ChevronRight, Phone, Hash, Edit2, Trash2, RefreshCw, CreditCard, Lock, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -35,8 +35,10 @@ export default function OwnersPage() {
         mobile: '',
         district: '',
         taluka: '',
-        referralCode: ''
+        referralCode: '',
+        password: '',
     })
+    const [showPassword, setShowPassword] = useState(false)
 
     const [createOwner, { isLoading: isCreating }] = useCreateOwnerMutation()
     const [updateOwner, { isLoading: isUpdating }] = useUpdateOwnerMutation()
@@ -59,8 +61,10 @@ export default function OwnersPage() {
             mobile: owner.mobile,
             district: owner.district,
             taluka: owner.taluka,
-            referralCode: owner.referralCode || ''
+            referralCode: owner.referralCode || '',
+            password: '',
         })
+        setShowPassword(false)
         setIsModalOpen(true)
     }
 
@@ -84,15 +88,18 @@ export default function OwnersPage() {
         e.preventDefault()
         try {
             if (editingOwner) {
-                await updateOwner({ id: editingOwner.id, data: formData }).unwrap()
+                // Don't send password on update
+                const { password, ...updateData } = formData
+                await updateOwner({ id: editingOwner.id, data: updateData }).unwrap()
                 toast.success('Owner updated successfully')
             } else {
                 await createOwner(formData).unwrap()
                 toast.success('Owner created successfully')
             }
             setIsModalOpen(false)
-            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '' })
+            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '', password: '' })
             setEditingOwner(null)
+            setShowPassword(false)
         } catch (err: any) {
             console.error('Failed to save owner:', err)
             if (err?.data?.errors) {
@@ -108,7 +115,8 @@ export default function OwnersPage() {
     const closeModal = () => {
         setIsModalOpen(false)
         setEditingOwner(null)
-        setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '' })
+        setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '', password: '' })
+        setShowPassword(false)
     }
 
     const owners = data?.owners || []
@@ -121,14 +129,14 @@ export default function OwnersPage() {
             className="space-y-6"
         >
             {/* Page Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-card border border-border p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-card border border-border p-8 rounded-[16px] shadow-sm transition-all">
                 <div className="flex items-center gap-5">
                     <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shrink-0">
                         <User className="h-7 w-7 text-primary" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black text-foreground tracking-tight">Owners Management</h2>
-                        <p className="text-sm font-medium text-muted-foreground mt-1 flex items-center gap-2">
+                        <h2 className="text-3xl font-bold text-foreground tracking-tight">Owners Management</h2>
+                        <p className="text-sm font-medium text-foreground mt-1 flex items-center gap-2">
                              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             System Network Infrastructure Control
                         </p>
@@ -138,23 +146,23 @@ export default function OwnersPage() {
                 <div className="flex items-center gap-4 w-full sm:w-auto">
                     <div className="relative flex-1 sm:w-80 group">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Search className="h-4 w-4 text-foreground group-focus-within:text-primary transition-colors" />
                         </div>
                         <input
                             type="text"
                             placeholder="Find records..."
                             value={search}
                             onChange={handleSearch}
-                            className="block w-full pl-11 pr-4 py-3 bg-muted/30 border border-transparent focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold placeholder:text-muted-foreground"
+                            className="block w-full pl-11 pr-4 py-3 bg-muted/30 border border-transparent focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold placeholder:text-foreground"
                         />
                     </div>
                     <button
                         onClick={() => {
                             setEditingOwner(null)
-                            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '' })
+                            setFormData({ name: '', mobile: '', district: '', taluka: '', referralCode: '', password: '' })
                             setIsModalOpen(true)
                         }}
-                        className="flex items-center px-6 py-3 bg-primary text-black font-black rounded-xl hover:opacity-90 transition-all shadow-xl shadow-primary/25 active:scale-95 shrink-0"
+                        className="flex items-center px-6 py-3 bg-primary text-foreground font-bold rounded-xl hover:opacity-90 transition-all shadow-xl shadow-primary/25 active:scale-95 shrink-0"
                     >
                         <Plus className="h-5 w-5 mr-2" strokeWidth={3} />
                         Register New
@@ -163,32 +171,32 @@ export default function OwnersPage() {
             </div>
 
             {/* List Content */}
-            <div className="bg-card shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl overflow-hidden border border-border transition-all">
+            <div className="bg-card shadow-sm rounded-[16px] overflow-hidden border border-border transition-all">
                 {isLoading ? (
                     <div className="flex flex-col justify-center items-center h-80 space-y-4">
                         <Loader2 className="animate-spin h-10 w-10 text-primary" strokeWidth={3} />
-                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Accessing Vault...</p>
+                        <p className="text-xs font-bold text-foreground uppercase tracking-widest">Accessing Vault...</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
                             <thead className="bg-muted/30 border-b border-border">
                                 <tr>
-                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Entity Details</th>
-                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Geographic Node</th>
-                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Ledger Referral</th>
-                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Fleet Stats</th>
-                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-70">Verification</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-70">Entity Details</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-70">Geographic Node</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-70">Ledger Referral</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-70">Fleet Stats</th>
+                                    <th scope="col" className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-70">Verification</th>
                                     <th scope="col" className="relative px-8 py-5"><span className="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border bg-transparent">
                                 {owners.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-16 text-center text-muted-foreground">
+                                        <td colSpan={6} className="px-6 py-16 text-center text-foreground">
                                             <div className="flex flex-col items-center justify-center space-y-3">
                                                 <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center">
-                                                    <User className="h-6 w-6 text-muted-foreground/50" />
+                                                    <User className="h-6 w-6 text-foreground/50" />
                                                 </div>
                                                 <p>No owners found matching your search</p>
                                             </div>
@@ -205,13 +213,13 @@ export default function OwnersPage() {
                                         <td className="px-6 py-5 whitespace-nowrap">
                                             <div className="flex items-center">
                                                 <div className="h-11 w-11 shrink-0">
-                                                    <div className="h-11 w-11 rounded-full bg-linear-to-br from-primary to-yellow-600 flex items-center justify-center text-primary-foreground font-black shadow-lg shadow-primary/20">
+                                                    <div className="h-11 w-11 rounded-full bg-linear-to-br from-primary to-yellow-600 flex items-center justify-center text-primary-foreground font-bold shadow-lg shadow-primary/20">
                                                         {owner.name?.[0]?.toUpperCase() || 'O'}
                                                     </div>
                                                 </div>
                                                 <div className="ml-4">
                                                     <div className="text-sm font-bold text-foreground group-hover:text-primary transition-colors tracking-tight">{owner.name}</div>
-                                                    <div className="flex items-center text-xs font-medium text-muted-foreground mt-1">
+                                                    <div className="flex items-center text-xs font-medium text-foreground mt-1">
                                                         <Phone className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                                                         {owner.mobile}
                                                     </div>
@@ -221,10 +229,10 @@ export default function OwnersPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col">
                                                 <div className="flex items-center text-sm font-medium text-foreground">
-                                                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                                                    <MapPin className="h-3.5 w-3.5 mr-1.5 text-foreground" />
                                                     {owner.district || '-'}
                                                 </div>
-                                                <div className="text-xs text-muted-foreground pl-5">{owner.taluka || '-'}</div>
+                                                <div className="text-xs text-foreground pl-5">{owner.taluka || '-'}</div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -235,38 +243,38 @@ export default function OwnersPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-foreground font-medium">
-                                                {owner.operatorsCount || 0} <span className="text-xs text-muted-foreground font-normal">Operators</span>
+                                                {owner.operatorsCount || 0} <span className="text-xs text-foreground font-normal">Operators</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                                             {owner.createdAt ? new Date(owner.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={() => handleManageSubscription(owner)}
-                                                    className="p-2 text-muted-foreground hover:text-green-600 hover:bg-green-500/10 rounded-md transition-colors"
+                                                    className="p-2 text-foreground hover:text-green-600 hover:bg-green-500/10 rounded-md transition-colors"
                                                     title="Manage Subscription"
                                                 >
                                                     <CreditCard className="h-4 w-4" />
                                                 </button>
                                                 <Link
                                                     href={`/users/owners/${owner.id}`}
-                                                    className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                                                    className="p-2 text-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
                                                     title="View Details"
                                                 >
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Link>
                                                 <button
                                                     onClick={() => handleEdit(owner)}
-                                                    className="p-2 text-muted-foreground hover:text-indigo-500 hover:bg-indigo-500/10 rounded-md transition-colors"
+                                                    className="p-2 text-foreground hover:text-indigo-500 hover:bg-indigo-500/10 rounded-md transition-colors"
                                                     title="Edit Owner"
                                                 >
                                                     <Edit2 className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(owner.id)}
-                                                    className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
+                                                    className="p-2 text-foreground hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
                                                     title="Delete Owner"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
@@ -282,14 +290,14 @@ export default function OwnersPage() {
 
                 {pagination && (
                     <div className="bg-card px-6 py-4 flex items-center justify-between border-t border-border/50">
-                        <div className="text-sm text-muted-foreground flex items-center gap-1">
-                            Showing <span className="font-black text-foreground">{(pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0) > 0 ? ((page - 1) * 10) + 1 : 0}</span> to <span className="font-black text-foreground">{Math.min(page * 10, pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0)}</span> of <span className="font-black text-foreground">{pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0}</span> results
+                        <div className="text-sm text-foreground flex items-center gap-1">
+                            Showing <span className="font-bold text-foreground">{(pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0) > 0 ? ((page - 1) * 10) + 1 : 0}</span> to <span className="font-bold text-foreground">{Math.min(page * 10, pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0)}</span> of <span className="font-bold text-foreground">{pagination.total || pagination.totalCount || pagination.totalItems || data?.data?.length || 0}</span> results
                         </div>
                         <div className="flex items-center space-x-2">
                             <button
                                 onClick={() => setPage(Math.max(1, page - 1))}
                                 disabled={page === 1}
-                                className="p-2 border border-border rounded-md text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-2 border border-border rounded-md text-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </button>
@@ -297,7 +305,7 @@ export default function OwnersPage() {
                             <button
                                 onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
                                 disabled={page === pagination.totalPages}
-                                className="p-2 border border-border rounded-md text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-2 border border-border rounded-md text-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <ChevronRight className="h-4 w-4" />
                             </button>
@@ -324,14 +332,14 @@ export default function OwnersPage() {
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                                 className="bg-card w-full max-w-lg rounded-md shadow-2xl pointer-events-auto border border-border/50 overflow-hidden"
                             >
-                                <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
+                                <div className="p-6 border-b border-border/50 flex justify-between items-center bg-blue-100/50">
                                     <div>
                                         <h3 className="text-xl font-bold text-foreground">{editingOwner ? 'Edit Owner' : 'Add New Owner'}</h3>
-                                        <p className="text-sm text-muted-foreground mt-1">
+                                        <p className="text-sm text-foreground mt-1">
                                             {editingOwner ? 'Update owner details' : 'Enter the details for the new infrastructure owner.'}
                                         </p>
                                     </div>
-                                    <button onClick={closeModal} className="text-muted-foreground hover:text-foreground p-2 hover:bg-muted rounded-md transition-colors">
+                                    <button onClick={closeModal} className="text-foreground hover:text-foreground p-2 hover:bg-muted rounded-md transition-colors">
                                         <X className="h-5 w-5" />
                                     </button>
                                 </div>
@@ -341,7 +349,7 @@ export default function OwnersPage() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-foreground">Full Name</label>
                                             <div className="relative">
-                                                <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <User className="absolute left-3 top-2.5 h-4 w-4 text-foreground" />
                                                 <input
                                                     type="text"
                                                     required
@@ -356,7 +364,7 @@ export default function OwnersPage() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-foreground">Mobile Number</label>
                                             <div className="relative">
-                                                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-foreground" />
                                                 <input
                                                     type="tel"
                                                     required
@@ -373,7 +381,7 @@ export default function OwnersPage() {
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium text-foreground">District</label>
                                                 <div className="relative">
-                                                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-foreground" />
                                                     <input
                                                         type="text"
                                                         required
@@ -398,9 +406,9 @@ export default function OwnersPage() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium text-foreground">Referral Code <span className="text-muted-foreground font-normal">(Optional)</span></label>
+                                            <label className="text-sm font-medium text-foreground">Referral Code <span className="text-foreground font-normal">(Optional)</span></label>
                                             <div className="relative">
-                                                <Hash className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                <Hash className="absolute left-3 top-2.5 h-4 w-4 text-foreground" />
                                                 <input
                                                     type="text"
                                                     className="block w-full pl-10 pr-3 py-2.5 bg-muted/50 border border-transparent rounded-md text-sm focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
@@ -410,13 +418,44 @@ export default function OwnersPage() {
                                                 />
                                             </div>
                                         </div>
+
+                                        {/* Password — only required when creating a new owner */}
+                                        {!editingOwner && (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium text-foreground">
+                                                    Password
+                                                </label>
+                                                <div className="relative">
+                                                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-foreground" />
+                                                    <input
+                                                        type={showPassword ? 'text' : 'password'}
+                                                        required
+                                                        minLength={6}
+                                                        className="block w-full pl-10 pr-10 py-2.5 bg-muted/50 border border-transparent rounded-md text-sm focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                                        placeholder="Min. 6 characters"
+                                                        value={formData.password}
+                                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        className="absolute right-3 top-2.5 text-foreground hover:text-primary transition-colors"
+                                                    >
+                                                        {showPassword
+                                                            ? <EyeOff className="h-4 w-4" />
+                                                            : <Eye className="h-4 w-4" />}
+                                                    </button>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">Tip: use the owner's mobile number as default password.</p>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="pt-2 flex justify-end space-x-3">
                                         <button
                                             type="button"
                                             onClick={closeModal}
-                                            className="px-5 py-2.5 border border-border rounded-md text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
+                                            className="px-5 py-2.5 border border-border rounded-md text-sm font-medium text-foreground hover:bg-muted transition-colors"
                                         >
                                             Cancel
                                         </button>

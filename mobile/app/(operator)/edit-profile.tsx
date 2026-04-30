@@ -116,15 +116,15 @@ export default function OperatorEditProfileScreen() {
 
                     <TouchableOpacity onPress={handleUpdate} disabled={loading} style={styles.saveButton}>
                         <LinearGradient
-                            colors={[colors.primary, colors.primary]}
+                            colors={['#0284C7', '#38BDF8']}
                             style={styles.gradient}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                         >
-                            {loading ? <ActivityIndicator color="#000" /> : (
+                            {loading ? <ActivityIndicator color="#fff" /> : (
                                 <>
-                                    <MaterialCommunityIcons name="check-circle-outline" size={20} color="#000" />
-                                    <Text style={styles.saveText}>{t('edit_profile_screen.update_btn')}</Text>
+                                    <MaterialCommunityIcons name="check-circle-outline" size={20} color="#fff" />
+                                    <Text style={[styles.saveText, { color: '#fff' }]}>{t('edit_profile_screen.update_btn')}</Text>
                                 </>
                             )}
                         </LinearGradient>

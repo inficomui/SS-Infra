@@ -45,6 +45,14 @@ export const notificationApi = createApi({
             }),
             invalidatesTags: ['Notifications'],
         }),
+        sendNotification: builder.mutation<{ success: boolean; message: string }, { title: string; body: string; type?: string; targetRole?: string }>({
+            query: (data) => ({
+                url: '/notifications/send',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Notifications'],
+        }),
     }),
 });
 
@@ -52,5 +60,6 @@ export const {
     useGetNotificationsQuery,
     useMarkAsReadMutation,
     useMarkAllAsReadMutation,
-    useDeleteNotificationMutation
+    useDeleteNotificationMutation,
+    useSendNotificationMutation
 } = notificationApi;

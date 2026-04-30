@@ -45,11 +45,11 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen w-full flex bg-background selection:bg-primary/30">
             {/* Left Panel - Premium Branding */}
-            <div className="hidden lg:flex w-[45%] bg-[#09090b] relative items-center justify-center overflow-hidden border-r border-white/5">
+            <div className="hidden lg:flex w-[45%] bg-[#0F172A] relative items-center justify-center overflow-hidden border-r border-border">
                 {/* Dynamic Background Elements */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#facc1515_0%,transparent_50%)] animate-pulse"></div>
-                <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-primary/10 rounded-md blur-[120px]"></div>
-                <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-primary/5 rounded-md blur-[120px]"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0F172A] to-[#1E293B]"></div>
+                <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px]"></div>
 
                 {/* Moving Grid Lines for Tech feel */}
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
@@ -61,18 +61,18 @@ export default function LoginPage() {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         className="space-y-8"
                     >
-                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-md bg-white/3 border border-white/10 backdrop-blur-xl shadow-2xl relative group">
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl relative group">
                             <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <LayoutDashboard className="h-10 w-10 text-primary relative z-10" />
+                            <LayoutDashboard className="h-10 w-10 text-white relative z-10" />
                         </div>
 
                         <div className="space-y-4">
-                            <h1 className="text-6xl font-black text-white tracking-tighter leading-none">
-                                SS <span className="text-primary italic">ADMIN</span>
-                                <span className="block h-1.5 w-24 bg-primary mt-4 rounded-md"></span>
+                            <h1 className="text-5xl lg:text-6xl font-bold text-white tracking-tight leading-none">
+                                SS <span className="text-primary text-opacity-90">ADMIN</span>
+                                <span className="block h-1.5 w-16 bg-primary mt-6 rounded-full"></span>
                             </h1>
-                            <p className="text-xl text-zinc-400 font-medium leading-relaxed max-w-sm">
-                                Admin Panel, <span className="text-zinc-200">Simplified.</span>
+                            <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-sm mt-4">
+                                Enterprise-grade infrastructure control. Secure your operations.
                             </p>
                         </div>
 
@@ -86,7 +86,7 @@ export default function LoginPage() {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.5 + (idx * 0.1) }}
-                                    className="flex items-center gap-3 text-zinc-500 font-medium"
+                                    className="flex items-center gap-3 text-foreground font-medium"
                                 >
                                     <item.icon className="h-5 w-5 text-primary/60" />
                                     <span>{item.text}</span>
@@ -109,29 +109,29 @@ export default function LoginPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
-                        className="bg-card p-8 sm:p-12 rounded-md shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-border"
+                        className="bg-card p-8 sm:p-12 rounded-[16px] shadow-xl border border-border overflow-hidden"
                     >
                         <div className="mb-10 text-center sm:text-left">
-                            <h2 className="text-4xl font-extrabold tracking-tight text-foreground">
-                                Welcome back
+                            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+                                Secure Login
                             </h2>
-                            <p className="mt-3 text-muted-foreground font-medium">
-                                Enter your login details to manage the system.
+                            <p className="mt-2 text-sm text-foreground font-medium">
+                                Authenticate to access the command center.
                             </p>
                         </div>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
                             <div className="space-y-5">
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-muted-foreground ml-1">Login ID</label>
+                                    <label className="block text-sm font-bold text-foreground ml-1">Login ID</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Mail className="h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
+                                            <Mail className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                         </div>
                                         <input
                                             type="text"
                                             required
-                                            className="block w-full pl-12 pr-4 py-4 bg-muted/50 border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                                            className="block w-full pl-12 pr-4 py-3.5 bg-background border border-border rounded-[12px] text-foreground placeholder:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                                             placeholder="Email or Mobile"
                                             value={loginInput}
                                             onChange={(e) => setLoginInput(e.target.value)}
@@ -141,26 +141,26 @@ export default function LoginPage() {
 
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between ml-1">
-                                        <label className="block text-sm font-bold text-muted-foreground">Password</label>
-                                        <a href="#" className="text-xs font-bold text-primary hover:text-yellow-600 transition-colors uppercase tracking-wider">
-                                            Forgot?
+                                        <label className="block text-sm font-bold text-foreground">Password</label>
+                                        <a href="#" className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors uppercase tracking-wider">
+                                            Recover Access
                                         </a>
                                     </div>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <Lock className="h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors" />
+                                            <Lock className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                         </div>
                                         <input
                                             type={showPassword ? 'text' : 'password'}
                                             required
-                                            className="block w-full pl-12 pr-12 py-4 bg-muted/50 border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                                            className="block w-full pl-12 pr-12 py-3.5 bg-background border border-border rounded-[12px] text-foreground placeholder:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                                             placeholder="••••••••"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                         />
                                         <button
                                             type="button"
-                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-primary transition-colors"
+                                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-primary transition-colors"
                                             onClick={() => setShowPassword(!showPassword)}
                                         >
                                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -173,31 +173,31 @@ export default function LoginPage() {
                                 <input
                                     id="remember"
                                     type="checkbox"
-                                    className="h-5 w-5 rounded-md border-zinc-300 dark:border-zinc-700 text-primary focus:ring-primary/20 transition-all cursor-pointer"
+                                    className="h-4 w-4 rounded border-border text-primary focus:ring-primary/20 transition-all cursor-pointer"
                                 />
-                                <label htmlFor="remember" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 cursor-pointer select-none">
-                                    Remember me
+                                <label htmlFor="remember" className="text-sm font-semibold text-foreground cursor-pointer select-none">
+                                    Trust this device
                                 </label>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full flex justify-center items-center py-4 px-4 bg-primary hover:bg-yellow-400 dark:hover:bg-yellow-500 text-zinc-950 font-black text-lg rounded-md shadow-xl shadow-primary/20 transition-all transform hover:-translate-y-1 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                className="w-full flex justify-center items-center py-4 px-4 bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-[12px] shadow-sm transition-all transform hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
                                 {isLoading ? (
-                                    <Loader2 className="animate-spin h-6 w-6" />
+                                    <Loader2 className="animate-spin h-5 w-5" />
                                 ) : (
                                     <>
-                                        Login <ArrowRight className="ml-2 h-5 w-5" />
+                                        Authenticate <ArrowRight className="ml-2 h-5 w-5" />
                                     </>
                                 )}
                             </button>
                         </form>
                     </motion.div>
 
-                    <p className="mt-8 text-center text-sm text-zinc-500 font-medium">
-                        &copy; {new Date().getFullYear()} SS Infra Software. All systems active.
+                    <p className="mt-8 text-center text-xs text-foreground font-medium uppercase tracking-widest">
+                        &copy; {new Date().getFullYear()} SS Infra Ecosystem. Protected Node.
                     </p>
                 </div>
             </div>

@@ -12,6 +12,7 @@ import { useGetActiveWorkQuery, useGetWorkHistoryQuery, useGetDutyStatsQuery } f
 import { useGetNotificationsQuery, Notification as ApiNotification } from '@/redux/apis/notificationApi';
 import { useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useAppSelector } from '@/redux/hooks';
 import { storage } from '@/redux/storage';
 import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
 
@@ -30,6 +31,7 @@ export default function OperatorOverview() {
     const router = useRouter();
     const { colors, isDark } = useAppTheme();
     const params = useLocalSearchParams();
+    const { isOnline } = useAppSelector(state => state.offline);
     // Local Pause Logic
     const [isPaused, setIsPaused] = useState(false);
     const [pauseStartTime, setPauseStartTime] = useState<number | null>(null);
@@ -52,7 +54,8 @@ export default function OperatorOverview() {
         isLoading: isLoadingActive,
         refetch: refetchActive
     } = useGetActiveWorkQuery(undefined, {
-        pollingInterval: 30000,
+        pollingInterval: isOnline ? 30000 : 0,
+        skip: !isOnline
     });
 
     // Today's Stats Query
@@ -64,16 +67,18 @@ export default function OperatorOverview() {
     } = useGetWorkHistoryQuery({
         from: todayStr,
         to: todayStr
-    });
+    }, { skip: !isOnline });
 
-    const { data: notificationsData, refetch: refetchNotifications } = useGetNotificationsQuery();
+    const { data: notificationsData, refetch: refetchNotifications } = useGetNotificationsQuery(undefined, { skip: !isOnline });
 
     // Refresh data when screen comes into focus
     useFocusEffect(
         useCallback(() => {
-            refetchActive();
-            refetchStats();
-            refetchNotifications();
+            if (isOnline) {
+                refetchActive();
+                refetchStats();
+                refetchNotifications();
+            }
 
             // Load selected machine
             const loadMachine = async () => {
@@ -114,7 +119,7 @@ export default function OperatorOverview() {
     const tasksDoneCount = completedTasksCount;
 
     // Additional Stats for Operator (Machine Assets)
-    const { data: statsData } = useGetDutyStatsQuery();
+    const { data: statsData } = useGetDutyStatsQuery(undefined, { skip: !isOnline });
     const stats = statsData?.stats;
 
     // Profile Query
@@ -216,12 +221,12 @@ export default function OperatorOverview() {
 
     // Handle Params
     useEffect(() => {
-        if (params.workStarted === 'true') {
+        if (params.workStarted === 'true' && isOnline) {
             refetchActive();
             refetchStats();
             router.setParams({ workStarted: 'false' });
         }
-    }, [params.workStarted]);
+    }, [params.workStarted, isOnline]);
 
 
     const handlePause = async () => {
@@ -336,7 +341,7 @@ export default function OperatorOverview() {
             <ScrollView style={styles.scrollBody} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
                 <LinearGradient
-                    colors={isDark ? ['#1A1A1A', '#000000'] : ['#FFFFFF', '#F3F4F6']}
+                    colors={isDark ? ['#1A1A1A', '#000000'] : ['#E0F2FE', '#BAE6FD']}
                     style={[styles.statusCard, { borderColor: colors.border, borderWidth: 1 }]}
                 >
                     <View style={styles.statusHeader}>
@@ -423,13 +428,7 @@ export default function OperatorOverview() {
                         color="#3B82F6"
                         colors={colors}
                     />
-                    <MenuIconButton
-                        icon="calendar-check"
-                        label={t('overview.bookings')}
-                        onPress={() => router.push('/(operator)/bookings' as any)}
-                        color="#8B5CF6"
-                        colors={colors}
-                    />
+                    {/* Bookings removed as requested */}
                     <MenuIconButton
                         icon="chart-timeline-variant"
                         label={t('overview.work_log')}
@@ -564,9 +563,9 @@ export default function OperatorOverview() {
             <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
                 {workStatus === 'idle' ? (
                     <TouchableOpacity style={styles.startBtn} onPress={() => router.push('/(operator)/start-work-form')}>
-                        <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                            <MaterialCommunityIcons name="play" size={28} color="#000" />
-                            <Text style={styles.startBtnText}>{t('overview.start_new_session')}</Text>
+                        <LinearGradient colors={isDark ? [colors.primary, colors.primary] : ['#0284C7', '#38BDF8']} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                            <MaterialCommunityIcons name="play" size={28} color="#fff" />
+                            <Text style={[styles.startBtnText, { color: '#fff' }]}>{t('overview.start_new_session')}</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                 ) : (
@@ -612,13 +611,14 @@ function StatItem({ icon, label, value, colors, loading }: any) {
 
 function RecentActivity({ router, colors }: any) {
     const { t } = useTranslation();
-    const { data, isLoading, refetch } = useGetWorkHistoryQuery({ page: 1, limit: 5 });
+    const { isOnline } = useAppSelector(state => state.offline);
+    const { data, isLoading, refetch } = useGetWorkHistoryQuery({ page: 1, limit: 5 }, { skip: !isOnline });
     const workSessions = data?.workSessions || [];
 
     useFocusEffect(
         useCallback(() => {
-            refetch();
-        }, [])
+            if (isOnline) refetch();
+        }, [isOnline])
     );
 
     return (

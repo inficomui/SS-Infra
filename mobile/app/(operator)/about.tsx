@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
+import Constants from 'expo-constants';
+import DeveloperCard from '@/components/DeveloperCard';
 
 export default function AboutScreen() {
     const router = useRouter();
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const { t } = useTranslation();
+    const version = Constants.expoConfig?.version || '1.0.0';
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -21,36 +24,43 @@ export default function AboutScreen() {
                 <View style={{ width: 44 }} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.content}>
+            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+                {/* Brand Card */}
                 <View style={[styles.brandCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <View style={[styles.logoPlaceholder, { backgroundColor: colors.primary + '20' }]}>
                         <MaterialCommunityIcons name="excavator" size={48} color={colors.primary} />
                     </View>
                     <Text style={[styles.brandName, { color: colors.textMain }]}>{t('operator_about.brand_name')}</Text>
                     <Text style={[styles.brandSub, { color: colors.textMuted }]}>{t('operator_about.brand_sub')}</Text>
+                    <View style={[styles.versionBadge, { backgroundColor: colors.primary + '15', borderColor: colors.border }]}>
+                        <Text style={[styles.versionText, { color: colors.primary }]}>v{version} (Beta)</Text>
+                    </View>
                 </View>
 
+                {/* Mission */}
                 <View style={styles.infoSection}>
                     <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('operator_about.mission_title')}</Text>
-                    <Text style={[styles.paragraph, { color: colors.textMain }]}>
+                    <Text style={[styles.paragraph, { color: colors.textMuted }]}>
                         {t('operator_about.mission_text')}
                     </Text>
                 </View>
 
-                <View style={styles.infoSection}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('operator_about.version')}</Text>
-                    <Text style={[styles.paragraph, { color: colors.textMain }]}>v1.0.0 (Beta)</Text>
-                </View>
-
+                {/* Support */}
                 <View style={styles.infoSection}>
                     <Text style={[styles.sectionTitle, { color: colors.textMain }]}>{t('operator_about.support_title')}</Text>
-                    <Text style={[styles.paragraph, { color: colors.textMain }]}>
+                    <Text style={[styles.paragraph, { color: colors.textMuted }]}>
                         {t('operator_about.support_text')}
                     </Text>
                 </View>
 
-                <View style={{ height: 40 }} />
+                {/* Developer Info — shared component */}
+                <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>Developer Info</Text>
+                <DeveloperCard colors={colors} isDark={isDark} />
+
+                <View style={{ height: 20 }} />
                 <Text style={[styles.copyright, { color: colors.textMuted }]}>{t('operator_about.copyright')}</Text>
+                <View style={{ height: 40 }} />
             </ScrollView>
         </View>
     );
@@ -62,12 +72,14 @@ const styles = StyleSheet.create({
     backBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
     content: { padding: 24 },
-    brandCard: { alignItems: 'center', padding: 40, borderRadius: 16, borderWidth: 1, marginBottom: 32 },
-    logoPlaceholder: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+    brandCard: { alignItems: 'center', padding: 36, borderRadius: 16, borderWidth: 1, marginBottom: 32 },
+    logoPlaceholder: { width: 84, height: 84, borderRadius: 42, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
     brandName: { fontSize: 24, fontWeight: '900', letterSpacing: 1 },
-    brandSub: { fontSize: 12, fontWeight: '600', marginTop: 4 },
+    brandSub: { fontSize: 12, fontWeight: '600', marginTop: 4, marginBottom: 14 },
+    versionBadge: { paddingHorizontal: 14, paddingVertical: 5, borderRadius: 20, borderWidth: 1, marginTop: 4 },
+    versionText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
     infoSection: { marginBottom: 24 },
-    sectionTitle: { fontSize: 14, fontWeight: '800', textTransform: 'uppercase', marginBottom: 8, letterSpacing: 0.5 },
-    paragraph: { fontSize: 14, lineHeight: 22, opacity: 0.8 },
-    copyright: { textAlign: 'center', fontSize: 12 }
+    sectionTitle: { fontSize: 13, fontWeight: '800', textTransform: 'uppercase', marginBottom: 8, letterSpacing: 1 },
+    paragraph: { fontSize: 14, lineHeight: 22 },
+    copyright: { textAlign: 'center', fontSize: 11 },
 });

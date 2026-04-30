@@ -33,7 +33,8 @@ const configureReactotron = (config = {}) => {
         const { scriptURL } = NativeModules.SourceCode;
         scriptHostname = scriptURL.split('://')[1].split(':')[0];
     } catch (e) {
-        console.error('Reactotron: Could not determine host, falling back to localhost');
+        // Quietly fallback for common development issues
+        // console.warn('Reactotron: Auto-host detection failed, using localhost.');
     }
 
     // Initialize Reactotron

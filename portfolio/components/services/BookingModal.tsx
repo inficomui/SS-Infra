@@ -87,7 +87,7 @@ function OtpBoxes({ value, onChange, disabled }: { value: string[]; onChange: (v
             bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-white
             outline-none transition-all
             border-zinc-200 dark:border-zinc-800
-            focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10
+            focus:border-primary focus:ring-4 focus:ring-amber-500/10
             disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                 />
             ))}
@@ -250,10 +250,10 @@ export function BookingModal() {
         } catch { /* global */ }
     };
 
-    const inputBase = "w-full bg-zinc-50 dark:bg-zinc-900 border rounded-2xl px-4 py-3.5 font-semibold text-zinc-900 dark:text-white outline-none transition-all placeholder:font-normal placeholder:text-zinc-400 text-sm";
+    const inputBase = "w-full bg-zinc-50 dark:bg-zinc-900 border rounded-2xl px-4 py-3.5 font-semibold text-zinc-900 dark:text-white outline-none transition-all placeholder:font-normal placeholder:text-muted-foreground text-sm";
     const inputBorder = (err?: string) => err
         ? "border-red-400 focus:ring-2 focus:ring-red-400/20"
-        : "border-zinc-200 dark:border-zinc-800 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10";
+        : "border-zinc-200 dark:border-zinc-800 focus:border-primary focus:ring-4 focus:ring-amber-500/10";
 
     return (
         <AnimatePresence>
@@ -270,7 +270,7 @@ export function BookingModal() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.94, y: 30 }}
                     transition={{ type: "spring", damping: 22 }}
-                    className="relative w-full max-w-[460px] bg-white dark:bg-zinc-950 rounded-4xl shadow-2xl border border-zinc-100 dark:border-zinc-800 overflow-hidden"
+                    className="relative w-full max-w-[460px] bg-background dark:bg-background rounded-4xl shadow-2xl border border-zinc-100 dark:border-zinc-800 overflow-hidden"
                 >
                     {/* Top accent */}
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[3px] bg-linear-to-r from-transparent via-amber-500 to-transparent" />
@@ -279,7 +279,7 @@ export function BookingModal() {
                     {!submitted && (
                         <button
                             onClick={() => dispatch(closeBookingModal())}
-                            className="absolute top-4 right-4 z-10 p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                            className="absolute top-4 right-4 z-10 p-2 text-muted-foreground hover:text-zinc-900 dark:hover:text-white rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
                         >
                             <X size={17} />
                         </button>
@@ -300,7 +300,7 @@ export function BookingModal() {
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
                                         transition={{ type: "spring", stiffness: 280, damping: 18, delay: 0.1 }}
-                                        className="w-20 h-20 rounded-3xl bg-green-500 flex items-center justify-center text-white mb-5 shadow-2xl shadow-green-500/25"
+                                        className="w-20 h-20 rounded-[16px] bg-green-500 flex items-center justify-center text-white mb-5 shadow-2xl shadow-green-500/25"
                                     >
                                         <CheckCircle2 size={36} strokeWidth={2.5} />
                                     </motion.div>
@@ -308,7 +308,7 @@ export function BookingModal() {
                                     <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-2">
                                         Booking <span className="text-green-500">Confirmed!</span>
                                     </h3>
-                                    <p className="text-zinc-500 text-sm font-medium mb-6 max-w-[280px]">
+                                    <p className="text-muted-foreground text-sm font-medium mb-6 max-w-[280px]">
                                         {isOperator
                                             ? "The Operator and their Owner have been notified via the mobile app."
                                             : "The Owner has been notified and will assign the nearest operator."}
@@ -328,7 +328,7 @@ export function BookingModal() {
                                         </div>
                                         {isOperator && (
                                             <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40">
-                                                <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-black shrink-0">
+                                                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-foreground shrink-0">
                                                     <Bell size={14} />
                                                 </div>
                                                 <div className="text-left">
@@ -347,15 +347,15 @@ export function BookingModal() {
 
                                     {/* Header */}
                                     <div className="mb-6">
-                                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-3">
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest mb-3">
                                             {isOperator ? <User size={11} /> : <Bell size={11} />}
                                             Book {isOperator ? "Operator" : "Owner"}
-                                            {bookingTargetName && <span className="text-amber-400 dark:text-amber-500">— {bookingTargetName}</span>}
+                                            {bookingTargetName && <span className="text-amber-400 dark:text-primary">— {bookingTargetName}</span>}
                                         </div>
                                         <h3 className="text-xl font-black text-zinc-900 dark:text-white">
-                                            Your <span className="text-amber-500">Booking Details</span>
+                                            Your <span className="text-primary">Booking Details</span>
                                         </h3>
-                                        <p className="text-zinc-400 text-xs font-medium mt-1">
+                                        <p className="text-muted-foreground text-xs font-medium mt-1">
                                             Verify your mobile number, then confirm the booking.
                                         </p>
                                     </div>
@@ -364,11 +364,11 @@ export function BookingModal() {
 
                                         {/* ── Name ── */}
                                         <div>
-                                            <label className="text-[11px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5 block">
+                                            <label className="text-[11px] font-black uppercase tracking-wider text-muted-foreground dark:text-muted-foreground mb-1.5 block">
                                                 Full Name <span className="text-red-400">*</span>
                                             </label>
                                             <div className="relative">
-                                                <User size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+                                                <User size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                                                 <input
                                                     type="text"
                                                     placeholder="e.g. Ramesh Patil"
@@ -382,13 +382,13 @@ export function BookingModal() {
 
                                         {/* ── Mobile + Send OTP ── */}
                                         <div>
-                                            <label className="text-[11px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5 block">
+                                            <label className="text-[11px] font-black uppercase tracking-wider text-muted-foreground dark:text-muted-foreground mb-1.5 block">
                                                 Mobile Number <span className="text-red-400">*</span>
                                             </label>
                                             <div className="flex gap-2">
                                                 {/* Phone input */}
                                                 <div className={`flex-1 relative flex items-center bg-zinc-50 dark:bg-zinc-900 border rounded-2xl transition-all overflow-hidden ${inputBorder(errors.clientMobile)}`}>
-                                                    <span className="pl-3.5 pr-2 text-xs font-black text-zinc-500 dark:text-zinc-400 shrink-0 border-r border-zinc-200 dark:border-zinc-700 py-3.5">+91</span>
+                                                    <span className="pl-3.5 pr-2 text-xs font-black text-muted-foreground dark:text-muted-foreground shrink-0 border-r border-zinc-200 dark:border-zinc-700 py-3.5">+91</span>
                                                     <input
                                                         type="tel"
                                                         placeholder="10-digit number"
@@ -396,7 +396,7 @@ export function BookingModal() {
                                                         value={form.clientMobile}
                                                         onChange={(e) => set("clientMobile", e.target.value.replace(/\D/g, ""))}
                                                         disabled={otpState === "verified"}
-                                                        className="flex-1 px-3 py-3.5 font-semibold text-sm text-zinc-900 dark:text-white bg-transparent outline-none placeholder:text-zinc-400 placeholder:font-normal tracking-wider disabled:opacity-60"
+                                                        className="flex-1 px-3 py-3.5 font-semibold text-sm text-zinc-900 dark:text-white bg-transparent outline-none placeholder:text-muted-foreground placeholder:font-normal tracking-wider disabled:opacity-60"
                                                     />
                                                     {/* Verified tick inside field */}
                                                     {otpState === "verified" && (
@@ -410,7 +410,7 @@ export function BookingModal() {
                                                         type="button"
                                                         onClick={handleSendOtp}
                                                         disabled={isSendingOtp || form.clientMobile.length !== 10}
-                                                        className="shrink-0 px-4 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-black text-[11px] uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                                                        className="shrink-0 px-4 py-3.5 rounded-2xl bg-primary hover:bg-amber-600 text-foreground font-black text-[11px] uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
                                                     >
                                                         {isSendingOtp ? (
                                                             <Loader2 size={14} className="animate-spin" />
@@ -436,7 +436,7 @@ export function BookingModal() {
                                                     >
                                                         <div className="bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4">
                                                             <div className="flex items-center gap-2 mb-3">
-                                                                <ShieldCheck size={14} className="text-amber-500" />
+                                                                <ShieldCheck size={14} className="text-primary" />
                                                                 <span className="text-xs font-black text-zinc-700 dark:text-zinc-300">
                                                                     Enter OTP sent to +91 {form.clientMobile}
                                                                 </span>
@@ -459,15 +459,15 @@ export function BookingModal() {
 
                                                             <div className="flex items-center justify-between mt-3 gap-2">
                                                                 {/* Resend timer */}
-                                                                <div className="text-xs text-zinc-400 font-medium">
+                                                                <div className="text-xs text-muted-foreground font-medium">
                                                                     {resendTimer > 0 ? (
-                                                                        <>Resend in <span className="text-amber-500 font-black">{resendTimer}s</span></>
+                                                                        <>Resend in <span className="text-primary font-black">{resendTimer}s</span></>
                                                                     ) : (
                                                                         <button
                                                                             type="button"
                                                                             onClick={handleResend}
                                                                             disabled={isSendingOtp}
-                                                                            className="flex items-center gap-1 text-zinc-500 hover:text-amber-500 font-black transition-colors"
+                                                                            className="flex items-center gap-1 text-muted-foreground hover:text-primary font-black transition-colors"
                                                                         >
                                                                             <RefreshCw size={11} className={isSendingOtp ? "animate-spin" : ""} />
                                                                             Resend OTP
@@ -480,7 +480,7 @@ export function BookingModal() {
                                                                     type="button"
                                                                     onClick={handleVerifyOtp}
                                                                     disabled={isVerifyingOtp || otpCode.join("").length !== 4} // Check joined length
-                                                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-black text-[11px] uppercase tracking-wider hover:bg-amber-500 hover:text-black dark:hover:bg-amber-500 dark:hover:text-black transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                                                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-background text-white dark:text-zinc-950 font-black text-[11px] uppercase tracking-wider hover:bg-primary hover:text-foreground dark:hover:bg-primary dark:hover:text-foreground transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                                                                 >
                                                                     {isVerifyingOtp ? (
                                                                         <><Loader2 size={12} className="animate-spin" /> Verifying...</>
@@ -513,8 +513,8 @@ export function BookingModal() {
 
                                         {/* ── Date Selection ── */}
                                         <div>
-                                            <label className="text-[11px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2.5 block">
-                                                Date of Requirement <span className="text-zinc-400 italic font-normal">(Select a day)</span>
+                                            <label className="text-[11px] font-black uppercase tracking-wider text-muted-foreground dark:text-muted-foreground mb-2.5 block">
+                                                Date of Requirement <span className="text-muted-foreground italic font-normal">(Select a day)</span>
                                             </label>
 
                                             <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar -mx-1 px-1">
@@ -532,17 +532,17 @@ export function BookingModal() {
                                                             type="button"
                                                             onClick={() => set("dateOfRequirement", dateStr)}
                                                             className={`shrink-0 flex flex-col items-center justify-center w-[60px] h-[72px] rounded-2xl border-2 transition-all ${isSelected
-                                                                ? "bg-amber-500 border-amber-500 text-black shadow-lg shadow-amber-500/25"
-                                                                : "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-amber-500/50"
+                                                                ? "bg-primary border-primary text-foreground shadow-lg shadow-primary/25"
+                                                                : "bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-muted-foreground hover:border-primary/50"
                                                                 }`}
                                                         >
-                                                            <span className={`text-[10px] font-black uppercase tracking-tighter ${isSelected ? "text-black/70" : "text-zinc-400"}`}>
+                                                            <span className={`text-[10px] font-black uppercase tracking-tighter ${isSelected ? "text-foreground/70" : "text-muted-foreground"}`}>
                                                                 {isToday ? "Today" : isTomorrow ? "Tmrw" : d.toLocaleDateString('en-US', { weekday: 'short' })}
                                                             </span>
                                                             <span className="text-lg font-black leading-tight">
                                                                 {d.getDate()}
                                                             </span>
-                                                            <span className={`text-[10px] font-bold ${isSelected ? "text-black/70" : "text-zinc-500"}`}>
+                                                            <span className={`text-[10px] font-bold ${isSelected ? "text-foreground/70" : "text-muted-foreground"}`}>
                                                                 {d.toLocaleDateString('en-US', { month: 'short' })}
                                                             </span>
                                                         </button>
@@ -570,14 +570,14 @@ export function BookingModal() {
                                                         if (isCustom && form.dateOfRequirement) {
                                                             const selectedD = new Date(form.dateOfRequirement);
                                                             return (
-                                                                <div className="flex flex-col items-center justify-center w-[60px] h-[72px] rounded-2xl border-2 bg-amber-500 border-amber-500 text-black shadow-lg shadow-amber-500/25 transition-all">
-                                                                    <span className="text-[10px] font-black uppercase tracking-tighter text-black/70">
+                                                                <div className="flex flex-col items-center justify-center w-[60px] h-[72px] rounded-2xl border-2 bg-primary border-primary text-foreground shadow-lg shadow-primary/25 transition-all">
+                                                                    <span className="text-[10px] font-black uppercase tracking-tighter text-foreground/70">
                                                                         {selectedD.toLocaleDateString('en-US', { weekday: 'short' })}
                                                                     </span>
                                                                     <span className="text-lg font-black leading-tight">
                                                                         {selectedD.getDate()}
                                                                     </span>
-                                                                    <span className="text-[10px] font-bold text-black/70">
+                                                                    <span className="text-[10px] font-bold text-foreground/70">
                                                                         {selectedD.toLocaleDateString('en-US', { month: 'short' })}
                                                                     </span>
                                                                 </div>
@@ -585,7 +585,7 @@ export function BookingModal() {
                                                         }
 
                                                         return (
-                                                            <div className="flex flex-col items-center justify-center w-[60px] h-[72px] rounded-2xl border-2 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 transition-all hover:border-amber-500/50">
+                                                            <div className="flex flex-col items-center justify-center w-[60px] h-[72px] rounded-2xl border-2 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-muted-foreground transition-all hover:border-primary/50">
                                                                 <Calendar size={18} />
                                                                 <span className="text-[10px] font-black uppercase mt-1">Other</span>
                                                             </div>
@@ -603,11 +603,11 @@ export function BookingModal() {
                                                         exit={{ opacity: 0, y: -4 }}
                                                         className="mt-2.5 flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 w-full"
                                                     >
-                                                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                                                        <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                                             <Calendar size={14} />
                                                         </div>
                                                         <div className="flex flex-col">
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Selected Date</span>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Selected Date</span>
                                                             <span className="text-xs font-bold text-zinc-900 dark:text-white">
                                                                 {new Date(form.dateOfRequirement!).toLocaleDateString('en-US', {
                                                                     weekday: 'long',
@@ -625,11 +625,11 @@ export function BookingModal() {
 
                                         {/* ── Message ── */}
                                         <div>
-                                            <label className="text-[11px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5 block">
-                                                Message <span className="text-zinc-400 normal-case font-normal">(optional)</span>
+                                            <label className="text-[11px] font-black uppercase tracking-wider text-muted-foreground dark:text-muted-foreground mb-1.5 block">
+                                                Message <span className="text-muted-foreground normal-case font-normal">(optional)</span>
                                             </label>
                                             <div className="relative">
-                                                <MessageSquare size={14} className="absolute left-3.5 top-3.5 text-zinc-400" />
+                                                <MessageSquare size={14} className="absolute left-3.5 top-3.5 text-muted-foreground" />
                                                 <textarea
                                                     rows={3}
                                                     placeholder="Describe your requirement, location details, etc."
@@ -645,9 +645,9 @@ export function BookingModal() {
                                             type="submit"
                                             disabled={isBooking || otpState !== "verified"}
                                             className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg
-                        bg-zinc-950 dark:bg-white text-white dark:text-zinc-950
-                        hover:bg-amber-500 hover:text-black dark:hover:bg-amber-500 dark:hover:text-black
-                        disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-zinc-950 dark:disabled:hover:bg-white dark:disabled:hover:text-zinc-950"
+                        bg-zinc-950 dark:bg-background text-white dark:text-zinc-950
+                        hover:bg-primary hover:text-foreground dark:hover:bg-primary dark:hover:text-foreground
+                        disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-zinc-950 dark:disabled:hover:bg-background dark:disabled:hover:text-zinc-950"
                                         >
                                             {isBooking ? (
                                                 <><Loader2 size={16} className="animate-spin" /> Sending Request...</>
@@ -659,7 +659,7 @@ export function BookingModal() {
                                         </button>
 
                                         {otpState !== "verified" && (
-                                            <p className="text-center text-[11px] text-zinc-400 font-medium -mt-1">
+                                            <p className="text-center text-[11px] text-muted-foreground font-medium -mt-1">
                                                 Verify your mobile number above to enable booking
                                             </p>
                                         )}

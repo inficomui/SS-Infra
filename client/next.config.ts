@@ -1,16 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend.ssinfrasoftware.com/api/v1';
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${backendUrl}/api/:path*`,
-      },
-    ];
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
   },
+  /* config options here */
 };
 
 export default nextConfig;

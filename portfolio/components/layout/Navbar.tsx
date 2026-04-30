@@ -30,9 +30,10 @@ export function Navbar() {
     }, [mobileMenuOpen]);
 
     const navLinks = [
-        { name: 'Home', href: '/' },
-        { name: 'Search', href: '/search' },
-        { name: 'Client Panel', href: '/dashboard/client' }
+        { name: 'Features', href: '#features' },
+        { name: 'Solutions', href: '#directory' },
+        { name: 'Pricing', href: '#pricing' },
+        { name: 'About', href: '#about' }
     ];
 
     return (
@@ -44,19 +45,19 @@ export function Navbar() {
                             flex items-center justify-between p-2 pl-6 rounded-[2rem] 
                             transition-all duration-500
                             ${isScrolled
-                                ? 'backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-black/10 dark:border-white/10 bg-white/80 dark:bg-zinc-950/80 md:py-3 py-2.5'
+                                ? 'backdrop-blur-2xl shadow-sm border border-border bg-background/80 md:py-3 py-2.5'
                                 : 'bg-transparent md:py-4 py-3'}
                         `}
                     >
                         <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-4 group cursor-pointer z-[1001]">
                             <motion.div
                                 whileHover={{ scale: 1.05, rotate: 5 }}
-                                className="w-10 h-10 bg-black dark:bg-white rounded-xl flex items-center justify-center text-amber-500 shadow-xl shadow-amber-500/20 transition-all group-hover:bg-amber-500 group-hover:text-black dark:group-hover:bg-amber-500"
+                                className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-black shadow-xl shadow-primary/20 transition-all hover:opacity-90"
                             >
                                 <Zap size={20} fill="currentColor" />
                             </motion.div>
-                            <span className="text-xl font-black tracking-tighter uppercase font-[Space Grotesk] dark:text-white transition-colors group-hover:text-amber-500">
-                                SS<span className="text-amber-500 group-hover:text-black dark:group-hover:text-white transition-colors">.</span>INFRA
+                            <span className="text-xl font-black tracking-tighter uppercase font-heading text-foreground transition-colors group-hover:text-primary">
+                                SS INFRA <span className="text-primary group-hover:text-foreground transition-colors">SOFTWARE</span>
                             </span>
                         </Link>
 
@@ -65,10 +66,10 @@ export function Navbar() {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    className="relative px-5 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400 hover:text-amber-500 dark:hover:text-amber-400 transition-all group"
+                                    className="relative px-5 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground dark:text-muted-foreground hover:text-primary transition-all group"
                                 >
                                     {item.name}
-                                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-1/2 rounded-full" />
+                                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-1/2 rounded-full" />
                                 </Link>
                             ))}
                         </div>
@@ -77,7 +78,7 @@ export function Navbar() {
                             <div className="hidden md:flex items-center gap-3 mr-3 pl-4 border-l border-black/10 dark:border-white/10">
                                 <button
                                     onClick={() => setSearchOpen(true)}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-black/5 dark:border-white/5 text-zinc-600 dark:text-zinc-400 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/50 transition-all"
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-muted/50 border border-border text-foreground hover:text-primary hover:border-primary/50 transition-all"
                                     aria-label="Search"
                                 >
                                     <Search size={18} />
@@ -86,14 +87,18 @@ export function Navbar() {
                                 <ThemeToggle />
                             </div>
 
-                            <Link href="/auth/login" className="hidden sm:flex group bg-black dark:bg-white text-white dark:text-black font-black text-[10px] uppercase tracking-[0.2em] px-8 py-4 rounded-xl transition-all shadow-xl shadow-black/10 dark:shadow-white/10 hover:shadow-amber-500/20 hover:scale-[1.02] active:scale-95 items-center gap-2">
-                                {t("common.get_started")}
+                             <Link href="/auth/login" className="hidden sm:flex group bg-primary text-black font-black text-[10px] uppercase tracking-[0.2em] px-8 py-4 rounded-xl transition-all shadow-lg shadow-primary/10 hover:shadow-primary/30 hover:scale-[1.02] active:scale-95 items-center gap-2">
+                                {t("common.login")}
                                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                            </Link>
+
+                             <Link href="#enquiry" className="hidden md:flex group border border-primary/40 text-primary font-black text-[10px] uppercase tracking-[0.2em] px-8 py-4 rounded-xl transition-all hover:bg-primary/5 hover:border-primary items-center ml-2">
+                                {t("common.request_demo")}
                             </Link>
 
                             <button
                                 onClick={() => setSearchOpen(true)}
-                                className="lg:hidden w-11 h-11 flex items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-black/5 dark:border-white/5 transition-colors mr-1 hover:text-amber-500"
+                                className="lg:hidden w-11 h-11 flex items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-black/5 dark:border-white/5 transition-colors mr-1 hover:text-primary"
                                 aria-label="Search"
                             >
                                 <Search size={20} />
@@ -123,7 +128,7 @@ export function Navbar() {
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                     >
                         <div
-                            className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-2xl"
+                            className="absolute inset-0 bg-background/80 dark:bg-black/80 backdrop-blur-2xl"
                             onClick={() => setMobileMenuOpen(false)}
                         />
 
@@ -139,7 +144,7 @@ export function Navbar() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 }}
-                                    className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-500 mb-6 pl-4"
+                                    className="text-[11px] font-bold uppercase tracking-[0.4em] text-primary mb-6 pl-4"
                                 >
                                     Menu
                                 </motion.p>
@@ -154,12 +159,12 @@ export function Navbar() {
                                         <Link
                                             href={item.href}
                                             onClick={() => setMobileMenuOpen(false)}
-                                            className="group flex items-center justify-between py-5 px-4 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                                            className="group flex items-center justify-between py-5 px-4 rounded-2xl hover:bg-muted transition-colors"
                                         >
-                                            <span className="text-4xl sm:text-5xl font-black uppercase tracking-tighter text-black dark:text-white transition-all group-hover:text-amber-500 group-hover:translate-x-2">
+                                            <span className="text-4xl sm:text-5xl font-black uppercase tracking-tighter text-foreground transition-all group-hover:text-primary group-hover:translate-x-2">
                                                 {item.name}
                                             </span>
-                                            <ArrowRight size={28} className="text-zinc-300 dark:text-zinc-700 group-hover:text-amber-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-8 group-hover:translate-x-0" />
+                                            <ArrowRight size={28} className="text-muted-foreground group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all -translate-x-8 group-hover:translate-x-0" />
                                         </Link>
                                     </motion.div>
                                 ))}
@@ -169,7 +174,7 @@ export function Navbar() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="w-full max-w-md mx-auto flex flex-col gap-6 mt-8 p-6 bg-black/5 dark:bg-white/5 rounded-3xl backdrop-blur-sm border border-black/5 dark:border-white/10"
+                                className="w-full max-w-md mx-auto flex flex-col gap-6 mt-8 p-6 bg-black/5 dark:bg-background/5 rounded-[16px] backdrop-blur-sm border border-black/5 dark:border-white/10"
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex gap-4">
@@ -183,7 +188,7 @@ export function Navbar() {
                                 <Link
                                     href="/auth/login"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="w-full flex justify-center items-center gap-3 bg-amber-500 hover:bg-amber-400 text-black font-black py-5 rounded-xl uppercase tracking-[0.2em] text-sm shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
+                                    className="w-full flex justify-center items-center gap-3 bg-primary hover:bg-primary/90 text-white font-bold py-5 rounded-xl uppercase tracking-[0.2em] text-sm shadow-xl shadow-primary/20 active:scale-95 transition-all"
                                 >
                                     {t("common.get_started")}
                                     <ArrowRight size={18} />

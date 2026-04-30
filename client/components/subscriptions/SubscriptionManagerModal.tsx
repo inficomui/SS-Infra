@@ -118,7 +118,7 @@ export default function SubscriptionManagerModal({
                             <div>
                                 <h3 className="text-2xl font-black text-foreground dark:text-white tracking-tight leading-tight">Service Deck</h3>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{userName}</p>
+                                    <p className="text-xs font-bold text-foreground uppercase tracking-widest">{userName}</p>
                                     <span className="h-1 w-1 rounded-full bg-zinc-400" />
                                     <span className="text-[10px] font-black text-primary px-2 py-0.5 rounded bg-primary/10 border border-primary/20 uppercase tracking-tighter">
                                         {userRole || 'Entity'}
@@ -126,7 +126,7 @@ export default function SubscriptionManagerModal({
                                 </div>
                             </div>
                         </div>
-                        <button onClick={onClose} className="text-zinc-400 hover:text-foreground dark:hover:text-white p-3 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-2xl transition-all active:scale-90">
+                        <button onClick={onClose} className="text-muted-foreground hover:text-foreground dark:hover:text-white p-3 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-2xl transition-all active:scale-90">
                             <X className="h-6 w-6" />
                         </button>
                     </div>
@@ -135,14 +135,14 @@ export default function SubscriptionManagerModal({
                         {isLoadingSubs ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
                                 <Loader2 className="animate-spin h-10 w-10 text-primary" strokeWidth={3} />
-                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] animate-pulse">Syncing Cloud Node...</p>
+                                <p className="text-[10px] font-black text-foreground uppercase tracking-[0.3em] animate-pulse">Syncing Cloud Node...</p>
                             </div>
                         ) : (
                             <>
                                 {/* Current Strategic Plan */}
                                 <div className="space-y-5">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
+                                        <h4 className="text-[10px] font-black text-foreground uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
                                             <ShieldCheck className="h-3 w-3" />
                                             Active Protocol
                                         </h4>
@@ -163,7 +163,7 @@ export default function SubscriptionManagerModal({
                                                         {activeSubscription.plan?.name}
                                                     </h5>
                                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4">
-                                                        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground dark:text-zinc-500">
+                                                        <div className="flex items-center gap-2 text-xs font-bold text-foreground dark:text-foreground">
                                                             <Calendar className="h-4 w-4" />
                                                             End Date: <span className="text-foreground dark:text-zinc-300">{new Date(activeSubscription.endDate).toLocaleDateString()}</span>
                                                         </div>
@@ -186,10 +186,10 @@ export default function SubscriptionManagerModal({
                                     ) : (
                                         <div className="bg-zinc-50 dark:bg-white/5 border border-dashed border-zinc-200 dark:border-white/10 rounded-[2rem] p-12 text-center group hover:border-primary/50 transition-all duration-500">
                                             <div className="inline-flex items-center justify-center h-16 w-16 rounded-[1.5rem] bg-zinc-100 dark:bg-zinc-800/50 mb-6 group-hover:rotate-6 transition-all duration-500 border border-transparent group-hover:border-primary/20 shadow-lg">
-                                                <AlertCircle className="h-8 w-8 text-zinc-400 group-hover:text-primary transition-colors" />
+                                                <AlertCircle className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
                                             </div>
                                             <p className="text-xl font-black text-foreground dark:text-white tracking-tight">System Node IDLE</p>
-                                            <p className="text-sm font-medium text-muted-foreground dark:text-zinc-500 mt-2 max-w-xs mx-auto">No active service protocols detected. Please initialize a deployment below.</p>
+                                            <p className="text-sm font-medium text-foreground dark:text-foreground mt-2 max-w-xs mx-auto">No active service protocols detected. Please initialize a deployment below.</p>
                                         </div>
                                     )}
                                 </div>
@@ -197,7 +197,7 @@ export default function SubscriptionManagerModal({
                                 {/* Deployment Phase */}
                                 {!activeSubscription && (
                                     <div className="space-y-6 pt-6 border-t border-zinc-200 dark:border-white/5">
-                                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
+                                        <h4 className="text-[10px] font-black text-foreground uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
                                             <Zap className="h-3 w-3" />
                                             Available Deployments
                                         </h4>
@@ -224,7 +224,7 @@ export default function SubscriptionManagerModal({
                                                         <div className="flex justify-between items-center mb-4 relative z-10">
                                                             <div className={clsx(
                                                                 "h-10 w-10 flex items-center justify-center rounded-xl transition-all duration-500",
-                                                                selectedPlanId === plan.id ? 'bg-primary text-black' : 'bg-zinc-200 dark:bg-white/10 text-muted-foreground group-hover:text-primary'
+                                                                selectedPlanId === plan.id ? 'bg-primary text-foreground' : 'bg-zinc-200 dark:bg-white/10 text-foreground group-hover:text-primary'
                                                             )}>
                                                                 <CreditCard className="h-5 w-5" />
                                                             </div>
@@ -232,11 +232,11 @@ export default function SubscriptionManagerModal({
                                                         </div>
                                                         <div className="relative z-10">
                                                             <h5 className="font-extrabold text-lg text-foreground dark:text-white tracking-tight group-hover:text-primary transition-colors">{plan.name}</h5>
-                                                            <p className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] mt-2 group-hover:text-zinc-400">{plan.durationDays} Days Duration</p>
+                                                            <p className="text-[10px] font-black text-foreground dark:text-foreground uppercase tracking-[0.2em] mt-2 group-hover:text-muted-foreground">{plan.durationDays} Days Duration</p>
                                                         </div>
                                                         {selectedPlanId === plan.id && (
                                                             <div className="absolute -top-3 -right-3 h-12 w-12 bg-primary rounded-full flex items-center justify-center pt-2 pr-2">
-                                                                <Check className="h-5 w-5 text-black" strokeWidth={4} />
+                                                                <Check className="h-5 w-5 text-foreground" strokeWidth={4} />
                                                             </div>
                                                         )}
                                                         {/* Glow background on selected */}
@@ -255,7 +255,7 @@ export default function SubscriptionManagerModal({
                                                     className="space-y-5 pt-8 bg-zinc-50 dark:bg-white/[0.02] p-8 rounded-[2.5rem] border border-zinc-200 dark:border-white/5"
                                                 >
                                                     <div>
-                                                        <label className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest block mb-3 ml-1">Deployment Audit Note (Optional)</label>
+                                                        <label className="text-[10px] font-black text-foreground dark:text-foreground uppercase tracking-widest block mb-3 ml-1">Deployment Audit Note (Optional)</label>
                                                         <textarea
                                                             value={notes}
                                                             onChange={(e) => setNotes(e.target.value)}
@@ -266,7 +266,7 @@ export default function SubscriptionManagerModal({
                                                     <button
                                                         onClick={handleAssign}
                                                         disabled={isAssigning}
-                                                        className="w-full py-5 bg-primary hover:bg-yellow-400 text-black font-black text-lg rounded-[1.5rem] shadow-[0_20px_40px_-15px_rgba(250,204,21,0.3)] transition-all hover:scale-[1.01] active:scale-[0.98] disabled:opacity-70 flex justify-center items-center gap-3"
+                                                        className="w-full py-5 bg-primary hover:bg-yellow-400 text-foreground font-black text-lg rounded-[1.5rem] shadow-[0_20px_40px_-15px_rgba(250,204,21,0.3)] transition-all hover:scale-[1.01] active:scale-[0.98] disabled:opacity-70 flex justify-center items-center gap-3"
                                                     >
                                                         {isAssigning ? <Loader2 className="animate-spin h-6 w-6" strokeWidth={3} /> : <Zap className="h-5 w-5" strokeWidth={3} />}
                                                         Initialize Protocol Deployment
@@ -280,7 +280,7 @@ export default function SubscriptionManagerModal({
                                 {/* Archive Registry */}
                                 {pastSubscriptions.length > 0 && (
                                     <div className="space-y-6 pt-6 border-t border-zinc-200 dark:border-white/5 pb-10">
-                                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
+                                        <h4 className="text-[10px] font-black text-foreground uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
                                             <History className="h-4 w-4" />
                                             Service History Log
                                         </h4>
@@ -288,22 +288,22 @@ export default function SubscriptionManagerModal({
                                             <table className="min-w-full divide-y divide-zinc-200 dark:divide-white/5">
                                                 <thead className="bg-zinc-100/50 dark:bg-zinc-800/30">
                                                     <tr>
-                                                        <th className="px-6 py-4 text-left text-[9px] font-black text-muted-foreground uppercase tracking-widest">Plan Spec</th>
-                                                        <th className="px-6 py-4 text-left text-[9px] font-black text-muted-foreground uppercase tracking-widest">Timeframe</th>
-                                                        <th className="px-6 py-4 text-right text-[9px] font-black text-muted-foreground uppercase tracking-widest">Status</th>
+                                                        <th className="px-6 py-4 text-left text-[9px] font-black text-foreground uppercase tracking-widest">Plan Spec</th>
+                                                        <th className="px-6 py-4 text-left text-[9px] font-black text-foreground uppercase tracking-widest">Timeframe</th>
+                                                        <th className="px-6 py-4 text-right text-[9px] font-black text-foreground uppercase tracking-widest">Status</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-zinc-200 dark:divide-white/5">
                                                     {pastSubscriptions.map((sub: any) => (
                                                         <tr key={sub.id} className="hover:bg-zinc-100/50 dark:hover:bg-white/5 transition-colors">
                                                             <td className="px-6 py-4 text-sm font-bold text-foreground dark:text-zinc-300">{sub.plan?.name}</td>
-                                                            <td className="px-6 py-4 text-[10px] font-black text-zinc-500 uppercase tracking-tighter">
+                                                            <td className="px-6 py-4 text-[10px] font-black text-foreground uppercase tracking-tighter">
                                                                 {new Date(sub.startDate).toLocaleDateString()} <span className="mx-1 opacity-30">→</span> {new Date(sub.endDate).toLocaleDateString()}
                                                             </td>
                                                             <td className="px-6 py-4 text-right">
                                                                 <span className={clsx(
                                                                     "inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all",
-                                                                    sub.status === 'expired' ? 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800/40 dark:text-zinc-500 dark:border-white/5' :
+                                                                    sub.status === 'expired' ? 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800/40 dark:text-foreground dark:border-white/5' :
                                                                     sub.status === 'cancelled' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
                                                                     'bg-blue-500/10 text-blue-500 border-blue-500/20'
                                                                 )}>

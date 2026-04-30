@@ -17,7 +17,7 @@
 //                     {/* Fallback Mobile App UI Mockup */}
 //                     <div className="w-full h-full bg-linear-to-b from-industrial-black to-industrial-gray p-6 pt-12">
 //                         <div className="flex justify-between items-center mb-8">
-//                             <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-black">
+//                             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-foreground">
 //                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
 //                                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
 //                                 </svg>
@@ -33,7 +33,7 @@
 //                         <div className="grid grid-cols-2 gap-3 mb-8">
 //                             {[1, 2, 3, 4].map(i => (
 //                                 <div key={i} className="h-24 bg-zinc-900 border border-zinc-800 rounded-lg p-3">
-//                                     <div className="w-8 h-8 rounded-lg bg-amber-500/10 mb-2" />
+//                                     <div className="w-8 h-8 rounded-lg bg-primary/10 mb-2" />
 //                                     <div className="h-2 w-10 bg-zinc-800 rounded-sm" />
 //                                 </div>
 //                             ))}
@@ -41,7 +41,7 @@
 
 //                         <div className="h-40 bg-zinc-900 border border-zinc-800 rounded-xl p-4 overflow-hidden relative">
 //                             <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/73.8567,18.5204,12,0/300x400?access_token=pk.ey')] bg-cover opacity-50" />
-//                             <div className="relative z-10 w-4 h-4 bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,1)]" />
+//                             <div className="relative z-10 w-4 h-4 bg-primary rounded-full shadow-[0_0_10px_rgba(245,158,11,1)]" />
 //                         </div>
 //                     </div>
 //                     {children}
@@ -130,14 +130,14 @@ export function IPhone3D({ children }: { children?: React.ReactNode }) {
                         </div>
 
                         {/* Mobile App UI */}
-                        <div className="w-full h-full bg-zinc-50 dark:bg-zinc-950 p-6 pt-12 flex flex-col gap-5">
+                        <div className="w-full h-full bg-zinc-50 dark:bg-background p-6 pt-12 flex flex-col gap-5">
                             {/* App Header */}
                             <div className="flex justify-between items-center mt-4">
                                 <div>
-                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-tight">Fleet Dashboard</p>
+                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight">Fleet Dashboard</p>
                                     <h4 className="text-sm font-black text-zinc-900 dark:text-white">Active Units</h4>
                                 </div>
-                                <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-500">
+                                <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
                                     <Layers size={14} />
                                 </div>
                             </div>
@@ -148,10 +148,10 @@ export function IPhone3D({ children }: { children?: React.ReactNode }) {
                                     { label: "Uptime", val: "99%", icon: <TrendingUp size={12} /> },
                                     { label: "Active", val: "142", icon: <MapPin size={12} /> }
                                 ].map((stat, i) => (
-                                    <div key={i} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-2xl">
-                                        <div className="text-amber-500 mb-1">{stat.icon}</div>
+                                    <div key={i} className="bg-background dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-3 rounded-2xl">
+                                        <div className="text-primary mb-1">{stat.icon}</div>
                                         <div className="text-xs font-black dark:text-white">{stat.val}</div>
-                                        <div className="text-[9px] text-zinc-400 font-bold">{stat.label}</div>
+                                        <div className="text-[9px] text-muted-foreground font-bold">{stat.label}</div>
                                     </div>
                                 ))}
                             </div>
@@ -165,21 +165,21 @@ export function IPhone3D({ children }: { children?: React.ReactNode }) {
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                                     <span className="relative flex h-4 w-4">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500 shadow-lg shadow-amber-500/50 border-2 border-white"></span>
+                                        <span className="relative inline-flex rounded-full h-4 w-4 bg-primary shadow-lg shadow-primary/50 border-2 border-white"></span>
                                     </span>
                                 </div>
 
                                 {/* Floating Map Controls */}
                                 <div className="absolute bottom-3 right-3 flex flex-col gap-2">
-                                    <div className="w-8 h-8 rounded-xl bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-sm flex items-center justify-center text-[14px] font-bold">+</div>
-                                    <div className="w-8 h-8 rounded-xl bg-white/90 dark:bg-zinc-800/90 backdrop-blur shadow-sm flex items-center justify-center text-[14px] font-bold">-</div>
+                                    <div className="w-8 h-8 rounded-xl bg-background/90 dark:bg-zinc-800/90 backdrop-blur shadow-sm flex items-center justify-center text-[14px] font-bold">+</div>
+                                    <div className="w-8 h-8 rounded-xl bg-background/90 dark:bg-zinc-800/90 backdrop-blur shadow-sm flex items-center justify-center text-[14px] font-bold">-</div>
                                 </div>
                             </div>
 
                             {/* Tab Bar */}
-                            <div className="h-14 bg-white dark:bg-zinc-900 -mx-6 -mb-6 border-t border-zinc-100 dark:border-zinc-800 flex justify-around items-center px-6">
+                            <div className="h-14 bg-background dark:bg-zinc-900 -mx-6 -mb-6 border-t border-zinc-100 dark:border-zinc-800 flex justify-around items-center px-6">
                                 {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className={`w-8 h-1 rounded-full ${i === 1 ? 'bg-amber-500' : 'bg-zinc-200 dark:bg-zinc-800'}`} />
+                                    <div key={i} className={`w-8 h-1 rounded-full ${i === 1 ? 'bg-primary' : 'bg-zinc-200 dark:bg-zinc-800'}`} />
                                 ))}
                             </div>
                         </div>

@@ -9,19 +9,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addNotification } from '@/redux/slices/notificationSlice';
 import { useRouter } from 'expo-router';
 
-// Configure notification behavior
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
-
 export function usePushNotifications() {
+    const { notificationsEnabled } = useSelector((state: any) => state.settings);
     const [expoPushToken, setExpoPushToken] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        // Dynamically update notification handler based on setting
+        Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+                shouldShowAlert: notificationsEnabled,
+                shouldPlaySound: notificationsEnabled,
+                shouldSetBadge: false,
+                shouldShowBanner: notificationsEnabled,
+                shouldShowList: notificationsEnabled,
+            }),
+        });
+    }, [notificationsEnabled]);
     const [devicePushToken, setDevicePushToken] = useState<string | undefined>(undefined);
     const [notification, setNotification] = useState<Notifications.Notification | undefined>(undefined);
     const notificationListener = useRef<Notifications.Subscription | undefined>(undefined);
@@ -111,6 +114,10 @@ async function registerForPushNotificationsAsync() {
     let expoToken;
     let deviceToken;
 
+    // SDK 53+ compatibility: Remote notifications are removed from Expo Go on Android
+    // We check appOwnership to avoid crashing in Expo Go
+    const isExpoGo = Constants.appOwnership === 'expo';
+
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
             name: 'default',
@@ -120,7 +127,7 @@ async function registerForPushNotificationsAsync() {
         });
     }
 
-    if (Device.isDevice) {
+    if (Device.isDevice && !isExpoGo) {
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
         if (existingStatus !== 'granted') {
@@ -136,21 +143,25 @@ async function registerForPushNotificationsAsync() {
                 Constants?.expoConfig?.extra?.eas?.projectId ??
                 Constants?.easConfig?.projectId;
 
-            expoToken = (await Notifications.getExpoPushTokenAsync({
-                projectId,
-            })).data;
+            if (projectId) {
+                expoToken = (await Notifications.getExpoPushTokenAsync({
+                    projectId,
+                })).data;
+            }
         } catch (e) {
-            console.error("getExpoPushTokenAsync ERROR: ", e);
+            console.warn("getExpoPushTokenAsync failed. This is expected in Expo Go SDK 53+ or if EAS is not configured.");
         }
 
         try {
             deviceToken = (await Notifications.getDevicePushTokenAsync()).data;
         } catch (e) {
-            console.error("getDevicePushTokenAsync ERROR: ", e);
+            // console.error("getDevicePushTokenAsync ERROR: ", e);
         }
 
     } else {
-        // Must use physical device for Push Notifications
+        if (isExpoGo) {
+            console.info("Push Notifications are disabled in Expo Go (SDK 53+ Requirements). Use a development build for full functionality.");
+        }
     }
 
     return { expoToken, deviceToken };

@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useFinishWorkMutation } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 
 const formatTime = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -23,6 +24,7 @@ export default function FinishWorkScreen() {
     const { colors } = useAppTheme();
     const params = useLocalSearchParams();
     const { elapsedSeconds, clientName, location, workId } = params;
+    const { performMutation } = useOfflineMutation();
     const [finishWork, { isLoading: isSubmitting }] = useFinishWorkMutation();
     const { t } = useTranslation();
 
@@ -72,7 +74,7 @@ export default function FinishWorkScreen() {
             t('finish_work_screen.upload_method'),
             [
                 { text: t('finish_work_screen.camera'), onPress: handleTakePhoto },
-                { text: t('finish_work_screen.gallery'), onPress: handlePickPhoto },
+                // { text: t('finish_work_screen.gallery'), onPress: handlePickPhoto },
                 { text: t('finish_work_screen.cancel'), style: "cancel" }
             ]
         );
@@ -90,41 +92,39 @@ export default function FinishWorkScreen() {
         }
 
         try {
-            const formData = new FormData();
-            formData.append('workSessionId', workId as string);
-            formData.append('finishedAt', new Date().toISOString());
-
-            // Convert seconds to decimal hours (e.g. 1h 30m = 1.5)
             const hours = (Number(elapsedSeconds) / 3600).toFixed(2);
-            formData.append('totalHours', hours);
-
             const filename = photoUri.split('/').pop() || 'finish_work_photo.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-            // Clean URI for different platforms
             const cleanUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+            const fileObj = { uri: cleanUri, name: filename, type: type };
 
-            const fileObj = {
-                uri: cleanUri,
-                name: filename,
-                type: type
+            const requestBody = {
+                workSessionId: workId as string,
+                finishedAt: new Date().toISOString(),
+                totalHours: hours,
+                afterPhoto: fileObj,
+                after_photo: fileObj,
+                end_meter_photo: fileObj,
+                endMeterPhoto: fileObj
             };
 
-            formData.append('afterPhoto', fileObj as any);
-            formData.append('after_photo', fileObj as any);
-            formData.append('end_meter_photo', fileObj as any);
-            formData.append('endMeterPhoto', fileObj as any);
-
-            await finishWork(formData).unwrap();
-
-            router.push({
-                pathname: '/(operator)/create-bill',
-                params: {
-                    ...params,
-                    afterWorkPhoto: photoUri
-                }
+            const response = await performMutation(finishWork, requestBody, {
+                endpoint: '/work/finish',
+                method: 'POST',
+                description: `Finish work session ${workId}`
             });
+
+            if (response.success) {
+                router.push({
+                    pathname: '/(operator)/create-bill',
+                    params: {
+                        ...params,
+                        afterWorkPhoto: photoUri,
+                        isOfflineSession: response.offline ? 'true' : 'false'
+                    }
+                });
+            }
         } catch (error: any) {
             console.error("Finish Work Error:", error);
             const msg = error?.data?.message || error?.message || t('finish_work_screen.submission_failed');
@@ -206,17 +206,17 @@ export default function FinishWorkScreen() {
                     disabled={isSubmitting}
                 >
                     <LinearGradient
-                        colors={[colors.primary, colors.primary]}
+                        colors={['#0284C7', '#38BDF8']}
                         style={styles.gradient}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                     >
                         {isSubmitting ? (
-                            <ActivityIndicator color="#000" />
+                            <ActivityIndicator color="#fff" />
                         ) : (
                             <>
-                                <MaterialCommunityIcons name="file-document-edit-outline" size={24} color="#000" />
-                                <Text style={styles.btnText}>{t('finish_work_screen.generate_invoice')}</Text>
+                                <MaterialCommunityIcons name="file-document-edit-outline" size={24} color="#fff" />
+                                <Text style={[styles.btnText, { color: '#fff' }]}>{t('finish_work_screen.generate_invoice')}</Text>
                             </>
                         )}
                     </LinearGradient>

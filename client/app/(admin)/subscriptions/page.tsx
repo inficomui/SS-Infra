@@ -98,14 +98,14 @@ export default function SubscriptionsPage() {
             className="space-y-8 relative"
         >
             {/* Header & Actions */}
-            <div className="bg-card dark:bg-zinc-900 border border-zinc-200/50 dark:border-white/5 p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 transition-all">
+            <div className="bg-card border border-border p-8 rounded-[16px] shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 transition-all">
                 <div className="flex items-center gap-5">
                     <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shrink-0">
                         <ShieldCheck className="h-7 w-7 text-primary" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black text-foreground dark:text-white tracking-tight">Access Subscriptions</h2>
-                        <p className="text-sm font-medium text-muted-foreground dark:text-zinc-400 mt-1 flex items-center gap-2">
+                        <h2 className="text-3xl font-bold text-foreground dark:text-white tracking-tight">Access Subscriptions</h2>
+                        <p className="text-sm font-medium text-foreground dark:text-muted-foreground mt-1 flex items-center gap-2">
                              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             System-Wide Identity & License Control
                         </p>
@@ -115,7 +115,7 @@ export default function SubscriptionsPage() {
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 px-6 py-3 bg-primary text-black font-black rounded-xl hover:opacity-90 transition-all shadow-xl shadow-primary/25 active:scale-95 shrink-0"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-foreground font-bold rounded-xl hover:opacity-90 transition-all shadow-xl shadow-primary/25 active:scale-95 shrink-0"
                     >
                         <UserPlus className="h-5 w-5" strokeWidth={3} />
                         Assign Plan
@@ -128,7 +128,7 @@ export default function SubscriptionsPage() {
                             setStatusFilter('')
                             refetch()
                         }}
-                        className="p-3 text-muted-foreground hover:text-primary hover:bg-zinc-100 dark:hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-zinc-200 dark:hover:border-white/10"
+                        className="p-3 text-foreground hover:text-primary hover:bg-zinc-100 dark:hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-zinc-200 dark:hover:border-white/10"
                         title="Sync Subscriptions"
                     >
                         <RefreshCw className="h-5 w-5" />
@@ -141,41 +141,41 @@ export default function SubscriptionsPage() {
                                 setPage(1)
                                 setStatusFilter(e.target.value as "active" | "expired" | "cancelled" | "")
                             }}
-                            className="w-full pl-11 pr-4 py-3 bg-muted/30 dark:bg-white/5 border border-transparent focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold placeholder:text-zinc-400 dark:text-white appearance-none cursor-pointer"
+                            className="w-full pl-11 pr-4 py-3 bg-muted/30 dark:bg-white/5 border border-transparent focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 rounded-xl text-sm transition-all font-bold placeholder:text-muted-foreground dark:text-white appearance-none cursor-pointer"
                         >
                             <option value="">All Statuses</option>
                             <option value="active">Active Memberships</option>
                             <option value="expired">Expired Plans</option>
                             <option value="cancelled">Cancelled Access</option>
                         </select>
-                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
+                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground group-focus-within:text-primary pointer-events-none transition-colors" />
                     </div>
                 </div>
             </div>
 
             {/* List Overview */}
-            <div className="bg-card dark:bg-zinc-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl overflow-hidden border border-zinc-200/50 dark:border-white/5 transition-all">
+            <div className="bg-card shadow-sm rounded-[16px] overflow-hidden border border-border transition-all">
                 {isLoading ? (
                     <div className="flex flex-col justify-center items-center h-80 space-y-4">
                         <Loader2 className="animate-spin h-10 w-10 text-primary" strokeWidth={3} />
-                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest animate-pulse">Syncing subscription vault...</p>
+                        <p className="text-xs font-bold text-foreground uppercase tracking-widest animate-pulse">Syncing subscription vault...</p>
                     </div>
                 ) : error ? (
                     <div className="flex flex-col justify-center items-center h-80 text-destructive space-y-2">
                         <AlertCircle className="h-12 w-12" />
-                        <p className="font-black">Identity Vault Connection Failed</p>
+                        <p className="font-bold">Identity Vault Connection Failed</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
-                            <thead className="bg-muted/30 dark:bg-zinc-800/50 border-b border-zinc-200/50 dark:border-white/5">
+                            <thead className="bg-muted/30  border-b border-border">
                                 <tr>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Subscriber Details</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Plan Tier</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Validation Status</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Term Duration</th>
-                                    <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Revenue Impact</th>
-                                    <th className="px-8 py-5 text-right text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Management</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-[0.2em] opacity-70">Subscriber Details</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-[0.2em] opacity-70">Plan Tier</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-[0.2em] opacity-70">Validation Status</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-[0.2em] opacity-70">Term Duration</th>
+                                    <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-[0.2em] opacity-70">Revenue Impact</th>
+                                    <th className="px-8 py-5 text-right text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-[0.2em] opacity-70">Management</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-zinc-200/50 dark:divide-white/5">
@@ -184,9 +184,9 @@ export default function SubscriptionsPage() {
                                         <td colSpan={6} className="px-8 py-24 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-3">
                                                 <div className="h-16 w-16 rounded-md bg-muted/50 flex items-center justify-center">
-                                                    <Calendar className="h-8 w-8 text-muted-foreground/30" />
+                                                    <Calendar className="h-8 w-8 text-foreground/30" />
                                                 </div>
-                                                <p className="text-muted-foreground font-bold">No matching records found in the cycle</p>
+                                                <p className="text-foreground font-bold">No matching records found in the cycle</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -200,12 +200,12 @@ export default function SubscriptionsPage() {
                                     >
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <div className="h-12 w-12 rounded-md bg-linear-to-tr from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center text-foreground font-black border border-border/50 shadow-sm group-hover:scale-105 transition-transform">
+                                                <div className="h-12 w-12 rounded-md bg-linear-to-tr from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center text-foreground font-bold border border-border/50 shadow-sm group-hover:scale-105 transition-transform">
                                                     {sub.user?.name?.[0]?.toUpperCase() || 'U'}
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-black text-foreground dark:text-white group-hover:text-primary transition-colors tracking-tight">{sub.user?.name}</div>
-                                                    <div className="text-xs text-muted-foreground dark:text-zinc-500 font-bold flex items-center gap-1.5 mt-1 border border-transparent group-hover:border-zinc-200 dark:group-hover:border-white/10 px-2 py-0.5 rounded-lg transition-all w-fit bg-muted/30 dark:bg-white/5">
+                                                    <div className="text-sm font-bold text-foreground dark:text-white group-hover:text-primary transition-colors tracking-tight">{sub.user?.name}</div>
+                                                    <div className="text-xs text-foreground dark:text-foreground font-bold flex items-center gap-1.5 mt-1 border border-transparent group-hover:border-zinc-200 dark:group-hover:border-white/10 px-2 py-0.5 rounded-lg transition-all w-fit bg-muted/30 dark:bg-white/5">
                                                         <Hash className="h-3 w-3" /> {sub.user?.mobile}
                                                     </div>
                                                 </div>
@@ -213,16 +213,16 @@ export default function SubscriptionsPage() {
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <div className="inline-flex flex-col">
-                                                <span className="text-sm font-black text-foreground dark:text-white tracking-tight">{sub.plan?.name}</span>
-                                                <span className="text-[9px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.1em] px-2 py-0.5 bg-muted/50 dark:bg-white/5 border border-zinc-200/50 dark:border-white/5 rounded-md mt-1.5 inline-block w-fit">{sub.plan?.type}</span>
+                                                <span className="text-sm font-bold text-foreground dark:text-white tracking-tight">{sub.plan?.name}</span>
+                                                <span className="text-[9px] font-bold text-foreground dark:text-foreground uppercase tracking-[0.1em] px-2 py-0.5 bg-muted/50 dark:bg-white/5 border border-border rounded-md mt-1.5 inline-block w-fit">{sub.plan?.type}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <div className="flex flex-col items-start gap-1">
                                                 <div className={clsx(
-                                                    "px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter border",
+                                                    "px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-tighter border",
                                                     sub.status === 'active' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" :
-                                                        sub.status === 'expired' ? "bg-muted text-muted-foreground border-border" :
+                                                        sub.status === 'expired' ? "bg-muted text-foreground border-border" :
                                                             "bg-red-500/10 text-red-600 border-red-500/20"
                                                 )}>
                                                     {sub.status}
@@ -235,16 +235,16 @@ export default function SubscriptionsPage() {
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
-                                            <div className="flex flex-col text-xs font-bold text-muted-foreground">
+                                            <div className="flex flex-col text-xs font-bold text-foreground">
                                                 <span className="flex items-center gap-1.5"><Calendar className="h-3 w-3 opacity-50" /> {new Date(sub.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                                                <span className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500 mt-1"><ArrowRight className="h-3 w-3 opacity-30" /> {new Date(sub.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                                <span className="flex items-center gap-1.5 text-muted-foreground dark:text-foreground mt-1"><ArrowRight className="h-3 w-3 opacity-30" /> {new Date(sub.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
-                                            <div className="text-sm font-black text-foreground dark:text-white tracking-tighter">
+                                            <div className="text-sm font-bold text-foreground dark:text-white tracking-tighter">
                                                 {sub.plan?.price !== undefined ? (
                                                     <span className="flex items-center gap-1">
-                                                        <span className="text-zinc-400 dark:text-zinc-600 font-bold text-[10px]">₹</span>
+                                                        <span className="text-muted-foreground dark:text-zinc-600 font-bold text-[10px]">₹</span>
                                                         {sub.plan.price.toLocaleString()}
                                                     </span>
                                                 ) : '-'}
@@ -281,24 +281,24 @@ export default function SubscriptionsPage() {
                 <AnimatePresence>
                     {pagination && pagination.totalPages > 1 && (
                         <div className="bg-muted/10 px-8 py-6 flex flex-col sm:flex-row items-center justify-between border-t border-border/30 gap-4">
-                            <div className="text-sm font-bold text-muted-foreground">
+                            <div className="text-sm font-bold text-foreground">
                                 Showing <span className="text-foreground">{(page - 1) * 10 + 1}</span> to <span className="text-foreground">{Math.min(page * 10, pagination.totalItems)}</span> of <span className="text-primary">{pagination.totalItems}</span> global records
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setPage(Math.max(1, page - 1))}
                                     disabled={page === 1}
-                                    className="inline-flex items-center px-4 py-2 bg-card border border-border/60 rounded-md text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-all shadow-sm"
+                                    className="inline-flex items-center px-4 py-2 bg-card border border-border/60 rounded-md text-xs font-bold uppercase tracking-widest text-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-all shadow-sm"
                                 >
                                     <ChevronLeft className="h-4 w-4 mr-1" /> Previous
                                 </button>
-                                <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-md text-xs font-black text-primary">
+                                <div className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-md text-xs font-bold text-primary">
                                     Cycle {page} / {pagination.totalPages}
                                 </div>
                                 <button
                                     onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
                                     disabled={page === pagination.totalPages}
-                                    className="inline-flex items-center px-4 py-2 bg-card border border-border/60 rounded-md text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-all shadow-sm"
+                                    className="inline-flex items-center px-4 py-2 bg-card border border-border/60 rounded-md text-xs font-bold uppercase tracking-widest text-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 transition-all shadow-sm"
                                 >
                                     Next <ChevronRight className="h-4 w-4 ml-1" />
                                 </button>
@@ -318,9 +318,9 @@ export default function SubscriptionsPage() {
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-card w-full max-w-lg rounded-xl shadow-2xl border border-border overflow-hidden"
                         >
-                            <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
-                                <h3 className="text-xl font-black text-foreground">Assign New Plan</h3>
-                                <button onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                            <div className="p-6 border-b border-border/50 flex justify-between items-center bg-blue-100/50">
+                                <h3 className="text-xl font-bold text-foreground">Assign New Plan</h3>
+                                <button onClick={() => setIsModalOpen(false)} className="text-foreground hover:text-foreground transition-colors">
                                     <X className="h-6 w-6" />
                                 </button>
                             </div>
@@ -328,7 +328,7 @@ export default function SubscriptionsPage() {
                             <form onSubmit={handleAssign} className="p-6 space-y-6">
                                 {/* User Search */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Target User ID</label>
+                                    <label className="text-xs font-bold uppercase tracking-widest text-foreground">Target User ID</label>
                                     <div className="relative">
                                         <input
                                             type="number"
@@ -338,19 +338,19 @@ export default function SubscriptionsPage() {
                                             className="w-full pl-10 pr-4 py-3 bg-muted/30 border border-border rounded-md text-sm font-bold focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                                             required
                                         />
-                                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-foreground" />
                                     </div>
 
                                     {/* User Preview */}
                                     {isLoadingUser && <p className="text-xs text-primary animate-pulse font-bold mt-2">Searching user database...</p>}
                                     {userData?.user && (
                                         <div className="mt-3 p-3 bg-primary/5 border border-primary/20 rounded-md flex items-center gap-3">
-                                            <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center text-primary font-black">
+                                            <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold">
                                                 {userData.user.name?.[0]}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-black text-foreground">{userData.user.name}</p>
-                                                <p className="text-xs text-muted-foreground">{userData.user.mobile} • {userData.user.role}</p>
+                                                <p className="text-sm font-bold text-foreground">{userData.user.name}</p>
+                                                <p className="text-xs text-foreground">{userData.user.mobile} • {userData.user.role}</p>
                                             </div>
                                             {activeSubscription && (
                                                 <div className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded border border-emerald-500/20">
@@ -366,7 +366,7 @@ export default function SubscriptionsPage() {
 
                                 {/* Plan Selection */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Select Plan</label>
+                                    <label className="text-xs font-bold uppercase tracking-widest text-foreground">Select Plan</label>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto custom-scrollbar">
                                         {availablePlans.map((plan: any) => (
                                             <div
@@ -384,8 +384,8 @@ export default function SubscriptionsPage() {
                                                         <CheckCircle2 className="h-4 w-4" />
                                                     </div>
                                                 )}
-                                                <span className="font-black text-sm text-foreground">{plan.name}</span>
-                                                <span className="text-xs text-muted-foreground">₹{plan.price} / {plan.type}</span>
+                                                <span className="font-bold text-sm text-foreground">{plan.name}</span>
+                                                <span className="text-xs text-foreground">₹{plan.price} / {plan.type}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -393,7 +393,7 @@ export default function SubscriptionsPage() {
 
                                 {/* Notes */}
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Internal Notes (Optional)</label>
+                                    <label className="text-xs font-bold uppercase tracking-widest text-foreground">Internal Notes (Optional)</label>
                                     <textarea
                                         value={notes}
                                         onChange={(e) => setNotes(e.target.value)}
@@ -408,7 +408,7 @@ export default function SubscriptionsPage() {
                                     <button
                                         type="button"
                                         onClick={() => setIsModalOpen(false)}
-                                        className="px-5 py-2.5 text-sm font-bold text-muted-foreground hover:bg-muted rounded-md transition-colors"
+                                        className="px-5 py-2.5 text-sm font-bold text-foreground hover:bg-muted rounded-md transition-colors"
                                     >
                                         Cancel
                                     </button>

@@ -67,15 +67,15 @@ export default function LoginScreen() {
 
     const CONTAINER_BG = themeColors.background;
     const CARD_BG = isDark ? '#1A1A1A' : '#FFFFFF';
-    const INPUT_BG = isDark ? '#252525' : '#F3F4F6';
+    const INPUT_BG = isDark ? '#252525' : '#E0F2FE';
     const TEXT_PRIMARY = themeColors.text;
     const TEXT_SECONDARY = themeColors.textMuted;
     const BORDER_COLOR = themeColors.border;
-    const PRIMARY_YELLOW = themeColors.primary;
-    const SECONDARY_YELLOW = isDark ? '#FDB813' : '#F59E0B';
-    const LOGO_BG = isDark ? '#0F0F0F' : '#FFF';
-    const HERO_TEXT = isDark ? '#0F0F0F' : '#0F0F0F'; // Keep dark text on yellow gradient
-    const PLACEHOLDER_TEXT = isDark ? '#555' : '#9CA3AF';
+    const PRIMARY_BLUE = themeColors.primary;
+    const SECONDARY_BLUE = isDark ? '#1D4ED8' : '#38BDF8';
+    const LOGO_BG = isDark ? '#1E293B' : '#FFFFFF';
+    const HERO_TEXT = '#FFFFFF'; // White text on blue gradient
+    const PLACEHOLDER_TEXT = isDark ? '#475569' : '#94A6B8';
 
     const handleSendOtp = async () => {
         const cleanMobile = mobileNumber.replace(/[^0-9]/g, '');
@@ -177,19 +177,19 @@ export default function LoginScreen() {
                         <View style={styles.innerView}>
 
                             {/* Top Branding Section */}
-                            <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.headerHero}>
+                            <LinearGradient colors={[PRIMARY_BLUE, SECONDARY_BLUE]} style={styles.headerHero}>
                                 <Surface style={[styles.logoCircle, { backgroundColor: LOGO_BG }]} elevation={5}>
-                                    <MaterialCommunityIcons name="crane" size={45} style={{ color: PRIMARY_YELLOW }} />
+                                    <MaterialCommunityIcons name="crane" size={45} style={{ color: PRIMARY_BLUE }} />
                                 </Surface>
                                 <Text style={[styles.heroTitle, { color: HERO_TEXT }]}>SS INFRA</Text>
-                                <Text style={[styles.heroSubtitle, { color: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.7)' }]}>{t('auth.fleet_portal')}</Text>
+                                <Text style={[styles.heroSubtitle, { color: 'rgba(255,255,255,0.8)' }]}>{t('auth.fleet_portal')}</Text>
                             </LinearGradient>
 
                             <View style={styles.formContainer}>
                                 <Surface style={[styles.glassCard, { backgroundColor: CARD_BG, borderColor: BORDER_COLOR }]} elevation={2}>
                                     {!isOtpSent ? (
                                         <View>
-                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>{t('auth.sign_in')}</Text>
+                                            <Text style={[styles.formHeading, { color: PRIMARY_BLUE }]}>{t('auth.sign_in')}</Text>
                                             <Text style={[styles.formSubtext, { color: TEXT_SECONDARY }]}>{t('auth.access_fleet')}</Text>
 
                                             {/* Input 2: Mobile Number at Bottom */}
@@ -206,13 +206,13 @@ export default function LoginScreen() {
                                                     style={[styles.textInput, { backgroundColor: INPUT_BG, borderColor: BORDER_COLOR }]}
                                                     textColor={TEXT_PRIMARY}
                                                     underlineColor="transparent"
-                                                    activeUnderlineColor={PRIMARY_YELLOW}
-                                                    left={<TextInput.Icon icon="phone-outline" color={PRIMARY_YELLOW} />}
+                                                    activeUnderlineColor={PRIMARY_BLUE}
+                                                    left={<TextInput.Icon icon="phone-outline" color={PRIMARY_BLUE} />}
                                                 />
                                             </View>
 
                                             <TouchableOpacity style={styles.actionButton} onPress={handleSendOtp} disabled={isSendingOtp}>
-                                                <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.buttonGradient}>
+                                                <LinearGradient colors={[PRIMARY_BLUE, SECONDARY_BLUE]} style={styles.buttonGradient}>
                                                     {isSendingOtp ? <ActivityIndicator color={HERO_TEXT} /> : (
                                                         <>
                                                             <Text style={[styles.buttonText, { color: HERO_TEXT }]}>{t('auth.send_otp')}</Text>
@@ -224,7 +224,7 @@ export default function LoginScreen() {
                                         </View>
                                     ) : (
                                         <View>
-                                            <Text style={[styles.formHeading, { color: PRIMARY_YELLOW }]}>{t('auth.verification')}</Text>
+                                            <Text style={[styles.formHeading, { color: PRIMARY_BLUE }]}>{t('auth.verification')}</Text>
                                             <Text style={[styles.otpSubtext, { color: TEXT_SECONDARY }]}>{t('auth.otp_sent_to')} {countryCode} {mobileNumber}</Text>
 
                                             <OTPInput
@@ -233,7 +233,7 @@ export default function LoginScreen() {
                                                 onChange={setOtp}
                                                 containerStyle={styles.otpWrapper}
                                                 boxStyle={[styles.otpBox, { backgroundColor: INPUT_BG, borderColor: BORDER_COLOR }]}
-                                                textStyle={[styles.otpText, { color: PRIMARY_YELLOW }]}
+                                                textStyle={[styles.otpText, { color: PRIMARY_BLUE }]}
                                             />
 
                                             {devOtp && (
@@ -243,7 +243,7 @@ export default function LoginScreen() {
                                             )}
 
                                             <TouchableOpacity style={styles.actionButton} onPress={handleVerifyOtp} disabled={isVerifyingOtp}>
-                                                <LinearGradient colors={[PRIMARY_YELLOW, SECONDARY_YELLOW]} style={styles.buttonGradient}>
+                                                <LinearGradient colors={[PRIMARY_BLUE, SECONDARY_BLUE]} style={styles.buttonGradient}>
                                                     {isVerifyingOtp ? <ActivityIndicator color={HERO_TEXT} /> : <Text style={[styles.buttonText, { color: HERO_TEXT }]}>{t('auth.secure_login')}</Text>}
                                                 </LinearGradient>
                                             </TouchableOpacity>

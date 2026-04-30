@@ -19,7 +19,7 @@ export function LanguageToggle() {
         <div className="flex items-center gap-3">
             {/* Minimalist Globe Icon - Signals purpose without text */}
             <div className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                <Globe size={14} className="text-zinc-500 animate-pulse" />
+                <Globe size={14} className="text-muted-foreground animate-pulse" />
             </div>
 
             <div className="relative flex items-center p-1 bg-zinc-100 dark:bg-zinc-900/80 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-inner">
@@ -35,7 +35,7 @@ export function LanguageToggle() {
                             {/* Label */}
                             <span className={`relative z-20 transition-colors duration-300 ${isActive
                                 ? 'text-zinc-950 dark:text-zinc-950'
-                                : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
+                                : 'text-muted-foreground hover:text-zinc-800 dark:hover:text-zinc-200'
                                 }`}>
                                 {l.label}
                             </span>
@@ -49,7 +49,7 @@ export function LanguageToggle() {
                             {isActive && (
                                 <motion.div
                                     layoutId="official-nav-bg"
-                                    className="absolute inset-0 bg-amber-500 rounded-[10px] shadow-[0_4px_12px_rgba(245,158,11,0.3)] z-10"
+                                    className="absolute inset-0 bg-primary rounded-[10px] shadow-[0_4px_12px_rgba(245,158,11,0.3)] z-10"
                                     transition={{
                                         type: "spring",
                                         stiffness: 400,

@@ -155,6 +155,7 @@
         "search_operators": "नाव किंवा मोबाईल शोधा...",
         "total_registered": "एकूण कर्मचारी:",
         "no_operators_found": "कोणताही कर्मचारी सापडला नाही",
+        "subscription_restricted_msg": "ऑपरेटर जोडणे आणि मशीन्स यांसारखी वैशिष्ट्ये प्रतिबंधित आहेत। पूर्ण प्रवेश मिळवण्यासाठी तुमच्या प्लॅनचे नूतनीकरण करा।",
         "all_staff": "पूर्ण स्टाफ",
         "add_first_worker_hint": "वर दिलेल्या + बटणाचा वापर करून आपला पहिला ऑपरेटर किंवा ड्रायव्हर जोडा",
         "new_operator_title": "कर्मचारी जोडा",
@@ -242,7 +243,7 @@
         "general": "सामान्य",
         "language": "भाषा",
         "notifications": "सूचना",
-        "notifications_desc": "बुकिंग आणि उपस्थितीसाठी अलर्ट मिळवा",
+        "notifications_desc": "उपस्थिती आणि क्रियाकलापांसाठी अलर्ट मिळवा",
         "preferences": "प्राधान्ये",
         "sound_effects": "ध्वनी प्रभाव",
         "sound_effects_desc": "अ‍ॅपमधील ध्वनी आणि क्रिया अलर्ट",
@@ -259,7 +260,9 @@
         "monthly": "मासिक",
         "quarterly": "तिमाही",
         "semi_annual": "सहामाही",
-        "annual": "वार्षिक"
+        "annual": "वार्षिक",
+        "dark_mode_desc": "डार्क/लाइट थीम बदला",
+        "terms_service": "सेवेच्या अटी"
     },
     "about": {
         "title": "अॅपबद्दल",
@@ -296,6 +299,16 @@
     "notifications_screen": {
         "title": "सूचना"
     },
+    "notifications": {
+        "work": "कामकाज इव्हेंट",
+        "alert": "प्राधान्य अलर्ट",
+        "payment": "पेमेंट लॉग",
+        "lead": "सर्च लीड",
+        "info": "सिस्टम माहिती",
+        "all_caught_up": "सर्व पाहिले!",
+        "no_new_notifications": "तुमच्याकडे कोणतीही नवीन सूचना नाही. काही महत्त्वाचे घडल्यावर आम्ही तुम्हाला कळवू.",
+        "marked_all_read": "सर्व सूचना वाचल्या गेल्या आहेत"
+    },
     "profile_screen": {
         "title": "प्रोफाइल केंद्र",
         "fleet_owner": "फ्लीट मालक",
@@ -309,7 +322,17 @@
         "support": "आधार",
         "help_center": "मदत केंद्र",
         "legal_docs": "कायदेशीर दस्तऐवज",
-        "sign_out": "डिव्हाइसमधून साइन आउट करा"
+        "sign_out": "डिव्हाइसमधून साइन आउट करा",
+        "business_analytics": "व्यवसाय विश्लेषण",
+        "trust_identity": "ट्रस्ट आणि ओळख",
+        "kyc_verification": "केवायसी पडताळणी",
+        "billing_invoice": "बिलिंग आणि बीजक",
+        "referral_program": "रेफरल कार्यक्रम",
+        "business_profile": "व्यवसाय प्रोफाइल",
+        "business_name": "व्यवसायाचे नाव",
+        "registered_area": "नोंदणीकृत क्षेत्र",
+        "verified": "सत्यापित",
+        "referral_earned": "₹{{amount}} कमाई"
     },
     "edit_profile_screen": {
         "title": "प्रोफाइल अपडेट करा",
@@ -738,7 +761,30 @@
         "rating": "रेटिंग",
         "hours": "तास",
         "jobs": "कामे",
-        "preferences": "पसंती"
+        "preferences": "पसंती",
+        "experience_skills": "अनुभव आणि कौशल्ये",
+        "machine_expertise": "मशीन तज्ञ",
+        "total_experience": "एकूण अनुभव",
+        "license_status": "परवाना स्थिती",
+        "equipment_assignment": "उपकरण वाटप",
+        "contact_details": "संपर्क आणि स्थान",
+        "detailed_info": "तपशीलवार माहिती",
+        "assigned_organization": "नियुक्त संस्था",
+        "working_area": "कार्यरत क्षेत्र",
+        "quick_settings": "द्रुत सेटिंग्ज",
+        "global_settings": "ग्लोबल सेटिंग्ज",
+        "personal_info": "वैयक्तिक माहिती",
+        "view_identity_docs": "ओळख कागदपत्रे",
+        "app_customization": "अॅप कस्टमायझेशन",
+        "go_to_settings": "सेटिंग्जवर जा",
+        "km_run": "किमी धावले",
+        "driven": "चालवले",
+        "active_verified": "सक्रिय आणि सत्यापित",
+        "pro_level": "प्रो लेव्हल",
+        "business_analytics": "व्यवसाय विश्लेषण",
+        "machines": "मशीन्स",
+        "workers": "कामगार",
+        "sites": "साइट्स"
     },
     "auth": {
         "sign_in": "साइन इन करा",

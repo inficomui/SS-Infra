@@ -12,6 +12,8 @@ import { useGetNotificationsQuery, Notification as ApiNotification } from '@/red
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { formatDate, formatDuration } from '@/utils/formatters';
 import { selectWorkStatus, selectActiveWorkId, selectSiteAddress, selectStartedAt, syncWithServer } from '@/redux/slices/driverSlice';
+import { useAppSelector } from '@/redux/hooks';
+import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
 
@@ -33,6 +35,7 @@ export function DriverOverview() {
     const workStatus = useSelector(selectWorkStatus);
     const activeWorkId = useSelector(selectActiveWorkId);
     const startedAt = useSelector(selectStartedAt);
+    const { isOnline } = useAppSelector((state) => state.offline);
 
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -63,11 +66,13 @@ export function DriverOverview() {
     // RTK Query fetches data on mount and polls automatically based on pollingInterval.
     useFocusEffect(
         useCallback(() => {
-            refetchActive();
-            refetchStats();
-            refetchHistory();
-            refetchNotifications();
-        }, [refetchActive, refetchStats, refetchHistory, refetchNotifications])
+            if (isOnline) {
+                refetchActive();
+                refetchStats();
+                refetchHistory();
+                refetchNotifications();
+            }
+        }, [refetchActive, refetchStats, refetchHistory, refetchNotifications, isOnline])
     );
 
     const rawNotifications = notificationsData?.notifications || notificationsData?.data;

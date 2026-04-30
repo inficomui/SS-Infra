@@ -15,12 +15,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useCreateClientMutation } from '@/redux/apis/workApi';
 import { useTranslation } from 'react-i18next';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
+import { useAppDispatch } from '@/redux/hooks';
+import { addCachedClient } from '@/redux/slices/cacheSlice';
 
 export default function AddClientScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
-    const { t } = useTranslation();
+    const dispatch = useAppDispatch();
+    const { performMutation } = useOfflineMutation();
     const [createClient, { isLoading }] = useCreateClientMutation();
+    const { t } = useTranslation();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -50,16 +55,35 @@ export default function AddClientScreen() {
         if (!validateForm()) return;
 
         try {
-            await createClient({
+            const response = await performMutation(createClient, {
                 name: formData.name,
                 mobile: formData.mobile,
                 district: formData.district,
                 taluka: formData.taluka,
-            }).unwrap();
+            }, {
+                endpoint: '/clients',
+                method: 'POST',
+                description: `Add client ${formData.name}`
+            });
 
-            Alert.alert(t('common.success'), t('operator.client_added_success', { name: formData.name }), [
-                { text: 'OK', onPress: () => router.back() }
-            ]);
+            if (response.success) {
+                if (response.offline) {
+                    // Optimistically add to local cache
+                    dispatch(addCachedClient({
+                        id: response.id || `pending_${Date.now()}`,
+                        ...formData,
+                        createdAt: new Date().toISOString()
+                    }));
+                }
+
+                const message = response.offline
+                    ? t('operator.client_added_offline', { name: formData.name }) || `Client ${formData.name} added offline and will sync soon.`
+                    : t('operator.client_added_success', { name: formData.name });
+
+                Alert.alert(t('common.success'), message, [
+                    { text: 'OK', onPress: () => router.back() }
+                ]);
+            }
         } catch (error: any) {
             console.error('Add Client Error:', error);
             Alert.alert(t('common.error'), error?.data?.message || t('operator.failed_add_client') || 'Failed to add client');
@@ -76,8 +100,17 @@ export default function AddClientScreen() {
                 <View style={{ width: 44 }} />
             </View>
 
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+            >
+                <ScrollView 
+                    style={styles.scrollView} 
+                    contentContainerStyle={styles.scrollContent} 
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
                     <View style={styles.iconHeader}>
                         <View style={[styles.mainIcon, { backgroundColor: colors.primary + '15' }]}>
                             <MaterialCommunityIcons name="account-group-outline" size={40} color={colors.primary} />
@@ -136,11 +169,11 @@ export default function AddClientScreen() {
                     </View>
 
                     <TouchableOpacity onPress={handleSubmit} disabled={isLoading} style={styles.submitButton}>
-                        <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                            {isLoading ? <ActivityIndicator color="#000" /> : (
+                        <LinearGradient colors={['#0284C7', '#38BDF8']} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                            {isLoading ? <ActivityIndicator color="#fff" /> : (
                                 <>
-                                    <MaterialCommunityIcons name="account-plus-outline" size={20} color="#000" />
-                                    <Text style={styles.submitText}>{t('operator.confirm_add_client_btn')}</Text>
+                                    <MaterialCommunityIcons name="account-plus-outline" size={20} color="#fff" />
+                                    <Text style={[styles.submitText, { color: '#fff' }]}>{t('operator.confirm_add_client_btn')}</Text>
                                 </>
                             )}
                         </LinearGradient>

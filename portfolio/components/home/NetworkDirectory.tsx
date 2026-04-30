@@ -24,51 +24,35 @@ export function NetworkDirectory() {
 
     const { data: ownersData, isLoading: loadingOwners } = useGetOwnersQuery({ district: activeDistrict }, { skip: !activeDistrict });
     const { data: operatorsData, isLoading: loadingOperators } = useGetOperatorsQuery({ district: activeDistrict }, { skip: !activeDistrict });
-    const { data: plansRes, isLoading: loadingPlans } = useGetPlansQuery({});
 
     const owners = ownersData?.data?.data ?? [];
     const operators = operatorsData?.data?.data ?? [];
-    const fetchedPlans = plansRes?.data ?? [];
-
-    const fallbackPlans = [
-        { title: "Starter", price: "₹2,999", features: ["10 Operator Slots", "Basic Analytics", "Email Support"] },
-        { title: "Pro", price: "₹7,499", features: ["50 Operator Slots", "Real-time Tracking", "Priority Ops", "24/7 Support"] },
-        { title: "Enterprise", price: "Custom", features: ["Unlimited Fleet", "Neural Mesh Integration", "Dedicated Manager", "API Access"] }
-    ];
-
-    const displayPlans = fetchedPlans.length > 0
-        ? fetchedPlans.map((p: any) => ({
-            title: p.name,
-            price: p.price ? `₹${p.price.toLocaleString()}` : "Custom",
-            features: p.features || []
-        }))
-        : fallbackPlans;
 
     return (
-        <section className="py-32 bg-zinc-50 dark:bg-[#080808] border-y border-zinc-100 dark:border-zinc-900" id="directory">
+        <section className="py-24 md:py-32 bg-background border-y border-border" id="directory">
             <div className="container mx-auto px-6 max-w-7xl">
-                <div className="flex flex-col items-center text-center mb-24">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-lg text-[10px] font-black uppercase tracking-[0.3em] mb-8">
+                <div className="flex flex-col items-center text-center mb-16 md:mb-24">
+                    <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-primary/5 border border-primary/20 text-primary rounded-[14px] text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-6 md:mb-8">
                         <Zap size={14} className="animate-pulse" /> Network Ecosystem
                     </div>
-                    <h2 className="text-6xl md:text-8xl font-black font-[Space Grotesk] tracking-tighter mb-8 leading-tight">
+                    <h2 className="text-4xl sm:text-6xl md:text-[5.5rem] font-black font-heading tracking-tight mb-6 md:mb-8 leading-[0.9]">
                         Location-Wise <br />
-                        <span className="gradient-text">Resource Mapping.</span>
+                        <span className="text-gradient">Resource Mapping.</span>
                     </h2>
-                    <p className="max-w-2xl text-xl text-zinc-500 font-medium">
+                    <p className="max-w-2xl text-base md:text-xl text-foreground dark:text-muted-foreground font-medium opacity-80">
                         Explore our vast network of owners, operators, and active project footprints across Maharashtra's industrial hubs.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
                     {/* Location Sidebar */}
                     <div className="lg:col-span-4 space-y-4">
                         {loadingDistricts ? (
                             Array.from({ length: 3 }).map((_, i: number) => (
-                                <div key={i} className="w-full h-24 bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse" />
+                                <div key={i} className="w-full h-24 bg-muted rounded-xl animate-pulse" />
                             ))
                         ) : districts.length === 0 ? (
-                            <div className="p-8 text-center text-zinc-500 font-bold uppercase tracking-widest text-xs border border-dashed rounded-xl">
+                            <div className="p-8 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs border border-dashed rounded-xl">
                                 No active hubs found.
                             </div>
                         ) : (
@@ -76,26 +60,26 @@ export function NetworkDirectory() {
                                 <button
                                     key={loc}
                                     onClick={() => setActiveDistrict(loc)}
-                                    className={`w-full group p-8 rounded-xl border transition-all duration-500 flex items-center justify-between ${activeDistrict === loc
-                                        ? 'bg-black dark:bg-white text-white dark:text-black border-transparent shadow-2xl scale-105'
-                                        : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:border-amber-500/50'
+                                    className={`w-full group p-6 md:p-8 rounded-2xl border transition-all duration-500 flex items-center justify-between ${activeDistrict === loc
+                                        ? 'bg-primary text-primary-foreground border-transparent shadow-2xl scale-[1.03]'
+                                        : 'bg-card border-border text-foreground hover:border-primary/50'
                                         }`}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${activeDistrict === loc ? 'bg-amber-500 text-black' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
+                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-colors ${activeDistrict === loc ? 'bg-white text-primary' : 'bg-muted text-slate-400'
                                             }`}>
                                             <MapPin size={24} />
                                         </div>
-                                        <span className="text-2xl font-black capitalize tracking-tight font-[Space Grotesk]">{loc} Hub</span>
+                                        <span className="text-xl md:text-2xl font-black capitalize tracking-tight font-[Space Grotesk]">{loc} Hub</span>
                                     </div>
-                                    <ChevronRight size={20} className={`transition-transform duration-500 ${activeDistrict === loc ? 'rotate-90 text-amber-500' : 'group-hover:translate-x-1'}`} />
+                                    <ChevronRight size={20} className={`transition-transform duration-500 ${activeDistrict === loc ? 'rotate-90 text-primary' : 'group-hover:translate-x-1'}`} />
                                 </button>
                             ))
                         )}
 
-                        <div className="mt-12 p-10 bento-card bg-linear-to-br from-amber-500 to-yellow-600 text-black">
-                            <h4 className="text-2xl font-black font-[Space Grotesk] mb-4">Need Custom Coverage?</h4>
-                            <p className="text-sm font-bold leading-relaxed mb-8 opacity-80">Request a specialized resource mapping for your upcoming mega-project site.</p>
+                        <div className="mt-8 md:mt-12 p-8 md:p-10 bento-card bg-gradient-to-br from-primary to-blue-700 text-white">
+                            <h4 className="text-xl md:text-2xl font-black font-[Space Grotesk] mb-4">Need Custom Coverage?</h4>
+                            <p className="text-xs md:text-sm font-bold leading-relaxed mb-8 opacity-80">Request a specialized resource mapping for your upcoming mega-project site.</p>
                             <button className="w-full py-4 bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform">
                                 Contact Expansion Team
                             </button>
@@ -111,101 +95,70 @@ export function NetworkDirectory() {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{ duration: 0.5 }}
-                                className="space-y-8"
+                                className="space-y-6 md:space-y-8"
                             >
                                 {/* Stats Grid */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    <div className="bento-card p-8">
-                                        <div className="flex items-center gap-4 mb-6">
-                                            <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center">
-                                                <Briefcase size={20} />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                                    <div className="industrial-border p-8 md:p-10 bg-card rounded-[1.5rem] md:rounded-[2rem]">
+                                        <div className="flex items-center gap-5 mb-6 md:mb-8">
+                                            <div className="w-12 h-12 md:w-14 md:h-14 bg-primary/5 text-primary rounded-2xl flex items-center justify-center border border-primary/10 shadow-inner">
+                                                <Briefcase size={28} />
                                             </div>
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Total Owners</span>
+                                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] text-primary">Total Owners</span>
                                         </div>
-                                        <div className="text-5xl font-black font-[Space Grotesk]">
-                                            {loadingOwners ? "..." : `${owners.length} Organizations`}
+                                        <div className="text-4xl md:text-6xl font-black font-heading tracking-tight">
+                                            {loadingOwners ? "..." : owners.length}
+                                            <span className="text-sm md:text-lg text-muted-foreground ml-3 uppercase tracking-tighter font-medium">Organizations</span>
                                         </div>
                                     </div>
-                                    <div className="bento-card p-8">
-                                        <div className="flex items-center gap-4 mb-6">
-                                            <div className="w-10 h-10 bg-green-500/10 text-green-500 rounded-xl flex items-center justify-center">
-                                                <HardHat size={20} />
+                                    <div className="industrial-border p-8 md:p-10 bg-card rounded-[1.5rem] md:rounded-[2rem]">
+                                        <div className="flex items-center gap-5 mb-6 md:mb-8">
+                                            <div className="w-12 h-12 md:w-14 md:h-14 bg-emerald-500/5 text-emerald-500 rounded-2xl flex items-center justify-center border border-emerald-500/10 shadow-inner">
+                                                <HardHat size={28} />
                                             </div>
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Active Operators</span>
+                                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] text-emerald-600">Active Operators</span>
                                         </div>
-                                        <div className="text-5xl font-black font-[Space Grotesk]">
-                                            {loadingOperators ? "..." : `${operators.length} Units`}
+                                        <div className="text-4xl md:text-6xl font-black font-heading tracking-tight">
+                                            {loadingOperators ? "..." : operators.length}
+                                            <span className="text-sm md:text-lg text-muted-foreground ml-3 uppercase tracking-tighter font-medium">Units</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Details Section */}
-                                <div className="bento-card p-10">
-                                    <div className="flex items-center justify-between mb-10 pb-6 border-b border-zinc-100 dark:border-zinc-800">
-                                        <h4 className="text-2xl font-black font-[Space Grotesk]">Premium Partners in {activeDistrict}</h4>
-                                        <Users size={24} className="text-amber-500" />
+                                <div className="bento-card p-8 md:p-10">
+                                    <div className="flex items-center justify-between mb-8 md:mb-10 pb-6 border-b border-border">
+                                        <h4 className="text-xl md:text-2xl font-black font-[Space Grotesk]">Premium Partners in {activeDistrict}</h4>
+                                        <Users size={24} className="text-primary" />
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div>
-                                            <h5 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-6 flex items-center gap-2">
+                                            <h5 className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-primary mb-6 flex items-center gap-2">
                                                 <Star size={14} fill="currentColor" /> Top Registered Owners
                                             </h5>
                                             <div className="space-y-4">
-                                                {loadingOwners ? [1, 2].map((i: number) => <div key={i} className="h-14 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />) :
+                                                {loadingOwners ? [1, 2].map((i: number) => <div key={i} className="h-14 bg-muted rounded-xl animate-pulse" />) :
                                                     owners.slice(0, 5).map((owner: any, i: number) => (
-                                                        <div key={i} className="p-4 rounded-xl bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800/50 flex items-center justify-between">
-                                                            <span className="font-black text-sm">{owner.name}</span>
-                                                            <div className="px-3 py-1 bg-white dark:bg-black rounded-lg text-[10px] font-black text-zinc-500">Fleet: {owner.machinesCount || owner.machines || "—"}</div>
+                                                        <div key={i} className="p-4 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-between">
+                                                            <span className="font-black text-xs md:text-sm">{owner.name}</span>
+                                                            <div className="px-3 py-1 bg-background rounded-lg text-[9px] md:text-[10px] font-black text-muted-foreground">Fleet: {owner.machinesCount || owner.machines || "—"}</div>
                                                         </div>
                                                     ))}
-                                                {!loadingOwners && owners.length === 0 && <p className="text-xs text-zinc-500">No registered owners here yet.</p>}
+                                                {!loadingOwners && owners.length === 0 && <p className="text-xs text-muted-foreground font-bold">No registered owners here yet.</p>}
                                             </div>
                                         </div>
                                         <div>
-                                            <h5 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-6 flex items-center gap-2">
+                                            <h5 className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-primary mb-6 flex items-center gap-2">
                                                 <CheckCircle2 size={14} /> Regional Coverage
                                             </h5>
                                             <div className="flex flex-wrap gap-2">
                                                 {activeDistrict ? (
-                                                    <span className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-black uppercase tracking-widest">
+                                                    <span className="px-4 py-2 bg-primary text-white rounded-xl text-[9px] font-bold uppercase tracking-widest">
                                                         {activeDistrict} Sector
                                                     </span>
                                                 ) : "Loading..."}
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                {/* Plans Section */}
-                                <div className="bento-card p-10">
-                                    <div className="flex items-center justify-between mb-12">
-                                        <div>
-                                            <h4 className="text-3xl font-black font-[Space Grotesk] mb-2 tracking-tight text-[var(--fg)]">Regional Business Plans</h4>
-                                            <p className="text-sm text-[var(--fg-muted)] font-bold uppercase tracking-widest">Scalable solutions for {activeDistrict} Operations</p>
-                                        </div>
-                                        <div className="px-5 py-2 bg-amber-500 text-black rounded-lg text-[10px] font-black uppercase tracking-widest">Best Value</div>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {loadingPlans ? (
-                                            Array.from({ length: 3 }).map((_, i: number) => (
-                                                <div key={i} className="h-64 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 animate-pulse" />
-                                            ))
-                                        ) : displayPlans.map((plan: any, i: number) => (
-                                            <div key={i} className="p-8 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-black/40 hover:border-amber-500/50 transition-all group shadow-sm dark:shadow-none">
-                                                <div className="text-xs font-black text-amber-500 uppercase tracking-widest mb-4">{plan.title}</div>
-                                                <div className="text-3xl font-black mb-8 text-[var(--fg)]">{plan.price} <span className="text-sm text-[var(--fg-muted)]">/mo</span></div>
-                                                <ul className="space-y-3 mb-10">
-                                                    {plan.features.map((f: any, j: number) => (
-                                                        <li key={j} className="flex items-center gap-2 text-[10px] font-bold text-[var(--fg-muted)]">
-                                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full" /> {f}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                                <button className="w-full py-4 text-[var(--fg)] border border-zinc-200 dark:border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest group-hover:border-amber-500/50 group-hover:bg-amber-500 group-hover:text-black transition-all">
-                                                    Activate Plan
-                                                </button>
-                                            </div>
-                                        ))}
                                     </div>
                                 </div>
                             </motion.div>

@@ -230,7 +230,7 @@
         "no_active_plan": "कोई सक्रिय प्लान नहीं",
         "plan_expired_desc": "आपकी सदस्यता समाप्त हो गई है या कभी सक्रिय नहीं हुई थी",
         "inactive": "निष्क्रिय",
-        "subscription_restricted_msg": "ऑपरेटर जोड़ने, मशीनें और बुकिंग जैसे फीचर प्रतिबंधित हैं। पूर्ण पहुंच अनलॉक करने के लिए अपने प्लान का नवीनीकरण करें।",
+        "subscription_restricted_msg": "ऑपरेटर जोड़ने और मशीनें जैसे फीचर प्रतिबंधित हैं। पूर्ण पहुंच अनलॉक करने के लिए अपने प्लान का नवीनीकरण करें।",
         "view_plans_renew": "प्लान देखें और नवीनीकरण करें",
         "days_left": "दिन बाकी",
         "expires_on": "समाप्ति तिथि",
@@ -242,7 +242,7 @@
         "general": "सामान्य",
         "language": "भाषा",
         "notifications": "सूचनाएं",
-        "notifications_desc": "बुकिंग और उपस्थिति के लिए अलर्ट प्राप्त करें",
+        "notifications_desc": "उपस्थिति और गतिविधि के लिए अलर्ट प्राप्त करें",
         "preferences": "प्राथमिकताएँ",
         "sound_effects": "ध्वनि प्रभाव",
         "sound_effects_desc": "इन-app ध्वनियाँ और गतिविधि अलर्ट",
@@ -259,7 +259,9 @@
         "monthly": "मासिक",
         "quarterly": "त्रैमासिक",
         "semi_annual": "छमाही",
-        "annual": "वार्षिक"
+        "annual": "वार्षिक",
+        "dark_mode_desc": "डार्क/लाइट थीम बदलें",
+        "terms_service": "सेवा की शर्तें"
     },
     "about": {
         "title": "ऐप के बारे में",
@@ -296,6 +298,16 @@
     "notifications_screen": {
         "title": "सूचनाएं"
     },
+    "notifications": {
+        "work": "कार्य घटना",
+        "alert": "प्राथमिकता अलर्ट",
+        "payment": "भुगतान लॉग",
+        "lead": "सर्च लीड",
+        "info": "सिस्टम जानकारी",
+        "all_caught_up": "सब देख लिया!",
+        "no_new_notifications": "आपके पास कोई नई सूचना नहीं है। कुछ महत्वपूर्ण होने पर हम आपको सूचित करेंगे।",
+        "marked_all_read": "सभी सूचनाएं पढ़ी हुई मानी गईं"
+    },
     "profile_screen": {
         "title": "प्रोफ़ाइल केंद्र",
         "fleet_owner": "फ्लीट ओनर",
@@ -309,7 +321,17 @@
         "support": "सहायता",
         "help_center": "सहायता केंद्र",
         "legal_docs": "कानूनी दस्तावेज",
-        "sign_out": "डिवाइस से साइन आउट करें"
+        "sign_out": "डिवाइस से साइन आउट करें",
+        "business_analytics": "व्यावसायिक विश्लेषण",
+        "trust_identity": "ट्रस्ट और पहचान",
+        "kyc_verification": "केवाईसी सत्यापन",
+        "billing_invoice": "बिलिंग और चालान",
+        "referral_program": "रेफरल कार्यक्रम",
+        "business_profile": "व्यावसायिक प्रोफ़ाइल",
+        "business_name": "व्यापार का नाम",
+        "registered_area": "पंजीकृत क्षेत्र",
+        "verified": "सत्यापित",
+        "referral_earned": "₹{{amount}} अर्जित"
     },
     "edit_profile_screen": {
         "title": "प्रोफ़ाइल अपडेट करें",
@@ -738,7 +760,30 @@
         "rating": "रेटिंग",
         "hours": "घंटे",
         "jobs": "कार्य",
-        "preferences": "प्राथमिकताएं"
+        "preferences": "प्राथमिकताएं",
+        "experience_skills": "अनुभव और कौशल",
+        "machine_expertise": "मशीन विशेषज्ञता",
+        "total_experience": "कुल अनुभव",
+        "license_status": "लाइसेंस की स्थिति",
+        "equipment_assignment": "उपकरण असाइनमेंट",
+        "contact_details": "संपर्क और स्थान",
+        "detailed_info": "विस्तृत जानकारी",
+        "assigned_organization": "असाइन किया गया संगठन",
+        "working_area": "कार्य क्षेत्र",
+        "quick_settings": "त्वरित सेटिंग्स",
+        "global_settings": "ग्लोबल सेटिंग्स",
+        "personal_info": "व्यक्तिगत जानकारी",
+        "view_identity_docs": "पहचान दस्तावेज",
+        "app_customization": "ऐप अनुकूलन",
+        "go_to_settings": "सेटिंग्स पर जाएं",
+        "km_run": "किमी चला",
+        "driven": "चलाया",
+        "active_verified": "सक्रिय और सत्यापित",
+        "pro_level": "प्रो लेवल",
+        "business_analytics": "व्यावसायिक विश्लेषण",
+        "machines": "मशीनें",
+        "workers": "श्रमिक",
+        "sites": "साइटें"
     },
     "auth": {
         "sign_in": "साइन इन करें",

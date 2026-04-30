@@ -20,6 +20,7 @@ import toastConfig from '../components/CustomToast';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import SplashScreen from '../components/SplashScreen';
 import { useGetMeQuery } from '@/redux/apis/authApi';
+import SyncManager from '../components/SyncManager';
 
 const { LightTheme, DarkTheme: NavDarkTheme } = adaptNavigationTheme({
   reactNavigationLight: DefaultTheme,
@@ -119,6 +120,7 @@ function RootLayoutNav() {
       }}
     >
       <ThemeProvider value={isDark ? NavDarkTheme : LightTheme}>
+        <SyncManager />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="language-selection" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

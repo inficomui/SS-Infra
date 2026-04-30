@@ -21,11 +21,13 @@ import { formatDate, resolveImageUrl } from '@/utils/formatters';
 import { useAddMachineMutation, useUpdateMachineMutation } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import Toast from 'react-native-toast-message';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 
 export default function AddMachineScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const params = useLocalSearchParams();
+    const { performMutation } = useOfflineMutation();
 
     // Parse full object if available
     const machineData = params.fullData ? JSON.parse(params.fullData as string) : {};
@@ -129,12 +131,13 @@ export default function AddMachineScreen() {
         if (!validateForm()) return;
 
         try {
-            const data = new FormData();
-            data.append('name', formData.name);
-            data.append('registrationNumber', formData.registrationNumber);
+            const requestBody: any = {
+                name: formData.name,
+                registrationNumber: formData.registrationNumber,
+            };
 
             if (formData.purchaseDate) {
-                data.append('purchaseDate', formData.purchaseDate.trim());
+                requestBody.purchaseDate = formData.purchaseDate.trim();
             }
 
             const isLocalPhoto = photoUri && !photoUri.startsWith('http');
@@ -143,42 +146,44 @@ export default function AddMachineScreen() {
                 const filename = photoUri!.split('/').pop() || 'machine.jpg';
                 const match = /\.(\w+)$/.exec(filename);
                 const type = match ? `image/${match[1]}` : `image/jpeg`;
-                // @ts-ignore
-                data.append('machinePhoto', {
-                    uri: photoUri,
+                const cleanUri = Platform.OS === 'ios' ? photoUri!.replace('file://', '') : photoUri;
+                requestBody.machinePhoto = {
+                    uri: cleanUri,
                     name: filename,
                     type: type
-                });
+                };
             }
 
             if (isEditMode && machineId) {
-                const result = await updateMachine({ id: machineId, data: data }).unwrap();
-
-                if (result.success === false) {
-                    throw new Error(result.message || t('fleet.op_failed'));
-                }
-
-                Toast.show({
-                    type: 'success',
-                    text1: t('fleet.update_success'),
-                    text2: t('fleet.update_success_msg')
+                const response = await performMutation(updateMachine, { id: machineId, ...requestBody }, {
+                    endpoint: `/machines/${machineId}`,
+                    method: 'PUT',
+                    description: `Update machine: ${formData.name}`
                 });
 
-                setTimeout(() => router.back(), 1500);
+                if (response.success) {
+                    Toast.show({
+                        type: response.offline ? 'info' : 'success',
+                        text1: response.offline ? 'Saved Offline' : t('fleet.update_success'),
+                        text2: response.offline ? 'Machine updates will sync when online' : t('fleet.update_success_msg')
+                    });
+                    setTimeout(() => router.back(), 1500);
+                }
             } else {
-                const result = await addMachine(data).unwrap();
-
-                if (result.success === false) {
-                    throw new Error(result.message || t('fleet.op_failed'));
-                }
-
-                Toast.show({
-                    type: 'success',
-                    text1: t('fleet.add_success'),
-                    text2: t('fleet.add_success_msg', { name: formData.name })
+                const response = await performMutation(addMachine, requestBody, {
+                    endpoint: '/machines',
+                    method: 'POST',
+                    description: `Add machine: ${formData.name}`
                 });
 
-                setTimeout(() => router.back(), 1500);
+                if (response.success) {
+                    Toast.show({
+                        type: response.offline ? 'info' : 'success',
+                        text1: response.offline ? 'Saved Offline' : t('fleet.add_success'),
+                        text2: response.offline ? 'Machine will be added when online' : t('fleet.add_success_msg', { name: formData.name })
+                    });
+                    setTimeout(() => router.back(), 1500);
+                }
             }
 
         } catch (error: any) {
@@ -228,8 +233,17 @@ export default function AddMachineScreen() {
                 </View>
             </Modal>
 
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+            >
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
 
                     <View style={styles.photoUploadSection}>
                         <TouchableOpacity
@@ -328,11 +342,11 @@ export default function AddMachineScreen() {
                     </View>
 
                     <TouchableOpacity onPress={handleSubmit} disabled={isLoading} style={styles.submitButton}>
-                        <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                            {isLoading ? <ActivityIndicator color="#000" /> : (
+                        <LinearGradient colors={['#0284C7', '#38BDF8']} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                            {isLoading ? <ActivityIndicator color="#fff" /> : (
                                 <>
-                                    <MaterialCommunityIcons name={isEditMode ? "content-save-edit" : "check-decagram"} size={20} color="#000" />
-                                    <Text style={styles.submitText}>{isEditMode ? t('fleet.update_details') : t('fleet.save_fleet')}</Text>
+                                    <MaterialCommunityIcons name={isEditMode ? "content-save-edit" : "check-decagram"} size={20} color="#fff" />
+                                    <Text style={[styles.submitText, { color: '#fff' }]}>{isEditMode ? t('fleet.update_details') : t('fleet.save_fleet')}</Text>
                                 </>
                             )}
                         </LinearGradient>

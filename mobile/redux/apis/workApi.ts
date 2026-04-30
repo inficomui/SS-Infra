@@ -245,6 +245,10 @@ export const workApi = createApi({
             }),
             invalidatesTags: ['Work'],
         }),
+        getPrepareData: builder.query<{ success: boolean; machines: any[]; clients: Client[] }, void>({
+            query: () => '/duty/prepare',
+            providesTags: ['Work', 'Clients'],
+        }),
     }),
 });
 
@@ -272,4 +276,5 @@ export const {
     // Billing
     useGenerateBillMutation,
     useRecordPaymentMutation,
+    useGetPrepareDataQuery,
 } = workApi;

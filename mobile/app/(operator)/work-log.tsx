@@ -7,14 +7,16 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useGetWorkHistoryQuery } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useAppSelector } from '@/redux/hooks';
 import { formatDate, formatDuration } from '../../utils/formatters';
 
 export default function WorkLogScreen() {
     const { t } = useTranslation();
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { isOnline } = useAppSelector(state => state.offline);
     const [page, setPage] = useState(1);
-    const { data, isLoading, isFetching, refetch } = useGetWorkHistoryQuery({ page, limit: 20 });
+    const { data, isLoading, isFetching, refetch } = useGetWorkHistoryQuery({ page, limit: 20 }, { skip: !isOnline });
 
     const handleLoadMore = () => {
         if (data?.pagination && data.pagination.currentPage < data.pagination.totalPages) {
@@ -79,6 +81,14 @@ export default function WorkLogScreen() {
                 <View style={{ width: 44 }} />
             </View>
 
+            {!isOnline && (
+                <View style={{ backgroundColor: colors.warning + '20', padding: 8, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 12, color: colors.warning, fontWeight: '700' }}>
+                        <MaterialCommunityIcons name="wifi-off" size={14} /> {t('common.offline_mode')} - {t('common.showing_cached_data')}
+                    </Text>
+                </View>
+            )}
+
             {isLoading && page === 1 ? (
                 <View style={styles.centered}>
                     <ActivityIndicator size="large" color={colors.primary} />
@@ -90,8 +100,8 @@ export default function WorkLogScreen() {
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refetch} />}
-                    onEndReached={handleLoadMore}
+                    refreshControl={<RefreshControl refreshing={isFetching} onRefresh={isOnline ? refetch : undefined} />}
+                    onEndReached={isOnline ? handleLoadMore : undefined}
                     onEndReachedThreshold={0.5}
                     ListEmptyComponent={
                         <View style={styles.emptyState}>

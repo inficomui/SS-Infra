@@ -24,6 +24,7 @@ import { storage } from '@/redux/storage';
 import { formatDate, formatDuration, resolveImageUrl } from '@/utils/formatters';
 import { t } from 'i18next';
 import Toast from 'react-native-toast-message';
+import { useAppSelector } from '@/redux/hooks';
 
 const { width } = Dimensions.get('window');
 
@@ -39,6 +40,7 @@ export default function OwnerDashboard() {
     const { data: notificationsData, refetch: refetchNotifications } = useGetNotificationsQuery();
     const { data: subData, isLoading: loadingSub, refetch: refetchSub } = useGetMySubscriptionQuery();
 
+    const { isOnline } = useAppSelector((state) => state.offline);
     const [refreshing, setRefreshing] = useState(false);
 
     const operators = (operatorsData as any)?.operators || (operatorsData as any)?.workers || [];
@@ -52,9 +54,23 @@ export default function OwnerDashboard() {
     const isSubNearExpiry = isSubActive && subDaysLeft <= 14 && subDaysLeft > 0;
 
     const onRefresh = async () => {
+        if (!isOnline) {
+            Toast.show({ type: 'info', text1: 'Offline', text2: 'Cannot refresh data while offline' });
+            return;
+        }
         setRefreshing(true);
-        await Promise.all([refetchOperators(), refetchMachines(), refetchNotifications(), refetchSub()]);
-        setRefreshing(false);
+        try {
+            await Promise.all([
+                refetchOperators(),
+                refetchMachines(),
+                refetchNotifications(),
+                refetchSub()
+            ]);
+        } catch (error) {
+            console.error("Refresh failed:", error);
+        } finally {
+            setRefreshing(false);
+        }
     };
 
     const handleLockedAction = (feature: string) => {
@@ -88,11 +104,11 @@ export default function OwnerDashboard() {
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Header */}
-            <View style={styles.header}>
-                <View>
+            <View style={[styles.header, { backgroundColor: colors.card }]}>
+                <View style={{ flex: 1 }}>
                     <Text style={[styles.greeting, { color: colors.textMuted }]}>{getGreeting()},</Text>
                     <Text style={[styles.ownerName, { color: colors.textMain }]}>{user?.name || 'Owner'}</Text>
-                    <View style={[styles.locationBadge, { backgroundColor: colors.card }]}>
+                    <View style={[styles.locationBadge, { backgroundColor: colors.background }]}>
                         <MaterialCommunityIcons name="map-marker" size={12} color={colors.primary} />
                         <Text style={[styles.subtitle, { color: colors.textMuted }]}>{user?.district}, {user?.taluka}</Text>
                     </View>
@@ -101,7 +117,8 @@ export default function OwnerDashboard() {
 
                     <TouchableOpacity
                         onPress={() => router.push('/(owner)/notifications' as any)}
-                        style={[styles.profileCircle, { backgroundColor: colors.card, borderColor: colors.border, marginRight: 12 }]}
+                        activeOpacity={0.7}
+                        style={[styles.profileCircle, { backgroundColor: colors.background, borderColor: colors.border }]}
                     >
                         <MaterialCommunityIcons name="bell-outline" size={24} color={colors.textMain} />
                         {unreadCount > 0 && (
@@ -111,7 +128,8 @@ export default function OwnerDashboard() {
 
                     <TouchableOpacity
                         onPress={() => router.push('/(owner)/profile' as any)}
-                        style={[styles.profileCircle, { backgroundColor: colors.card, borderColor: colors.border }]}
+                        activeOpacity={0.7}
+                        style={[styles.profileCircle, { backgroundColor: colors.background, borderColor: colors.border }]}
                     >
                         <MaterialCommunityIcons name="account" size={28} color={colors.primary} />
                     </TouchableOpacity>
@@ -200,15 +218,7 @@ export default function OwnerDashboard() {
                             gradient={[colors.primary]}
                             colors={colors}
                         />
-                        <ActionButton
-                            icon="calendar-check"
-                            label={t('owner.bookings')}
-                            onPress={() => router.push('/(owner)/bookings' as any)}
-                            gradient={[colors.primary]}
-                            colors={colors}
-                            isLocked={isSubExpired}
-                            onLockedPress={() => handleLockedAction(t('owner.bookings'))}
-                        />
+                        {/* Bookings removed as requested */}
                         <ActionButton
                             icon="format-list-bulleted"
                             label={t('owner.fleet_list')}
@@ -555,12 +565,12 @@ const styles = StyleSheet.create({
         flex: 1
     },
     header: {
-        paddingTop: 60,
+        paddingTop: 50,
         paddingHorizontal: 20,
         paddingBottom: 24,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
         elevation: 4,
@@ -569,14 +579,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 8,
     },
-    headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
     locationBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 12,
-        marginTop: 8,
+        marginTop: 4,
         alignSelf: 'flex-start',
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.05)'

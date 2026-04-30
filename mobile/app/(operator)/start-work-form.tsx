@@ -22,23 +22,38 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useStartWorkMutation, useGetClientsQuery, useCreateClientMutation, Client } from '@/redux/apis/workApi';
+import { useAppDispatch } from '@/redux/hooks';
+import { addCachedClient } from '@/redux/slices/cacheSlice';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
+import { useAppSelector } from '@/redux/hooks';
 
 export default function StartWorkForm() {
     const { t } = useTranslation();
     const router = useRouter();
     const { colors, isDark } = useAppTheme();
+    const dispatch = useAppDispatch();
+    const { performMutation } = useOfflineMutation();
     const [startWork, { isLoading: isSubmitting }] = useStartWorkMutation();
     const [createClient, { isLoading: isCreatingClient }] = useCreateClientMutation();
+
+    // API Data
     const { data: clientsData, isLoading: isLoadingClients } = useGetClientsQuery();
+
+    // Cached Data for offline use
+    const { machines: cachedMachines, clients: cachedClients } = useAppSelector(state => state.cache);
+    const { isOnline } = useAppSelector(state => state.offline);
 
     const [isNewClient, setIsNewClient] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [showClientModal, setShowClientModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Merge or fallback to cache
+    const availableClients = isOnline && clientsData?.success ? clientsData.clients : cachedClients;
 
     // Form States
     const [newClientName, setNewClientName] = useState('');
@@ -90,37 +105,53 @@ export default function StartWorkForm() {
                 lng: location.coords.longitude
             });
 
-            // Reverse geocode to get human-readable address
-            const [address] = await Location.reverseGeocodeAsync({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude
-            });
+            // Reverse geocode to get human-readable address only if online
+            if (isOnline) {
+                try {
+                    const [address] = await Location.reverseGeocodeAsync({
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude
+                    });
 
-            if (address) {
-                const place = address.name || address.street || "";
-                const taluka = address.subregion || address.district || "";
-                const dist = address.city || address.region || "";
+                    if (address) {
+                        const place = address.name || address.street || "";
+                        const taluka = address.subregion || address.district || "";
+                        const dist = address.city || address.region || "";
 
-                const formattedAddress = [place, taluka, dist]
-                    .filter(part => part && part.length > 0)
-                    .join(", ");
+                        const formattedAddress = [place, taluka, dist]
+                            .filter(part => part && part.length > 0)
+                            .join(", ");
 
-                setNewLocation(formattedAddress);
-                Toast.show({ type: 'info', text1: t('operator.location_found'), text2: t('operator.site_detected_at', { address: formattedAddress }) });
+                        setNewLocation(formattedAddress);
+                        Toast.show({ type: 'info', text1: t('operator.location_found'), text2: t('operator.site_detected_at', { address: formattedAddress }) });
+                    } else {
+                        setNewLocation(`Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`);
+                    }
+                } catch (geoError) {
+                    // Geocoding failed (likely network or service issue), fallback to coordinates
+                    console.log("Geocoding failed, falling back to coordinates");
+                    setNewLocation(`Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`);
+                }
             } else {
-                setNewLocation(`Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`);
-                Toast.show({ type: 'info', text1: t('operator.location_found'), text2: t('operator.gps_captured') });
+                // Offline mode: just use coordinates
+                const coordsStr = `Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`;
+                setNewLocation(coordsStr);
+                Toast.show({ type: 'info', text1: t('operator.location_found'), text2: 'GPS Coordinates captured (Offline)' });
             }
-
         } catch (error) {
             console.error("Location Fetch Error:", error);
-            Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.loc_fetch_error') });
+            // If it's just a geocoding failure, we might still have coords
+            if (!newLocation && coords) {
+                setNewLocation(`Lat: ${coords.lat.toFixed(4)}, Lng: ${coords.lng.toFixed(4)}`);
+            } else {
+                Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.loc_fetch_error') });
+            }
         } finally {
             setIsLocating(false);
         }
     };
 
-    const handleCapturePhoto = async () => {
+    const handleTakePhoto = async () => {
         try {
             const { status } = await ImagePicker.requestCameraPermissionsAsync();
             if (status !== 'granted') {
@@ -143,6 +174,42 @@ export default function StartWorkForm() {
         }
     };
 
+    const handlePickPhoto = async () => {
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.gallery_permission') || 'Gallery permission required' });
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: false,
+                aspect: [4, 3],
+                quality: 0.7,
+            });
+
+            if (!result.canceled) {
+                setPhotoUri(result.assets[0].uri);
+            }
+        } catch (error) {
+            Toast.show({ type: 'error', text1: t('common.error'), text2: 'Failed to pick image' });
+        }
+    };
+
+    const handleCapturePhoto = () => {
+        import('react-native').then(({ Alert }) => {
+            Alert.alert(
+                t('operator.step_3_documentation'),
+                t('operator.site_location_desc'),
+                [
+                    { text: t('operator.camera') || 'Camera', onPress: handleTakePhoto },
+                    { text: t('common.cancel'), style: "cancel" }
+                ]
+            );
+        });
+    };
+
     const handleStartWork = async () => {
         let clientIdToSend = selectedClient ? selectedClient.id.toString() : '';
         let clientNameToSend = selectedClient ? selectedClient.name : '';
@@ -153,14 +220,36 @@ export default function StartWorkForm() {
                     Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.missing_details_msg') });
                     return;
                 }
-                const newClientRes = await createClient({
+
+                const newClientRes = await performMutation(createClient, {
                     name: newClientName,
                     mobile: clientNumber,
                     district: district,
                     taluka: tq
-                }).unwrap();
-                clientIdToSend = newClientRes.client.id.toString();
-                clientNameToSend = newClientRes.client.name;
+                }, {
+                    endpoint: '/clients',
+                    method: 'POST',
+                    description: `Create client ${newClientName}`
+                });
+
+                if (newClientRes.offline) {
+                    clientIdToSend = 'pending_' + Date.now();
+                    clientNameToSend = newClientName;
+                    // Optimistic update
+                    dispatch(addCachedClient({
+                        id: clientIdToSend,
+                        name: newClientName,
+                        mobile: clientNumber,
+                        district: district,
+                        taluka: tq,
+                        createdAt: new Date().toISOString()
+                    }));
+                } else if (newClientRes.success) {
+                    clientIdToSend = newClientRes.data.client.id.toString();
+                    clientNameToSend = newClientRes.data.client.name;
+                } else {
+                    return; // Error already shown in toast
+                }
             } else {
                 if (!selectedClient) {
                     Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.select_client_msg') });
@@ -183,60 +272,46 @@ export default function StartWorkForm() {
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('clientId', clientIdToSend);
-            formData.append('siteAddress', newLocation);
-
-            if (selectedMachine?.id) {
-                formData.append('machineId', selectedMachine.id.toString());
-                formData.append('machine_id', selectedMachine.id.toString());
-            }
-
-            if (coords) {
-                formData.append('siteLatitude', coords.lat.toString());
-                formData.append('siteLongitude', coords.lng.toString());
-            } else {
-                formData.append('siteLatitude', '0');
-                formData.append('siteLongitude', '0');
-            }
-
-            const startedAt = new Date().toISOString();
-            formData.append('startedAt', startedAt);
-
             const filename = photoUri.split('/').pop() || 'start_work_photo.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-            // Clean URI for different platforms
             const cleanUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
+            const fileObj = { uri: cleanUri, name: filename, type: type };
 
-            const fileObj = {
-                uri: cleanUri,
-                name: filename,
-                type: type
+            const requestBody = {
+                clientId: clientIdToSend,
+                siteAddress: newLocation,
+                machineId: selectedMachine.id.toString(),
+                machine_id: selectedMachine.id.toString(),
+                siteLatitude: coords?.lat?.toString() || '0',
+                siteLongitude: coords?.lng?.toString() || '0',
+                startedAt: new Date().toISOString(),
+                beforePhoto: fileObj,
+                before_photo: fileObj,
+                start_meter_photo: fileObj,
+                startMeterPhoto: fileObj
             };
 
-            formData.append('beforePhoto', fileObj as any);
-            formData.append('before_photo', fileObj as any);
-            formData.append('start_meter_photo', fileObj as any);
-            formData.append('startMeterPhoto', fileObj as any);
-
-            const response = await startWork(formData).unwrap();
-            const session = response.workSession;
-            if (!session) {
-                throw new Error(t('operator.session_error'));
-            }
-
-            router.replace({
-                pathname: '/(operator)',
-                params: {
-                    workStarted: 'true',
-                    workId: session.id.toString(),
-                    startTime: session.startedAt,
-                    clientName: clientNameToSend,
-                    location: newLocation
-                }
+            const response = await performMutation(startWork, requestBody, {
+                endpoint: '/work/start',
+                method: 'POST',
+                description: `Start work for ${clientNameToSend}`
             });
+
+            if (response.success) {
+                const session = response.offline ? { id: 'offline_' + Date.now(), startedAt: requestBody.startedAt } : response.data.workSession;
+
+                router.replace({
+                    pathname: '/(operator)',
+                    params: {
+                        workStarted: 'true',
+                        workId: session.id.toString(),
+                        startTime: session.startedAt,
+                        clientName: clientNameToSend,
+                        location: newLocation
+                    }
+                });
+            }
 
         } catch (error: any) {
             const msg = error?.data?.message || error?.message || t('common.error');
@@ -244,7 +319,7 @@ export default function StartWorkForm() {
         }
     };
 
-    const filteredClients = clientsData?.clients?.filter(c =>
+    const filteredClients = availableClients?.filter(c =>
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.mobile.includes(searchQuery)
     ) || [];
@@ -263,8 +338,13 @@ export default function StartWorkForm() {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
             >
-                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
 
                     {selectedMachine && (
                         <View style={{ marginBottom: 24, padding: 12, borderRadius: 4, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primary + '10', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -439,11 +519,11 @@ export default function StartWorkForm() {
 
             <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
                 <TouchableOpacity onPress={handleStartWork} disabled={isSubmitting || isCreatingClient} style={styles.submitBtn}>
-                    <LinearGradient colors={[colors.primary, colors.primary]} style={styles.gradientBtn}>
-                        {isSubmitting || isCreatingClient ? <ActivityIndicator color="#000" /> : (
+                    <LinearGradient colors={['#0284C7', '#38BDF8']} style={styles.gradientBtn}>
+                        {isSubmitting || isCreatingClient ? <ActivityIndicator color="#fff" /> : (
                             <>
-                                <MaterialCommunityIcons name="play-circle-outline" size={26} color="#000" />
-                                <Text style={styles.submitText}>{t('operator.initiate_work')}</Text>
+                                <MaterialCommunityIcons name="play-circle-outline" size={26} color="#fff" />
+                                <Text style={[styles.submitText, { color: '#fff' }]}>{t('operator.initiate_work')}</Text>
                             </>
                         )}
                     </LinearGradient>

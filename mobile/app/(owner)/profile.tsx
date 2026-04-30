@@ -7,10 +7,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, logout } from '@/redux/slices/authSlice';
 import { toggleTheme, selectThemeMode } from '@/redux/slices/themeSlice';
+import { setNotificationsEnabled } from '@/redux/slices/settingsSlice';
+import { RootState } from '@/redux/store';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useGetMySubscriptionQuery } from '@/redux/apis/subscriptionApi';
+import { useGetMachinesQuery, useGetOperatorsQuery } from '@/redux/apis/ownerApi';
+import { useGetClientsQuery } from '@/redux/apis/workApi';
 
 export default function OwnerProfileScreen() {
     const router = useRouter();
@@ -18,19 +22,28 @@ export default function OwnerProfileScreen() {
     const { colors, isDark } = useAppTheme();
     const user = useSelector(selectCurrentUser);
     const themeMode = useSelector(selectThemeMode);
+    const { notificationsEnabled } = useSelector((state: RootState) => state.settings);
     const { t } = useTranslation();
 
     const { data: subData } = useGetMySubscriptionQuery();
+    const { data: machinesData } = useGetMachinesQuery();
+    const { data: workersData } = useGetOperatorsQuery();
+    const { data: clientsData } = useGetClientsQuery();
+
+    const machineCount = machinesData?.machines?.length || 0;
+    const workerCount = (workersData?.workers?.length || workersData?.operators?.length) || 0;
+    const clientCount = clientsData?.clients?.length || 0;
+
     const sub = subData?.subscription;
     const isSubActive = subData?.isActive ?? false;
     const subDaysLeft = Math.floor(sub?.daysRemaining ?? 0);
     const subStatusColor = !isSubActive ? colors.danger
         : subDaysLeft <= 7 ? colors.danger
-        : subDaysLeft <= 14 ? colors.warning
-        : colors.success;
+            : subDaysLeft <= 14 ? colors.warning
+                : colors.success;
     const subStatusLabel = !isSubActive ? 'Inactive'
         : sub?.status === 'expired' ? 'Expired'
-        : `${subDaysLeft}d left`;
+            : `${subDaysLeft}d left`;
 
     const handleLogout = () => {
         dispatch(logout());
@@ -56,13 +69,13 @@ export default function OwnerProfileScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="arrow-left" size={24} color={colors.textMain} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('profile_screen.title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('profile_screen.title') || "Profile"}</Text>
                 <TouchableOpacity onPress={() => router.push('/(owner)/settings' as any)} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
                     <MaterialCommunityIcons name="cog-outline" size={24} color={colors.textMain} />
                 </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
                 {/* Profile Identity */}
                 <View style={styles.profileSection}>
                     <View style={styles.avatarWrapper}>
@@ -87,81 +100,62 @@ export default function OwnerProfileScreen() {
                         onPress={() => router.push('/(owner)/edit-profile' as any)}
                         style={[styles.editBtn, { borderColor: colors.primary, backgroundColor: colors.primary + '10' }]}
                     >
-                        <Text style={[styles.editBtnText, { color: colors.primary }]}>{t('profile_screen.update_personal_info')}</Text>
+                        <Text style={[styles.editBtnText, { color: colors.primary }]}>{t('profile_screen.update_personal_info') || "Update Personal Info"}</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* Account Settings */}
+                {/* Business Analytics */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile_screen.customization')}</Text>
-                    <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        {/* Subscription Row */}
-                        <TouchableOpacity onPress={() => router.push('/(owner)/settings' as any)}>
-                            <View style={[styles.menuRow, { borderBottomColor: colors.border }]}>
-                                <View style={styles.menuLeft}>
-                                    <View style={[styles.iconBox, { backgroundColor: colors.background }]}>
-                                        <MaterialCommunityIcons name="crown-outline" size={22} color={subStatusColor} />
-                                    </View>
-                                    <View>
-                                        <Text style={[styles.menuLabel, { color: colors.textMain }]}>Subscription</Text>
-                                        <Text style={{ fontSize: 12, color: colors.textMuted, fontWeight: '600', marginTop: 1 }}>
-                                            {sub?.plan?.name ?? 'No Active Plan'}
-                                        </Text>
-                                    </View>
-                                </View>
-                                <View style={styles.menuRight}>
-                                    <View style={[styles.subStatusPill, { backgroundColor: subStatusColor + '20' }]}>
-                                        <View style={[styles.subStatusDot, { backgroundColor: subStatusColor }]} />
-                                        <Text style={{ fontSize: 11, fontWeight: '800', color: subStatusColor }}>
-                                            {subStatusLabel}
-                                        </Text>
-                                    </View>
-                                    <MaterialCommunityIcons name="chevron-right" size={20} color={colors.border} />
-                                </View>
-                            </View>
-                        </TouchableOpacity>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile.business_analytics')}</Text>
+                    <View style={[styles.statsRow, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}>
+                        <StatItem label={t('profile.machines')} value={String(machineCount)} icon="excavator" color={colors.primary} colors={colors} />
+                        <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+                        <StatItem label={t('profile.workers')} value={String(workerCount)} icon="account-group" color={colors.primary} colors={colors} />
+                        <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+                        <StatItem label={t('profile.sites')} value={String(clientCount)} icon="map-marker-radius" color={colors.primary} colors={colors} />
+                    </View>
+                </View>
 
+                {/* Account Management */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile_screen.trust_identity') || "Trust & Identity"}</Text>
+                    <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
                         <MenuRow
-                            icon="theme-light-dark"
-                            label={t('profile_screen.dark_experience')}
+                            icon="shield-check-outline"
+                            label={t('profile_screen.kyc_verification')}
+                            value={t('profile_screen.verified')}
                             colors={colors}
-                            right={
-                                <Switch
-                                    value={isDark}
-                                    onValueChange={() => { dispatch(toggleTheme()); }}
-                                    trackColor={{ true: colors.primary, false: colors.border }}
-                                    thumbColor={isDark ? '#FFF' : '#F4F3F4'}
-                                />
-                            }
+                            right={<MaterialCommunityIcons name="check-decagram" size={18} color={colors.success} />}
+                            onPress={() => { }}
                         />
                         <MenuRow
-                            icon="bell-ring-outline"
-                            label={t('settings.notifications')}
+                            icon="bank-outline"
+                            label={t('profile_screen.billing_invoice')}
                             colors={colors}
-                            right={<Switch value={true} onValueChange={() => { }} trackColor={{ true: colors.primary, false: colors.border }} />}
+                            onPress={() => { }}
                         />
                         <MenuRow
-                            icon="translate"
-                            label={t('profile_screen.change_language')}
+                            icon="card-account-details-outline"
+                            label={t('profile_screen.referral_program')}
+                            value={t('profile_screen.referral_earned', { amount: '1,200' })}
                             colors={colors}
-                            onPress={() => router.push('/language-selection')}
+                            onPress={() => { }}
                         />
                     </View>
                 </View>
 
-                <View style={[styles.section, { borderColor: colors.border }]}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile_screen.app_info')}</Text>
-                    <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <MenuRow icon="information-outline" label={t('profile_screen.about_app')} colors={colors} onPress={() => router.push('/(owner)/about' as any)} />
-                    </View>
-                </View>
-
-                {/* Support Section */}
+                {/* Business Profile Details */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile_screen.support')}</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('profile_screen.business_profile') || "Business Profile"}</Text>
                     <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                        <MenuRow icon="help-circle-outline" label={t('profile_screen.help_center')} colors={colors} onPress={() => router.push('/(owner)/help' as any)} />
-                        <MenuRow icon="file-document-outline" label={t('profile_screen.legal_docs')} colors={colors} onPress={() => router.push('/(owner)/terms' as any)} />
+                        <View style={styles.detailItem}>
+                            <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('profile_screen.business_name') || "Business Name"}</Text>
+                            <Text style={[styles.detailValue, { color: colors.textMain }]}>SS Infra Software</Text>
+                        </View>
+                        <View style={[styles.detailItem, { borderTopWidth: 1, borderTopColor: colors.border }]}>
+                            <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('profile_screen.registered_area') || "Registered Area"}</Text>
+                            <Text style={[styles.detailValue, { color: colors.textMain }]}>{user?.district}, {user?.taluka}</Text>
+                        </View>
                     </View>
                 </View>
 
@@ -178,7 +172,6 @@ export default function OwnerProfileScreen() {
                     </LinearGradient>
                 </TouchableOpacity>
 
-                <View style={{ height: 60 }} />
             </ScrollView>
         </View>
     );
@@ -212,10 +205,20 @@ function MenuRow({ icon, label, value, right, onPress, colors }: any) {
     return <Content />;
 }
 
+function StatItem({ icon, label, value, color, colors, large }: any) {
+    return (
+        <View style={styles.statItem}>
+            <MaterialCommunityIcons name={icon} size={large ? 24 : 18} color={color} style={{ marginBottom: 4 }} />
+            <Text style={[styles.statValue, { color: colors.textMain, fontSize: large ? 20 : 16 }]}>{value}</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{label}</Text>
+        </View>
+    );
+}
+
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { paddingTop: 60, paddingHorizontal: 24, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    iconButton: { width: 44, height: 44, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    iconButton: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     headerTitle: { fontSize: 18, fontWeight: '900' },
     content: { flex: 1, paddingHorizontal: 24 },
     profileSection: { alignItems: 'center', paddingVertical: 20 },
@@ -239,13 +242,26 @@ const styles = StyleSheet.create({
     editBtnText: { fontSize: 13, fontWeight: '800', textTransform: 'uppercase' },
     section: { marginTop: 30 },
     sectionTitle: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16, marginLeft: 4 },
-    menuBox: { borderRadius: 4, borderWidth: 1, overflow: 'hidden' },
+    menuBox: { borderRadius: 12, borderWidth: 1, overflow: 'hidden' },
     menuRow: { flexDirection: 'row', height: 72, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, borderBottomWidth: 1 },
     menuLeft: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-    iconBox: { width: 42, height: 42, borderRadius: 4, justifyContent: 'center', alignItems: 'center' },
+    iconBox: { width: 42, height: 42, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
     menuLabel: { fontSize: 15, fontWeight: '700' },
     menuRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     menuValue: { fontSize: 14, fontWeight: '600' },
+
+    // Statistics Styles
+    statsRow: { flexDirection: 'row', padding: 20, borderRadius: 4, gap: 10 },
+    statItem: { flex: 1, alignItems: 'center' },
+    statValue: { fontWeight: '900' },
+    statLabel: { fontSize: 10, fontWeight: '600', marginTop: 2, textTransform: 'uppercase' },
+    statDivider: { width: 1, height: 40 },
+
+    // Detail Item Styles
+    detailItem: { padding: 16, gap: 2 },
+    detailLabel: { fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
+    detailValue: { fontSize: 15, fontWeight: '600' },
+
     logoutButton: { marginTop: 40, borderRadius: 4, overflow: 'hidden' },
     logoutGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, gap: 12 },
     logoutText: { fontSize: 15, fontWeight: '800', color: '#FFF' },

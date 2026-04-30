@@ -9,6 +9,8 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useRecordPaymentMutation } from '@/redux/apis/workApi';
 import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
 import { useTranslation } from 'react-i18next';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
+import { useAppSelector } from '@/redux/hooks';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function InvoicePreviewScreen() {
@@ -32,6 +34,8 @@ export default function InvoicePreviewScreen() {
 
     // Payment State
     const [recordPayment, { isLoading: isRecording }] = useRecordPaymentMutation();
+    const { performMutation } = useOfflineMutation();
+    const { isOnline } = useAppSelector(state => state.offline);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [paymentAmount, setPaymentAmount] = useState(totalAmount);
     const [paymentDate, setPaymentDate] = useState(new Date());
@@ -110,32 +114,42 @@ export default function InvoicePreviewScreen() {
         }
 
         try {
-            const result = await recordPayment({
+            const requestBody = {
                 invoiceId,
                 amount,
                 paymentDate: paymentDate.toISOString().split('T')[0],
                 nextPaymentDate: nextPaymentDate ? nextPaymentDate.toISOString().split('T')[0] : undefined,
                 notes: paymentNotes
-            }).unwrap();
+            };
 
-            setShowPaymentModal(false);
+            // If the invoice is a placeholder from a pending offline creation, 
+            // we should warn the user that payment will be synced after invoice
+            const isPendingInvoice = invoiceId.toString().startsWith('pending_');
 
-            // Update local state based on response
-            setPaidAmount(prev => prev + amount);
-            if (result.invoice?.status) {
-                setPaymentStatus(result.invoice.status);
-            } else {
-                // Fallback logic
+            const result = await performMutation(recordPayment, requestBody, {
+                endpoint: `/billing/record-payment`,
+                method: 'POST',
+                description: `Record payment for invoice ${invoiceNumber}`
+            });
+
+            if (result.success) {
+                setShowPaymentModal(false);
+
+                // Update local state
+                setPaidAmount(prev => prev + amount);
                 const newPaid = paidAmount + amount;
                 if (newPaid >= parseFloat(totalAmount)) {
                     setPaymentStatus('paid');
                 } else {
                     setPaymentStatus('partially_paid');
                 }
-            }
 
-            Alert.alert(t('create_bill_screen.success'), t('invoice_preview_screen.payment_success'));
-            setPaymentNotes('');
+                Alert.alert(
+                    result.offline ? t('create_bill_screen.success') + " (Offline)" : t('create_bill_screen.success'),
+                    result.offline ? "Payment recorded and queued for sync." : t('invoice_preview_screen.payment_success')
+                );
+                setPaymentNotes('');
+            }
 
         } catch (error: any) {
             console.error("Payment Error:", error);

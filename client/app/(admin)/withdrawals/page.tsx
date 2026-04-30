@@ -57,14 +57,14 @@ export default function WithdrawalsPage() {
             className="space-y-8 relative"
         >
             {/* Page Header */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-card dark:bg-zinc-900 border border-zinc-200/50 dark:border-white/5 p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-card border border-border p-8 rounded-[16px] shadow-sm transition-all">
                 <div className="flex items-center gap-5">
                     <div className="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shrink-0">
                         <CreditCard className="h-7 w-7 text-primary" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black text-foreground dark:text-white tracking-tight">Withdrawals</h2>
-                        <p className="text-sm font-bold text-muted-foreground dark:text-zinc-400 mt-1 flex items-center gap-2">
+                        <h2 className="text-3xl font-bold text-foreground tracking-tight">Withdrawals</h2>
+                        <p className="text-sm font-bold text-muted-foreground mt-1 flex items-center gap-2">
                              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
                             Manage User Payments
                         </p>
@@ -78,12 +78,12 @@ export default function WithdrawalsPage() {
                             setPage(1)
                             refetch()
                         }}
-                        className="p-3 text-muted-foreground hover:text-primary hover:bg-zinc-100 dark:hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-zinc-200 dark:hover:border-white/10"
+                        className="p-3 text-foreground hover:text-primary hover:bg-zinc-100 dark:hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-zinc-200 dark:hover:border-white/10"
                         title="Refresh"
                     >
                         <RefreshCw className="h-5 w-5" />
                     </button>
-                    <div className="flex p-1.5 bg-muted/30 dark:bg-white/5 rounded-xl border border-zinc-200/50 dark:border-white/5 transition-all">
+                    <div className="flex p-1.5 bg-muted/50 rounded-xl border border-border transition-all">
                         {['pending', 'approved', 'rejected', 'all'].map((tab) => (
                             <button
                                 key={tab}
@@ -92,10 +92,10 @@ export default function WithdrawalsPage() {
                                     setPage(1)
                                 }}
                                 className={clsx(
-                                    "px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-95",
+                                    "px-5 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all active:scale-95",
                                     statusFilter === tab
-                                        ? 'bg-primary text-black shadow-lg shadow-primary/20'
-                                        : 'text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-white/10'
+                                        ? 'bg-primary text-white shadow-md shadow-primary/20'
+                                        : 'text-foreground hover:text-foreground hover:bg-muted'
                                 )}
                             >
                                 {tab}
@@ -109,31 +109,31 @@ export default function WithdrawalsPage() {
             {isLoading ? (
                 <div className="flex flex-col justify-center items-center h-80 space-y-4">
                     <Loader2 className="animate-spin h-10 w-10 text-primary" strokeWidth={3} />
-                    <p className="text-xs font-black text-muted-foreground uppercase tracking-widest animate-pulse">Loading payments...</p>
+                    <p className="text-xs font-bold text-foreground uppercase tracking-widest animate-pulse">Loading payments...</p>
                 </div>
             ) : (
-                <div className="bg-card dark:bg-zinc-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl overflow-hidden border border-zinc-200/50 dark:border-white/5 transition-all">
+                <div className="bg-card shadow-sm rounded-[16px] overflow-hidden border border-border transition-all">
                     {withdrawals.length === 0 ? (
                         <div className="p-20 text-center">
-                            <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-muted/30 dark:bg-white/5 border border-zinc-200/50 dark:border-white/5 mb-6 group hover:rotate-6 transition-all">
-                                <CreditCard className="h-10 w-10 text-muted-foreground/50 group-hover:text-primary transition-colors" strokeWidth={1.5} />
+                            <div className="inline-flex h-20 w-20 items-center justify-center rounded-[16px] bg-muted/30 dark:bg-white/5 border border-border mb-6 group hover:rotate-6 transition-all">
+                                <CreditCard className="h-10 w-10 text-foreground/50 group-hover:text-primary transition-colors" strokeWidth={1.5} />
                             </div>
-                            <h3 className="text-2xl font-black text-foreground dark:text-white tracking-tight">No Withdrawals Found</h3>
-                            <p className="text-sm font-medium text-muted-foreground dark:text-zinc-500 mt-2 max-w-xs mx-auto">There are no withdrawal requests matching your filters currently in the system.</p>
+                            <h3 className="text-2xl font-bold text-foreground tracking-tight">No Withdrawals Found</h3>
+                            <p className="text-sm font-bold text-muted-foreground mt-2 max-w-xs mx-auto">There are no withdrawal requests matching your filters currently in the system.</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="min-w-full">
-                                <thead className="bg-muted/30 dark:bg-zinc-800/50 border-b border-zinc-200/50 dark:border-white/5">
+                                <thead className="bg-muted/50 border-b border-border">
                                     <tr>
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Details</th>
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">User</th>
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Amount</th>
-                                        <th className="px-8 py-5 text-left text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Status</th>
-                                        <th className="px-8 py-5 text-right text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-[0.2em] opacity-70">Actions</th>
+                                        <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-80">Details</th>
+                                        <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-80">User</th>
+                                        <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-80">Amount</th>
+                                        <th className="px-8 py-5 text-left text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-80">Status</th>
+                                        <th className="px-8 py-5 text-right text-[10px] font-bold text-foreground uppercase tracking-[0.2em] opacity-80">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zinc-200/50 dark:divide-white/5">
+                                <tbody className="divide-y divide-border">
                                     {withdrawals.map((item, idx) => (
                                         <tr key={item.id} className="group hover:bg-muted/30 dark:hover:bg-zinc-800/50 transition-all">
                                             <td className="px-8 py-5 whitespace-nowrap">
@@ -142,8 +142,8 @@ export default function WithdrawalsPage() {
                                                         <Landmark className="h-5 w-5" strokeWidth={2.5} />
                                                     </div>
                                                     <div>
-                                                        <p className="font-black text-foreground dark:text-white tracking-tight">ID: #{item.id}</p>
-                                                        <p className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest flex items-center gap-1.5 mt-1.5 opacity-70">
+                                                        <p className="font-bold text-foreground tracking-tight">ID: #{item.id}</p>
+                                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 mt-1.5 opacity-70">
                                                             <Calendar className="h-3 w-3" />
                                                             {new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                         </p>
@@ -152,24 +152,24 @@ export default function WithdrawalsPage() {
                                             </td>
                                             <td className="px-8 py-5 whitespace-nowrap">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-9 w-9 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20">
+                                                    <div className="h-9 w-9 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
                                                         {item.user.name[0]?.toUpperCase()}
                                                     </div>
                                                     <div>
-                                                        <p className="font-bold text-foreground dark:text-white tracking-tight">{item.user.name}</p>
-                                                        <p className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest mt-0.5">{item.user.mobile}</p>
+                                                        <p className="font-bold text-foreground tracking-tight">{item.user.name}</p>
+                                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{item.user.mobile}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5 whitespace-nowrap">
-                                                <span className="text-lg font-black text-foreground dark:text-white tracking-tighter">
-                                                    <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-600 mr-0.5">₹</span>
+                                                <span className="text-lg font-bold text-foreground dark:text-white tracking-tighter">
+                                                    <span className="text-[10px] font-bold text-muted-foreground dark:text-zinc-600 mr-0.5">₹</span>
                                                     {parseFloat(item.amount).toLocaleString()}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-5 whitespace-nowrap">
                                                 <span className={clsx(
-                                                    "px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all",
+                                                    "px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border transition-all",
                                                     item.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
                                                         item.status === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
                                                             'bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse'
@@ -210,7 +210,7 @@ export default function WithdrawalsPage() {
                                                             setSelectedRequest(item)
                                                             setActionType(null)
                                                         }}
-                                                        className="p-2 text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-xl transition-all"
+                                                        className="p-2 text-foreground hover:text-foreground dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-xl transition-all"
                                                         title="View Details"
                                                     >
                                                         <Eye className="h-5 w-5" />
@@ -226,21 +226,21 @@ export default function WithdrawalsPage() {
 
                     {/* Pagination */}
                     {pagination && pagination.totalPages > 1 && (
-                        <div className="flex items-center justify-between p-6 border-t border-zinc-200/50 dark:border-white/5 bg-muted/20 dark:bg-white/5">
+                        <div className="flex items-center justify-between p-6 border-t border-border bg-muted/40 dark:bg-white/5">
                             <button
                                 disabled={page === 1}
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
-                                className="px-6 py-2 text-[10px] font-black uppercase tracking-widest bg-background dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-30 transition-all dark:text-white"
+                                className="px-6 py-2 text-[10px] font-bold uppercase tracking-widest bg-background dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-30 transition-all dark:text-white"
                             >
                                 Previous
                             </button>
-                            <span className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest bg-muted/50 dark:bg-black/20 px-4 py-2 rounded-lg border border-zinc-200/50 dark:border-white/10">
+                            <span className="text-[10px] font-bold text-foreground uppercase tracking-widest bg-muted rounded-lg border border-zinc-200 px-4 py-2">
                                 Page {page} <span className="mx-1 opacity-30">/</span> {pagination.totalPages}
                             </span>
                             <button
                                 disabled={page === pagination.totalPages}
                                 onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
-                                className="px-6 py-2 text-[10px] font-black uppercase tracking-widest bg-background dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-30 transition-all dark:text-white"
+                                className="px-6 py-2 text-[10px] font-bold uppercase tracking-widest bg-background dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-30 transition-all dark:text-white"
                             >
                                 Next
                             </button>
@@ -262,14 +262,14 @@ export default function WithdrawalsPage() {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-card dark:bg-zinc-900 w-full max-w-lg rounded-3xl shadow-2xl border border-zinc-200 dark:border-white/10 overflow-hidden"
+                            className="bg-card w-full max-w-lg rounded-[16px] shadow-xl border border-border overflow-hidden"
                         >
-                            <div className="p-8 border-b border-zinc-200/50 dark:border-white/5 flex justify-between items-center bg-muted/10 dark:bg-white/5">
-                                <h3 className="text-xl font-black text-foreground dark:text-white tracking-tight">
+                            <div className="p-8 border-b border-border flex justify-between items-center bg-muted/40 dark:bg-white/5">
+                                <h3 className="text-xl font-bold text-foreground tracking-tight">
                                     {actionType === 'approve' ? 'Approve' :
                                         actionType === 'reject' ? 'Reject' : 'Details'}
                                 </h3>
-                                <button onClick={() => setSelectedRequest(null)} className="text-muted-foreground hover:text-foreground dark:hover:text-white p-2 hover:bg-zinc-100 dark:hover:bg-white/10 rounded-xl transition-all">
+                                <button onClick={() => setSelectedRequest(null)} className="text-foreground hover:text-foreground dark:hover:text-white p-2 hover:bg-zinc-100 dark:hover:bg-white/10 rounded-xl transition-all">
                                     <XCircle className="h-6 w-6" />
                                 </button>
                             </div>
@@ -277,16 +277,16 @@ export default function WithdrawalsPage() {
                             <div className="p-8 space-y-8">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest opacity-70">Amount</label>
-                                        <p className="text-2xl font-black text-foreground dark:text-white tracking-tighter">
-                                            <span className="text-xs font-bold text-zinc-400 dark:text-zinc-600 mr-1">₹</span>
+                                        <label className="text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-widest opacity-70">Amount</label>
+                                        <p className="text-2xl font-bold text-foreground dark:text-white tracking-tighter">
+                                            <span className="text-xs font-bold text-muted-foreground dark:text-zinc-600 mr-1">₹</span>
                                             {parseFloat(selectedRequest.amount).toLocaleString()}
                                         </p>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest opacity-70">Recipient</label>
+                                        <label className="text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-widest opacity-70">Recipient</label>
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-xl bg-primary/20 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20">
+                                            <div className="h-8 w-8 rounded-xl bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20">
                                                 {selectedRequest.user.name[0]?.toUpperCase()}
                                             </div>
                                             <p className="text-sm font-bold text-foreground dark:text-white truncate tracking-tight">{selectedRequest.user.name}</p>
@@ -294,34 +294,34 @@ export default function WithdrawalsPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 p-5 bg-muted/30 dark:bg-white/5 rounded-2xl border border-zinc-200/50 dark:border-white/5 transition-all">
-                                    <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2 opacity-80">
+                                <div className="space-y-4 p-5 bg-muted/30 dark:bg-white/5 rounded-2xl border border-border transition-all">
+                                    <h4 className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] flex items-center gap-2 opacity-80">
                                         <Landmark className="h-3 w-3" strokeWidth={3} />
                                         Bank Details
                                     </h4>
                                     <div className="grid grid-cols-2 gap-y-5 gap-x-4 text-sm">
                                         <div>
-                                            <span className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest opacity-60 block mb-1">Bank Name</span>
+                                            <span className="text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-widest opacity-60 block mb-1">Bank Name</span>
                                             <span className="font-bold text-foreground dark:text-white tracking-tight">{selectedRequest.bankDetails.bankName}</span>
                                         </div>
                                         <div>
-                                            <span className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest opacity-60 block mb-1">Account Holder</span>
+                                            <span className="text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-widest opacity-60 block mb-1">Account Holder</span>
                                             <span className="font-bold text-foreground dark:text-white tracking-tight">{selectedRequest.bankDetails.holderName}</span>
                                         </div>
                                         <div>
-                                            <span className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest opacity-60 block mb-1">Account Number</span>
-                                            <span className="font-mono font-bold text-foreground dark:text-white text-xs bg-muted/50 dark:bg-black/20 px-2 py-1 rounded border border-zinc-200/50 dark:border-white/5">{selectedRequest.bankDetails.accountNumber}</span>
+                                            <span className="text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-widest opacity-60 block mb-1">Account Number</span>
+                                            <span className="font-mono font-bold text-foreground dark:text-white text-xs bg-muted/50 dark:bg-black/20 px-2 py-1 rounded border border-border">{selectedRequest.bankDetails.accountNumber}</span>
                                         </div>
                                         <div>
-                                            <span className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest opacity-60 block mb-1">IFSC Code</span>
-                                            <span className="font-mono font-bold text-foreground dark:text-zinc-white text-xs bg-muted/50 dark:bg-black/20 px-2 py-1 rounded border border-zinc-200/50 dark:border-white/5 uppercase">{selectedRequest.bankDetails.ifsc}</span>
+                                            <span className="text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-widest opacity-60 block mb-1">IFSC Code</span>
+                                            <span className="font-mono font-bold text-foreground dark:text-white text-xs bg-muted/50 dark:bg-black/20 px-2 py-1 rounded border border-border uppercase">{selectedRequest.bankDetails.ifsc}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {actionType && (
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-muted-foreground dark:text-zinc-500 uppercase tracking-widest opacity-70">
+                                        <label className="text-[10px] font-bold text-foreground dark:text-foreground uppercase tracking-widest opacity-70">
                                             {actionType === 'reject' ? 'Reason' : 'Admin Note (Optional)'}
                                         </label>
                                         <textarea
@@ -338,7 +338,7 @@ export default function WithdrawalsPage() {
                                         <div className="absolute top-0 right-0 p-2 opacity-20">
                                             <AlertCircle className="h-10 w-10 text-amber-500" />
                                         </div>
-                                        <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-1.5 opacity-80">Admin Note</p>
+                                        <p className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-1.5 opacity-80">Admin Note</p>
                                         <p className="text-sm font-medium text-amber-700 dark:text-amber-200 leading-relaxed">{selectedRequest.adminNote}</p>
                                     </div>
                                 )}
@@ -347,7 +347,7 @@ export default function WithdrawalsPage() {
                             <div className="p-8 pt-0 flex justify-end gap-3">
                                 <button
                                     onClick={() => setSelectedRequest(null)}
-                                    className="px-6 py-3 text-sm font-black text-muted-foreground hover:text-foreground dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-xl transition-all"
+                                    className="px-6 py-3 text-sm font-bold text-foreground hover:text-foreground dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-xl transition-all"
                                 >
                                     Close
                                 </button>
@@ -355,7 +355,7 @@ export default function WithdrawalsPage() {
                                     <button
                                         onClick={handleAction}
                                         disabled={isApproving}
-                                        className="flex items-center gap-2 px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-black font-black rounded-xl shadow-xl shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50"
+                                        className="flex items-center gap-2 px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50"
                                     >
                                         {isApproving ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={3} /> : <CheckCircle className="h-5 w-5" strokeWidth={3} />}
                                         Approve
@@ -365,7 +365,7 @@ export default function WithdrawalsPage() {
                                     <button
                                         onClick={handleAction}
                                         disabled={isRejecting}
-                                        className="flex items-center gap-2 px-8 py-3 bg-red-500 hover:bg-red-600 text-white font-black rounded-xl shadow-xl shadow-red-500/20 transition-all active:scale-95 disabled:opacity-50"
+                                        className="flex items-center gap-2 px-8 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-xl shadow-red-500/20 transition-all active:scale-95 disabled:opacity-50"
                                     >
                                         {isRejecting ? <Loader2 className="h-5 w-5 animate-spin" strokeWidth={3} /> : <XCircle className="h-5 w-5" strokeWidth={3} />}
                                         Reject

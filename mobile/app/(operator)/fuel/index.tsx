@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
+import { useAppSelector } from '@/redux/hooks';
 import { FuelLog, useGetFuelLogsQuery } from '@/redux/apis/fuelApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatDate } from '../../../utils/formatters';
@@ -14,6 +15,7 @@ export default function FuelLogsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const { t } = useTranslation();
+    const { queue } = useAppSelector(state => state.offline);
 
     // Filters & Pagination
     const [page, setPage] = useState(1);
@@ -38,19 +40,31 @@ export default function FuelLogsScreen() {
     const logsList = logsData?.logs || logsData?.data?.data || [];
     const totalPages = logsData?.pagination?.totalPages || logsData?.data?.last_page || 1;
 
-    // Local filter for search (if backend search isn't explicitly defined in query params yet, 
-    // but the user asked for it, I'll implement local filtering for now or assume API might support it if they add it)
+    // Filter pending logs from offline queue
+    const pendingLogs = useMemo(() => {
+        return queue
+            .filter(item => item.endpoint === '/fuel-logs' && item.method === 'POST')
+            .map(item => ({
+                id: item.id,
+                ...item.body,
+                logDate: item.body.logDate || item.body.log_date || new Date(item.timestamp).toISOString(),
+                isPending: true,
+                operator: { name: userData?.user?.name || 'You' },
+                machine: { name: `Machine #${item.body.machineId || item.body.machine_id}` }
+            }));
+    }, [queue, userData]);
+
     const processedLogs = useMemo(() => {
-        let list = [...logsList];
+        let list = [...pendingLogs, ...logsList];
 
         // Filter by operator ID if user data is available
         if (userData?.user?.id) {
-            list = list.filter(log => log.operatorId === userData.user.id || log.operator_id === userData.user.id || log.operator?.id === userData.user.id);
+            list = list.filter(log => log.isPending || log.operatorId === userData.user.id || log.operator_id === userData.user.id || log.operator?.id === userData.user.id);
         }
 
         if (searchQuery) {
             list = list.filter(log =>
-                log.machine?.name.toLowerCase().includes(searchQuery.toLowerCase())
+                log.machine?.name?.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
@@ -61,7 +75,7 @@ export default function FuelLogsScreen() {
         });
 
         return list;
-    }, [logsList, searchQuery, sortBy]);
+    }, [logsList, pendingLogs, searchQuery, sortBy, userData]);
 
     const onStartDateChange = (event: any, selectedDate?: Date) => {
         setShowStartPicker(false);
@@ -98,7 +112,14 @@ export default function FuelLogsScreen() {
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                     <Text style={[styles.amountText, { color: colors.textMain }]}>₹{log.amount}</Text>
-                    <Text style={[styles.operatorSubText, { color: colors.textMuted }]}>{log.operator?.name || 'Unknown'}</Text>
+                    {log.isPending ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                            <MaterialCommunityIcons name="cloud-upload" size={14} color={colors.warning} />
+                            <Text style={{ fontSize: 10, fontWeight: '900', color: colors.warning }}>PENDING</Text>
+                        </View>
+                    ) : (
+                        <Text style={[styles.operatorSubText, { color: colors.textMuted }]}>{log.operator?.name || 'Unknown'}</Text>
+                    )}
                 </View>
             </View>
 

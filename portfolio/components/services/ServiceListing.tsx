@@ -54,19 +54,19 @@ export function ServiceListing() {
                 {/* Section Header */}
                 <div className="mb-12">
                     <div className="flex items-center gap-2 mb-3">
-                        <Users size={14} className="text-amber-500" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Find Services</span>
+                        <Users size={14} className="text-primary" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Find Services</span>
                     </div>
                     <h2 className="text-4xl sm:text-5xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">
-                        Browse <span className="text-amber-500">Owners</span> & Fleets
+                        Browse <span className="text-primary">Owners</span> & Fleets
                     </h2>
-                    <p className="text-zinc-500 dark:text-zinc-400 font-medium max-w-xl">
+                    <p className="text-muted-foreground dark:text-muted-foreground font-medium max-w-xl">
                         Search by district and taluka to find verified infrastructure owners and their operators near you.
                     </p>
                 </div>
 
                 {/* Filter Bar */}
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-3xl p-6 mb-10 shadow-sm">
+                <div className="bg-background dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[16px] p-6 mb-10 shadow-sm">
                     <ServiceFilter />
                 </div>
 
@@ -93,7 +93,7 @@ export function ServiceListing() {
                                 <AlertCircle size={28} />
                             </div>
                             <h3 className="font-black text-xl text-zinc-900 dark:text-white mb-2">Failed to load services</h3>
-                            <p className="text-zinc-500 text-sm max-w-[280px]">
+                            <p className="text-muted-foreground text-sm max-w-[280px]">
                                 Unable to connect to the server. Please check your connection and try again.
                             </p>
                         </motion.div>
@@ -104,11 +104,11 @@ export function ServiceListing() {
                             animate={{ opacity: 1, scale: 1 }}
                             className="flex flex-col items-center justify-center py-24 text-center"
                         >
-                            <div className="w-20 h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mb-6">
+                            <div className="w-20 h-20 rounded-[16px] bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-muted-foreground mb-6">
                                 <Users size={32} />
                             </div>
                             <h3 className="font-black text-2xl text-zinc-900 dark:text-white mb-2">No owners found</h3>
-                            <p className="text-zinc-500 text-sm max-w-[320px]">
+                            <p className="text-muted-foreground text-sm max-w-[320px]">
                                 {selectedDistrict
                                     ? `No registered owners in ${selectedTaluka ? `${selectedTaluka}, ` : ""}${selectedDistrict} yet.`
                                     : "No owners are registered yet. Try a different search."}
@@ -130,7 +130,7 @@ export function ServiceListing() {
 
                 {/* Result count */}
                 {!isLoading && !isError && owners.length > 0 && (
-                    <p className="text-center text-xs text-zinc-400 font-bold uppercase tracking-widest mt-10">
+                    <p className="text-center text-xs text-muted-foreground font-bold uppercase tracking-widest mt-10">
                         Showing {owners.length} result{owners.length !== 1 ? "s" : ""}
                     </p>
                 )}

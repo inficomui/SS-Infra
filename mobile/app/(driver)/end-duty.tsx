@@ -13,6 +13,7 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearActiveDuty } from '@/redux/slices/driverSlice';
 import { RootState } from '@/redux/store';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 
 export default function EndDutyScreen() {
     const { t } = useTranslation();
@@ -22,6 +23,7 @@ export default function EndDutyScreen() {
     const activeWorkId = useSelector((state: RootState) => state.driver.activeWorkId);
     const localStartedAt = useSelector((state: RootState) => state.driver.startedAt);
 
+    const { performMutation } = useOfflineMutation();
     const [endDuty, { isLoading: isSubmitting }] = useEndDutyMutation();
     const { data: activeDutyData } = useGetActiveDutyQuery();
 
@@ -41,19 +43,23 @@ export default function EndDutyScreen() {
                 return;
             }
 
-            let loc = await Location.getCurrentPositionAsync({});
-            setCoords({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
-
-            const [address] = await Location.reverseGeocodeAsync({
-                latitude: loc.coords.latitude,
-                longitude: loc.coords.longitude
+            let loc = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
             });
+            const { latitude, longitude } = loc.coords;
+            setCoords({ latitude, longitude });
 
-            if (address) {
-                const formatted = `${address.name || ''}, ${address.street || ''}, ${address.subregion || ''}, ${address.city || ''}`.replace(/^, |, $/g, '');
-                setLocation(formatted);
-            } else {
-                setLocation(`${loc.coords.latitude}, ${loc.coords.longitude}`);
+            try {
+                const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
+                if (address) {
+                    const formatted = `${address.name || ''}, ${address.street || ''}, ${address.subregion || ''}, ${address.city || ''}`.replace(/^, |, $/g, '').replace(/, ,/g, ',');
+                    setLocation(formatted || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                } else {
+                    setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                }
+            } catch (geoError) {
+                console.warn("Geocoding failed, falling back to coordinates:", geoError);
+                setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
             }
         } catch (error) {
             Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.loc_fetch_error') });
@@ -62,15 +68,48 @@ export default function EndDutyScreen() {
         }
     };
 
-    const handleCapturePhoto = async () => {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') return;
-        const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ['images'],
-            allowsEditing: false,
-            quality: 0.7,
+    const handleTakePhoto = async () => {
+        try {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') return;
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ['images'],
+                allowsEditing: false,
+                quality: 0.7,
+            });
+            if (!result.canceled) setPhotoUri(result.assets[0].uri);
+        } catch (error) {
+            Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.camera_error') });
+        }
+    };
+
+    const handlePickPhoto = async () => {
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') return;
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: false,
+                quality: 0.7,
+            });
+            if (!result.canceled) setPhotoUri(result.assets[0].uri);
+        } catch (error) {
+            Toast.show({ type: 'error', text1: t('common.error'), text2: 'Failed to pick image' });
+        }
+    };
+
+    const handleCapturePhoto = () => {
+        import('react-native').then(({ Alert }) => {
+            Alert.alert(
+                t('driver.meter_photo'),
+                t('driver.meter_desc') || 'Capture meter reading photo',
+                [
+                    { text: t('operator.camera') || 'Camera', onPress: handleTakePhoto },
+                    { text: t('operator.gallery') || 'Gallery', onPress: handlePickPhoto },
+                    { text: t('common.cancel'), style: "cancel" }
+                ]
+            );
         });
-        if (!result.canceled) setPhotoUri(result.assets[0].uri);
     };
 
     const handleSubmit = async () => {
@@ -86,61 +125,56 @@ export default function EndDutyScreen() {
             return;
         }
 
-        const formData = new FormData();
-        // Send both work_id and workSessionId for compatibility
-        formData.append('work_id', currentWorkId);
-        formData.append('workSessionId', currentWorkId);
+        const photoFilename = photoUri.split('/').pop() || 'meter_after.jpg';
+        const photoMatch = /\.(\w+)$/.exec(photoFilename);
+        const photoType = photoMatch ? `image/${photoMatch[1]}` : `image/jpeg`;
+        const cleanUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
 
-        formData.append('end_location', location);
-        formData.append('siteAddress', location);
-        formData.append('end_meter_reading', meterReading);
+        const requestBody: any = {
+            work_id: currentWorkId,
+            workSessionId: currentWorkId,
+            end_location: location,
+            siteAddress: location,
+            end_meter_reading: meterReading,
+            finishedAt: new Date().toISOString(),
+            finished_at: new Date().toISOString(),
+            notes: notes || '',
+            end_meter_photo: { uri: cleanUri, name: photoFilename, type: photoType },
+            afterPhoto: { uri: cleanUri, name: photoFilename, type: photoType },
+            after_photo: { uri: cleanUri, name: photoFilename, type: photoType },
+        };
 
-        formData.append('finishedAt', new Date().toISOString());
-        formData.append('finished_at', new Date().toISOString());
-
-        // Calculate total hours if startedAt is available
         if (startTimestamp) {
             const start = new Date(startTimestamp).getTime();
             const end = new Date().getTime();
             const diffInHours = ((end - start) / (1000 * 60 * 60)).toFixed(2);
-            formData.append('totalHours', diffInHours);
-            formData.append('total_hours', diffInHours);
-        }
-
-        if (notes) {
-            formData.append('notes', notes);
+            requestBody.totalHours = diffInHours;
+            requestBody.total_hours = diffInHours;
         }
 
         if (coords) {
-            formData.append('siteLatitude', coords.latitude.toString());
-            formData.append('siteLongitude', coords.longitude.toString());
-            formData.append('end_latitude', coords.latitude.toString());
-            formData.append('end_longitude', coords.longitude.toString());
+            requestBody.siteLatitude = coords.latitude;
+            requestBody.siteLongitude = coords.longitude;
+            requestBody.end_latitude = coords.latitude;
+            requestBody.end_longitude = coords.longitude;
         }
 
-        const filename = photoUri.split('/').pop() || 'meter_after.jpg';
-        const photoMatch = /\.(\w+)$/.exec(filename);
-        const photoType = photoMatch ? `image/${photoMatch[1]}` : `image/jpeg`;
-        const cleanUri = Platform.OS === 'android' ? photoUri : photoUri.replace('file://', '');
-
-        // Send both end_meter_photo and afterPhoto
-        formData.append('end_meter_photo', {
-            uri: Platform.OS === 'android' ? photoUri : cleanUri,
-            name: filename,
-            type: photoType
-        } as any);
-
-        formData.append('afterPhoto', {
-            uri: Platform.OS === 'android' ? photoUri : cleanUri,
-            name: filename,
-            type: photoType
-        } as any);
-
         try {
-            const response = await endDuty(formData).unwrap();
-            Toast.show({ type: 'success', text1: t('common.success'), text2: response.message || t('driver.duty_finished') });
-            dispatch(clearActiveDuty());
-            setTimeout(() => router.replace('/(driver)'), 1500);
+            const response = await performMutation(endDuty, requestBody, {
+                endpoint: '/duty/end',
+                method: 'POST',
+                description: `Driver ending duty session #${currentWorkId}`
+            });
+
+            if (response.success) {
+                if (response.offline) {
+                    Toast.show({ type: 'info', text1: 'Saved Offline', text2: 'Duty completion will sync soon' });
+                } else {
+                    Toast.show({ type: 'success', text1: t('common.success'), text2: response.message || t('driver.duty_finished') });
+                }
+                dispatch(clearActiveDuty());
+                router.replace('/(driver)');
+            }
         } catch (error: any) {
             console.error("=== END DUTY ERROR ===", error);
             Toast.show({ type: 'error', text1: t('common.error'), text2: error?.data?.message || 'Failed to end duty' });

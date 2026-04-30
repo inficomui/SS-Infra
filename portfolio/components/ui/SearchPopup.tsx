@@ -75,20 +75,20 @@ export function SearchPopup({ isOpen, onClose }: SearchPopupProps) {
                         className="relative w-full max-w-[640px] bg-[var(--card)] rounded-[2rem] shadow-2xl overflow-hidden border border-[var(--border)]"
                     >
                         <form onSubmit={handleSearch} className="flex items-center px-6 py-4 border-b border-[var(--border)]">
-                            <Search className="w-6 h-6 text-[var(--fg-muted)] shrink-0" />
+                            <Search className="w-6 h-6 text-muted-foreground shrink-0" />
                             <input
                                 type="text"
                                 autoFocus
                                 placeholder="Search by Taluka, Owner, or Operator..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-transparent px-4 py-2 text-xl font-bold outline-none placeholder:text-[var(--fg-muted)] placeholder:font-medium"
+                                className="w-full bg-transparent px-4 py-2 text-xl font-bold outline-none placeholder:text-muted-foreground placeholder:font-medium"
                             />
                             {searchQuery && (
                                 <button
                                     type="button"
                                     onClick={() => setSearchQuery("")}
-                                    className="p-2 text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-muted)] rounded-full transition-colors mr-2 text-xs font-bold shrink-0"
+                                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-[var(--bg-muted)] rounded-full transition-colors mr-2 text-xs font-bold shrink-0"
                                 >
                                     CLEAR
                                 </button>
@@ -96,7 +96,7 @@ export function SearchPopup({ isOpen, onClose }: SearchPopupProps) {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="p-2 text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--bg-muted)] rounded-full transition-colors shrink-0"
+                                className="p-2 text-muted-foreground hover:text-foreground hover:bg-[var(--bg-muted)] rounded-full transition-colors shrink-0"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -105,11 +105,11 @@ export function SearchPopup({ isOpen, onClose }: SearchPopupProps) {
                         <div className="p-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
                             {searchQuery.length < 2 ? (
                                 <div className="py-12 flex flex-col items-center justify-center text-center">
-                                    <div className="w-16 h-16 bg-[var(--bg-muted)] rounded-2xl flex items-center justify-center text-[var(--fg-muted)] mb-4">
+                                    <div className="w-16 h-16 bg-[var(--bg-muted)] rounded-2xl flex items-center justify-center text-muted-foreground mb-4">
                                         <MapPin size={24} />
                                     </div>
                                     <h4 className="font-bold text-lg mb-2">Find Taluka Networks</h4>
-                                    <p className="text-[var(--fg-muted)] text-sm max-w-[280px]">
+                                    <p className="text-muted-foreground text-sm max-w-[280px]">
                                         Type at least 2 characters to discover infrastructure fleets in any Taluka.
                                     </p>
 
@@ -119,7 +119,7 @@ export function SearchPopup({ isOpen, onClose }: SearchPopupProps) {
                                                 key={city}
                                                 type="button"
                                                 onClick={() => setSearchQuery(city)}
-                                                className="py-2 px-3 border border-[var(--border)] rounded-xl text-xs font-bold text-[var(--fg-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg)] transition-colors"
+                                                className="py-2 px-3 border border-[var(--border)] rounded-xl text-xs font-bold text-muted-foreground hover:bg-[var(--bg-muted)] hover:text-foreground transition-colors"
                                             >
                                                 {city}
                                             </button>
@@ -127,13 +127,13 @@ export function SearchPopup({ isOpen, onClose }: SearchPopupProps) {
                                     </div>
                                 </div>
                             ) : isFetching ? (
-                                <div className="py-12 flex flex-col items-center justify-center text-[var(--fg-muted)]">
-                                    <Loader2 size={32} className="animate-spin mb-4 text-amber-500" />
+                                <div className="py-12 flex flex-col items-center justify-center text-muted-foreground">
+                                    <Loader2 size={32} className="animate-spin mb-4 text-primary" />
                                     <p className="font-bold">Scanning Local Network...</p>
                                 </div>
                             ) : displayResults.length > 0 ? (
                                 <div className="space-y-2">
-                                    <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--fg-muted)]">
+                                    <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                         Top Results ({displayResults.length})
                                     </div>
                                     {displayResults.map((result: any, i: number) => (
@@ -141,32 +141,32 @@ export function SearchPopup({ isOpen, onClose }: SearchPopupProps) {
                                             key={`${result.type}-${result.id}-${i}`}
                                             href={result.type === 'owner' ? `/owner/${result.id}` : `/operator/${result.id}`}
                                             onClick={onClose}
-                                            className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[var(--bg)] hover:bg-[var(--bg-muted)] border border-[var(--border)] rounded-2xl transition-all cursor-pointer"
+                                            className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-background hover:bg-[var(--bg-muted)] border border-[var(--border)] rounded-2xl transition-all cursor-pointer"
                                         >
                                             <div className="flex items-center gap-4 mb-3 sm:mb-0">
-                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 ${result.type === 'owner' ? 'bg-zinc-800' : 'bg-amber-500'
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 ${result.type === 'owner' ? 'bg-zinc-800' : 'bg-primary'
                                                     }`}>
                                                     {result.type === 'owner' ? <MapPin size={24} /> : <Zap size={24} />}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-black text-lg group-hover:text-amber-500 transition-colors">
+                                                    <h4 className="font-black text-lg group-hover:text-primary transition-colors">
                                                         {result.name}
                                                     </h4>
-                                                    <div className="flex items-center gap-2 text-xs font-bold text-[var(--fg-muted)] uppercase tracking-wider">
-                                                        <span className="text-amber-500">{result.type}</span> • {result.taluka}
+                                                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                                        <span className="text-primary">{result.type}</span> • {result.taluka}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
                                                 <div className="text-right">
-                                                    <div className="text-[10px] font-black uppercase tracking-widest text-[var(--fg-muted)]">
+                                                    <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                                         {result.type === 'owner' ? 'Fleet Size' : 'Primary'}
                                                     </div>
                                                     <div className="font-bold">
                                                         {result.type === 'owner' ? `${result.operators} Operators` : result.skill}
                                                     </div>
                                                 </div>
-                                                <div className="w-8 h-8 rounded-full bg-[var(--bg-muted)] border border-[var(--border)] group-hover:border-amber-500 group-hover:bg-amber-500 group-hover:text-black flex items-center justify-center transition-all shrink-0">
+                                                <div className="w-8 h-8 rounded-full bg-[var(--bg-muted)] border border-[var(--border)] group-hover:border-primary group-hover:bg-primary group-hover:text-foreground flex items-center justify-center transition-all shrink-0">
                                                     <ArrowRight size={14} />
                                                 </div>
                                             </div>
@@ -176,18 +176,18 @@ export function SearchPopup({ isOpen, onClose }: SearchPopupProps) {
                                     <button
                                         type="button"
                                         onClick={handleSearch}
-                                        className="w-full mt-4 py-4 rounded-xl border border-dashed border-[var(--border)] hover:bg-[var(--bg-muted)] transition-colors text-sm font-bold flex items-center justify-center gap-2 text-[var(--fg-muted)] hover:text-amber-500"
+                                        className="w-full mt-4 py-4 rounded-xl border border-dashed border-[var(--border)] hover:bg-[var(--bg-muted)] transition-colors text-sm font-bold flex items-center justify-center gap-2 text-muted-foreground hover:text-primary"
                                     >
                                         View All Results for "{searchQuery}" <ArrowRight size={16} />
                                     </button>
                                 </div>
                             ) : (
                                 <div className="py-12 flex flex-col items-center justify-center text-center">
-                                    <div className="w-16 h-16 bg-[var(--bg-muted)] rounded-2xl flex items-center justify-center text-[var(--fg-muted)] mb-4">
+                                    <div className="w-16 h-16 bg-[var(--bg-muted)] rounded-2xl flex items-center justify-center text-muted-foreground mb-4">
                                         <X size={24} />
                                     </div>
                                     <h4 className="font-bold text-lg mb-2">No Results Found</h4>
-                                    <p className="text-[var(--fg-muted)] text-sm max-w-[280px]">
+                                    <p className="text-muted-foreground text-sm max-w-[280px]">
                                         We couldn't find any owners or operators matching "{searchQuery}".
                                     </p>
                                 </div>

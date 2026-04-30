@@ -38,7 +38,7 @@ export function ServiceFilter() {
 
                 {/* District Dropdown */}
                 <div className="flex-1 min-w-0">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-2 px-1">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:text-muted-foreground mb-2 px-1">
                         District
                     </label>
                     {loadingDistricts ? (
@@ -48,21 +48,21 @@ export function ServiceFilter() {
                             <select
                                 value={selectedDistrict}
                                 onChange={(e) => dispatch(setDistrict(e.target.value))}
-                                className="w-full appearance-none bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-5 py-4 font-bold text-zinc-900 dark:text-white outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all cursor-pointer"
+                                className="w-full appearance-none bg-background dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-5 py-4 font-bold text-zinc-900 dark:text-white outline-none focus:border-primary focus:ring-4 focus:ring-amber-500/10 transition-all cursor-pointer"
                             >
                                 <option value="">All Districts</option>
                                 {districts.map((d) => (
                                     <option key={d} value={d}>{d}</option>
                                 ))}
                             </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                         </div>
                     )}
                 </div>
 
                 {/* Taluka Dropdown — cascades from District */}
                 <div className="flex-1 min-w-0">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-2 px-1">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:text-muted-foreground mb-2 px-1">
                         Taluka
                     </label>
                     {loadingTalukas ? (
@@ -73,31 +73,31 @@ export function ServiceFilter() {
                                 value={selectedTaluka}
                                 onChange={(e) => dispatch(setTaluka(e.target.value))}
                                 disabled={!selectedDistrict}
-                                className="w-full appearance-none bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-5 py-4 font-bold text-zinc-900 dark:text-white outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="w-full appearance-none bg-background dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl px-5 py-4 font-bold text-zinc-900 dark:text-white outline-none focus:border-primary focus:ring-4 focus:ring-amber-500/10 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 <option value="">All Talukas</option>
                                 {talukas.map((t) => (
                                     <option key={t} value={t}>{t}</option>
                                 ))}
                             </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                         </div>
                     )}
                 </div>
 
                 {/* Search Input */}
                 <div className="flex-[2] min-w-0">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-2 px-1">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:text-muted-foreground mb-2 px-1">
                         Search
                     </label>
                     <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Filter by name or service type..."
                             value={searchQuery}
                             onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-                            className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl pl-11 pr-5 py-4 font-bold text-zinc-900 dark:text-white outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:font-normal placeholder:text-zinc-400"
+                            className="w-full bg-background dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl pl-11 pr-5 py-4 font-bold text-zinc-900 dark:text-white outline-none focus:border-primary focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:font-normal placeholder:text-muted-foreground"
                         />
                     </div>
                 </div>
@@ -108,7 +108,7 @@ export function ServiceFilter() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         onClick={() => dispatch(resetFilters())}
-                        className="flex items-center gap-2 px-5 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-200 dark:hover:border-red-900 transition-all font-bold text-xs uppercase tracking-widest whitespace-nowrap self-end"
+                        className="flex items-center gap-2 px-5 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-muted-foreground hover:text-red-500 hover:border-red-200 dark:hover:border-red-900 transition-all font-bold text-xs uppercase tracking-widest whitespace-nowrap self-end"
                     >
                         <X size={14} /> Clear
                     </motion.button>
@@ -123,19 +123,19 @@ export function ServiceFilter() {
                     className="flex flex-wrap gap-2 mt-4"
                 >
                     {selectedDistrict && (
-                        <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold">
+                        <span className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold">
                             <MapPin size={10} /> {selectedDistrict}
                             <button onClick={() => dispatch(setDistrict(""))} className="ml-1 hover:text-red-500">×</button>
                         </span>
                     )}
                     {selectedTaluka && (
-                        <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold">
+                        <span className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-amber-600 dark:text-amber-400 rounded-full text-xs font-bold">
                             {selectedTaluka}
                             <button onClick={() => dispatch(setTaluka(""))} className="ml-1 hover:text-red-500">×</button>
                         </span>
                     )}
                     {searchQuery && (
-                        <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-full text-xs font-bold">
+                        <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-muted-foreground rounded-full text-xs font-bold">
                             "{searchQuery}"
                             <button onClick={() => dispatch(setSearchQuery(""))} className="ml-1 hover:text-red-500">×</button>
                         </span>

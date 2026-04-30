@@ -230,7 +230,7 @@
         "no_active_plan": "No Active Plan",
         "plan_expired_desc": "Your subscription has expired or was never activated",
         "inactive": "Inactive",
-        "subscription_restricted_msg": "Features like adding operators, machines and bookings are restricted. Renew your plan to unlock full access.",
+        "subscription_restricted_msg": "Features like adding operators and machines are restricted. Renew your plan to unlock full access.",
         "view_plans_renew": "View Plans & Renew",
         "days_left": "Days Left",
         "expires_on": "Expires On",
@@ -242,7 +242,7 @@
         "general": "General",
         "language": "Language",
         "notifications": "Notifications",
-        "notifications_desc": "Receive alerts for bookings and attendance",
+        "notifications_desc": "Receive alerts for attendance and activity",
         "preferences": "Preferences",
         "sound_effects": "Sound Effects",
         "sound_effects_desc": "In-app sounds and activity alerts",
@@ -259,7 +259,9 @@
         "monthly": "Monthly",
         "quarterly": "Quarterly",
         "semi_annual": "Semi-Annual",
-        "annual": "Annual"
+        "annual": "Annual",
+        "dark_mode_desc": "Toggle dark/light theme",
+        "terms_service": "Terms of Service"
     },
     "about": {
         "title": "About App",
@@ -296,6 +298,16 @@
     "notifications_screen": {
         "title": "Notifications"
     },
+    "notifications": {
+        "work": "Work Event",
+        "alert": "Priority Alert",
+        "payment": "Payment Log",
+        "lead": "Search Lead",
+        "info": "System Info",
+        "all_caught_up": "All Caught Up!",
+        "no_new_notifications": "You have no new notifications. We'll alert you when something important happens.",
+        "marked_all_read": "All notifications marked as read"
+    },
     "profile_screen": {
         "title": "Profile Center",
         "fleet_owner": "Fleet Owner",
@@ -309,7 +321,17 @@
         "support": "Support",
         "help_center": "Help Center",
         "legal_docs": "Legal Documents",
-        "sign_out": "Sign Out from Device"
+        "sign_out": "Sign Out from Device",
+        "business_analytics": "Business Analytics",
+        "trust_identity": "Trust & Identity",
+        "kyc_verification": "KYC Verification",
+        "billing_invoice": "Billing & Invoices",
+        "referral_program": "Referral Program",
+        "business_profile": "Business Profile",
+        "business_name": "Business Name",
+        "registered_area": "Registered Area",
+        "verified": "Verified",
+        "referral_earned": "₹{{amount}} Earned"
     },
     "edit_profile_screen": {
         "title": "Update Profile",
@@ -738,7 +760,30 @@
         "rating": "Rating",
         "hours": "Hours",
         "jobs": "Jobs",
-        "preferences": "Preferences"
+        "preferences": "Preferences",
+        "experience_skills": "Experience & Skills",
+        "machine_expertise": "Machine Expertise",
+        "total_experience": "Total Experience",
+        "license_status": "License Status",
+        "equipment_assignment": "Equipment Assignment",
+        "contact_details": "Contact & Location",
+        "detailed_info": "Detailed Info",
+        "assigned_organization": "Assigned Organization",
+        "working_area": "Working Area",
+        "quick_settings": "Quick Settings",
+        "global_settings": "Global Settings",
+        "personal_info": "Personal Info",
+        "view_identity_docs": "Identity Documents",
+        "app_customization": "App Customization",
+        "go_to_settings": "Go to Settings",
+        "km_run": "KM RUN",
+        "driven": "DRIVEN",
+        "active_verified": "Active & Verified",
+        "pro_level": "Pro Level",
+        "business_analytics": "Business Analytics",
+        "machines": "Machines",
+        "workers": "Workers",
+        "sites": "Sites"
     },
     "auth": {
         "sign_in": "Sign In",

@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
+import { useAppSelector } from '@/redux/hooks';
 import { useGetMaintenanceRecordsQuery } from '@/redux/apis/maintenanceApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { resolveImageUrl } from '../../../utils/imageHelpers';
@@ -16,6 +17,7 @@ export default function OperatorMaintenanceRecordsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const { t } = useTranslation();
+    const { queue } = useAppSelector(state => state.offline);
 
     // Filters & Pagination
     const [page, setPage] = useState(1);
@@ -38,16 +40,36 @@ export default function OperatorMaintenanceRecordsScreen() {
     const recordsList = recordsData?.records || recordsData?.data?.data || [];
     const totalPages = recordsData?.pagination?.totalPages || recordsData?.data?.last_page || 1;
 
+    // Filter pending records from offline queue
+    const pendingRecords = useMemo(() => {
+        return queue
+            .filter(item => item.endpoint === '/maintenance-records' && item.method === 'POST')
+            .map(item => ({
+                id: item.id,
+                ...item.body,
+                serviceDate: item.body.serviceDate || item.body.service_date,
+                serviceType: item.body.serviceType || item.body.service_type,
+                isPending: true,
+                // Mock machine object for display
+                machine: { name: `Machine #${item.body.machineId || item.body.machine_id}` }
+            }));
+    }, [queue]);
+
     const processedRecords = useMemo(() => {
-        let list = [...recordsList];
+        let list = [...pendingRecords, ...recordsList];
 
         if (userData?.user?.id) {
-            list = list.filter(record => record.operatorId === userData.user.id || record.operator_id === userData.user.id || record.operator?.id === userData.user.id);
+            list = list.filter(record => 
+                record.isPending || 
+                record.operatorId === userData.user.id || 
+                record.operator_id === userData.user.id || 
+                record.operator?.id === userData.user.id
+            );
         }
 
         if (searchQuery) {
             list = list.filter(record =>
-                record.machine?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                record.machine?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (record.serviceType || record.service_type || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
@@ -55,7 +77,7 @@ export default function OperatorMaintenanceRecordsScreen() {
         list.sort((a, b) => new Date(b.serviceDate || b.service_date || '').getTime() - new Date(a.serviceDate || a.service_date || '').getTime());
 
         return list;
-    }, [recordsList, searchQuery]);
+    }, [recordsList, pendingRecords, searchQuery, userData]);
 
     const onStartDateChange = (event: any, selectedDate?: Date) => {
         setShowStartPicker(false);
@@ -96,12 +118,21 @@ export default function OperatorMaintenanceRecordsScreen() {
                 </View>
                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
                 <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                        {(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && <MaterialCommunityIcons name="camera" size={16} color={colors.success} />}
-                        {(record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <MaterialCommunityIcons name="file-document" size={16} color={colors.success} />}
-                        {!(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && !(record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <Text style={{ fontSize: 10, color: colors.textMuted }}>{t('maintenance_records.no_photo')}</Text>}
-                    </View>
+                    {record.isPending ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <MaterialCommunityIcons name="cloud-upload-outline" size={14} color={colors.warning} />
+                            <Text style={{ fontSize: 10, fontWeight: '800', color: colors.warning }}>PENDING SYNC</Text>
+                        </View>
+                    ) : (
+                        <>
+                            <Text style={[styles.statLabel, { color: colors.textMuted }]}>{t('maintenance_records.documents')}</Text>
+                            <View style={{ flexDirection: 'row', gap: 8 }}>
+                                {(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && <MaterialCommunityIcons name="camera" size={16} color={colors.success} />}
+                                {(record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <MaterialCommunityIcons name="file-document" size={16} color={colors.success} />}
+                                {!(record.serviceImageUrl || record.service_image_url || record.service_image || record.service_photo_url || record.service_photo || record.service_photo_path || record.service_image_path) && !(record.invoiceImageUrl || record.invoice_image_url || record.invoice_image || record.invoice_photo_url || record.invoice_photo || record.invoice_path || record.invoice_photo_path || record.invoice_image_path) && <Text style={{ fontSize: 10, color: colors.textMuted }}>{t('maintenance_records.no_photo')}</Text>}
+                            </View>
+                        </>
+                    )}
                 </View>
             </View>
         </TouchableOpacity>

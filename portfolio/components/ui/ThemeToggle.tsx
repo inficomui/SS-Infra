@@ -13,11 +13,11 @@ export function ThemeToggle() {
     return (
         <button
             onClick={() => dispatch(toggleTheme())}
-            className="group relative w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all duration-300 hover:border-amber-500/50 active:scale-90 overflow-hidden shadow-sm"
+            className="group relative w-12 h-12 flex items-center justify-center rounded-2xl bg-background dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all duration-300 hover:border-primary/50 active:scale-90 overflow-hidden shadow-sm"
             aria-label="Toggle Theme"
         >
             {/* Background Ambient Glow */}
-            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl ${isDark ? 'bg-indigo-500/10' : 'bg-amber-500/10'
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl ${isDark ? 'bg-indigo-500/10' : 'bg-primary/10'
                 }`} />
 
             <AnimatePresence mode="wait" initial={false}>

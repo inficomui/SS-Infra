@@ -53,7 +53,7 @@ export default function VerifyPage() {
     if (!phoneNumber) return null;
 
     return (
-        <main className="min-h-screen bg-[var(--bg-muted)] text-[var(--fg)] flex flex-col">
+        <main className="min-h-screen bg-[var(--bg-muted)] text-foreground flex flex-col">
             <Navbar />
 
             <div className="flex-1 flex items-center justify-center p-4 pt-32 pb-20">
@@ -64,7 +64,7 @@ export default function VerifyPage() {
                     className="relative w-full max-w-[480px] bg-[var(--card)] rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--border)]"
                 >
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50" />
-                    <div className="absolute -top-24 -left-24 w-48 h-48 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
+                    <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
 
                     <div className="p-8 sm:p-12 pt-16">
                         <div className="flex flex-col items-center text-center mb-10">
@@ -72,17 +72,17 @@ export default function VerifyPage() {
                                 <motion.div
                                     animate={{ scale: [1, 1.2, 1] }}
                                     transition={{ duration: 4, repeat: Infinity }}
-                                    className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full"
+                                    className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"
                                 />
-                                <div className="relative w-20 h-20 bg-amber-500 rounded-3xl flex items-center justify-center text-black shadow-xl shadow-amber-500/20">
+                                <div className="relative w-20 h-20 bg-primary rounded-[16px] flex items-center justify-center text-foreground shadow-xl shadow-primary/20">
                                     <CheckCircle2 size={32} strokeWidth={2.5} />
                                 </div>
                             </div>
 
                             <h3 className="text-3xl font-black mb-3 tracking-tight">
-                                Verify <span className="text-amber-500">Identity</span>
+                                Verify <span className="text-primary">Identity</span>
                             </h3>
-                            <p className="text-[var(--fg-muted)] font-medium">
+                            <p className="text-muted-foreground font-medium">
                                 Enter the OTP sent to +91 {phoneNumber}
                             </p>
                         </div>
@@ -95,7 +95,7 @@ export default function VerifyPage() {
                             )}
 
                             <div className="space-y-4">
-                                <label className="block text-center text-[10px] font-black uppercase tracking-widest text-[var(--fg-muted)] mb-2">
+                                <label className="block text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">
                                     Security Code
                                 </label>
                                 <div className="flex gap-4 justify-center">
@@ -119,7 +119,7 @@ export default function VerifyPage() {
                                                         document.getElementById(`otp-${i - 1}`)?.focus();
                                                     }
                                                 }}
-                                                className="w-full h-full bg-[var(--bg)] border border-[var(--border)] rounded-2xl text-2xl font-black text-center outline-none transition-all group-focus-within:border-amber-500 group-focus-within:ring-4 group-focus-within:ring-amber-500/10"
+                                                className="w-full h-full bg-background border border-[var(--border)] rounded-2xl text-2xl font-black text-center outline-none transition-all group-focus-within:border-primary group-focus-within:ring-4 group-focus-within:ring-amber-500/10"
                                             />
                                         </div>
                                     ))}
@@ -142,7 +142,7 @@ export default function VerifyPage() {
                             <div className="text-center mt-6">
                                 <Link
                                     href="/auth/login"
-                                    className="text-xs text-[var(--fg-muted)] hover:text-amber-500 font-bold transition-colors"
+                                    className="text-xs text-muted-foreground hover:text-primary font-bold transition-colors"
                                 >
                                     Change Mobile Number
                                 </Link>
@@ -156,22 +156,22 @@ export default function VerifyPage() {
                                         <ShieldCheck size={16} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-tighter text-[var(--fg-muted)]">Security</span>
+                                        <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">Security</span>
                                         <span className="text-[11px] font-bold">SSL Encrypted</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
+                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                                         <Zap size={16} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-tighter text-[var(--fg-muted)]">Network</span>
+                                        <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">Network</span>
                                         <span className="text-[11px] font-bold">Fast OTP</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <p className="text-[10px] text-center text-[var(--fg-muted)] font-medium leading-relaxed">
+                            <p className="text-[10px] text-center text-muted-foreground font-medium leading-relaxed">
                                 By verifying your identity, you agree to our <br />
                                 <span className="font-bold hover:underline cursor-pointer transition-all">Service Terms</span> & <span className="font-bold hover:underline cursor-pointer transition-all">Security Protocol</span>
                             </p>

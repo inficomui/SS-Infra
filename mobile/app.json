@@ -13,6 +13,7 @@
     },
     "android": {
       "package": "com.inficom.ssinfra",
+      "versionCode": 1,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#000000",

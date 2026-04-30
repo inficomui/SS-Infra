@@ -12,23 +12,34 @@ import { useGetMeQuery, useUpdateProfileMutation } from '@/redux/apis/authApi';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { useAppTheme } from '@/hooks/use-theme-color';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setActiveDuty } from '@/redux/slices/driverSlice';
+import { addCachedClient } from '@/redux/slices/cacheSlice';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 import { Platform, View, StyleSheet, ScrollView, TouchableOpacity, Image, KeyboardAvoidingView } from 'react-native';
 
 export default function StartDutyScreen() {
     const { t } = useTranslation();
     const router = useRouter();
     const { colors } = useAppTheme();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     // API Hooks
     const { data: userData } = useGetMeQuery();
+    const { performMutation } = useOfflineMutation();
     const [updateProfile] = useUpdateProfileMutation();
     const [startDuty, { isLoading: isSubmitting }] = useStartDutyMutation();
     const [createClient, { isLoading: isCreatingClient }] = useCreateClientMutation();
+    
     const { data: clientsData, isLoading: isLoadingClients } = useGetClientsQuery();
     const { data: machinesData, isLoading: isLoadingMachines } = useGetMachinesQuery();
+
+    // Cache Fallback
+    const { machines: cachedMachines, clients: cachedClients } = useAppSelector(state => state.cache);
+    const { isOnline } = useAppSelector(state => state.offline);
+
+    const availableClients = isOnline && clientsData?.success ? clientsData.clients : cachedClients;
+    const availableMachines = isOnline && machinesData?.machines ? machinesData.machines : cachedMachines;
 
     // Client Selection States
     const [isNewClient, setIsNewClient] = useState(false);
@@ -42,11 +53,11 @@ export default function StartDutyScreen() {
     const [machineSearch, setMachineSearch] = useState('');
 
     useEffect(() => {
-        if (userData?.user?.assignedVehicle && machinesData?.machines) {
-            const preAssigned = machinesData.machines.find(m => m.registration_number === userData.user.assignedVehicle || m.registrationNumber === userData.user.assignedVehicle);
+        if (userData?.user?.assignedVehicle && availableMachines) {
+            const preAssigned = availableMachines.find(m => m.registration_number === userData.user.assignedVehicle || m.registrationNumber === userData.user.assignedVehicle);
             if (preAssigned) setSelectedMachine(preAssigned);
         }
-    }, [userData, machinesData]);
+    }, [userData, availableMachines]);
 
     // New Client Form States
     const [newClientName, setNewClientName] = useState('');
@@ -72,19 +83,23 @@ export default function StartDutyScreen() {
                 return;
             }
 
-            let loc = await Location.getCurrentPositionAsync({});
-            setCoords({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
-
-            const [address] = await Location.reverseGeocodeAsync({
-                latitude: loc.coords.latitude,
-                longitude: loc.coords.longitude
+            let loc = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.Balanced,
             });
+            const { latitude, longitude } = loc.coords;
+            setCoords({ latitude, longitude });
 
-            if (address) {
-                const formatted = `${address.name || ''}, ${address.street || ''}, ${address.subregion || ''}, ${address.city || ''}`.replace(/^, |, $/g, '');
-                setLocation(formatted);
-            } else {
-                setLocation(`${loc.coords.latitude}, ${loc.coords.longitude}`);
+            try {
+                const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
+                if (address) {
+                    const formatted = `${address.name || ''}, ${address.street || ''}, ${address.subregion || ''}, ${address.city || ''}`.replace(/^, |, $/g, '').replace(/, ,/g, ',');
+                    setLocation(formatted || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                } else {
+                    setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                }
+            } catch (geoError) {
+                console.warn("Geocoding failed, falling back to coordinates:", geoError);
+                setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
             }
         } catch (error) {
             Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.loc_fetch_error') });
@@ -93,22 +108,62 @@ export default function StartDutyScreen() {
         }
     };
 
-    const handleCapturePhoto = async () => {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') {
-            Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('operator.camera_permission') });
-            return;
-        }
+    const handleTakePhoto = async () => {
+        try {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+                Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('operator.camera_permission') });
+                return;
+            }
 
-        const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ['images'],
-            allowsEditing: false,
-            quality: 0.7,
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ['images'],
+                allowsEditing: false,
+                quality: 0.7,
+            });
+
+            if (!result.canceled) {
+                setPhotoUri(result.assets[0].uri);
+            }
+        } catch (error) {
+            Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.camera_error') });
+        }
+    };
+
+    const handlePickPhoto = async () => {
+        try {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.gallery_permission') });
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: false,
+                quality: 0.7,
+            });
+
+            if (!result.canceled) {
+                setPhotoUri(result.assets[0].uri);
+            }
+        } catch (error) {
+            Toast.show({ type: 'error', text1: t('common.error'), text2: 'Failed to pick image' });
+        }
+    };
+
+    const handleCapturePhoto = () => {
+        import('react-native').then(({ Alert }) => {
+            Alert.alert(
+                t('driver.meter_photo'),
+                t('driver.meter_desc') || 'Capture meter reading photo',
+                [
+                    { text: t('operator.camera') || 'Camera', onPress: handleTakePhoto },
+                    { text: t('operator.gallery') || 'Gallery', onPress: handlePickPhoto },
+                    { text: t('common.cancel'), style: "cancel" }
+                ]
+            );
         });
-
-        if (!result.canceled) {
-            setPhotoUri(result.assets[0].uri);
-        }
     };
 
     const handleSubmit = async () => {
@@ -137,13 +192,32 @@ export default function StartDutyScreen() {
                     Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.missing_details_msg') });
                     return;
                 }
-                const newClientRes = await createClient({
+                const newClientRes = await performMutation(createClient, {
                     name: newClientName,
                     mobile: clientNumber,
                     district: district,
                     taluka: tq
-                }).unwrap();
-                clientIdToSend = newClientRes.client.id.toString();
+                }, {
+                    endpoint: '/clients',
+                    method: 'POST',
+                    description: `Create client ${newClientName}`
+                });
+
+                if (newClientRes.offline) {
+                    clientIdToSend = newClientRes.id || `pending_${Date.now()}`;
+                    dispatch(addCachedClient({
+                        id: clientIdToSend,
+                        name: newClientName,
+                        mobile: clientNumber,
+                        district: district,
+                        taluka: tq,
+                        createdAt: new Date().toISOString()
+                    }));
+                } else if (newClientRes.success) {
+                    clientIdToSend = newClientRes.data.client.id.toString();
+                } else {
+                    return;
+                }
             } else {
                 if (!selectedClient) {
                     Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.select_client_msg') });
@@ -162,49 +236,51 @@ export default function StartDutyScreen() {
                 }
             }
 
-            const formData = new FormData();
-            formData.append('machine_id', selectedMachine.id.toString());
-            formData.append('machineId', selectedMachine.id.toString());
-            
-            formData.append('start_location', location);
-            formData.append('siteAddress', location);
-            formData.append('site_address', location);
-
-            formData.append('start_meter_reading', meterReading);
-            formData.append('startMeterReading', meterReading);
-            
-            formData.append('clientId', clientIdToSend);
-            formData.append('client_id', clientIdToSend);
-
-            if (coords) {
-                formData.append('siteLatitude', coords.latitude.toString());
-                formData.append('siteLongitude', coords.longitude.toString());
-                formData.append('start_latitude', coords.latitude.toString());
-                formData.append('start_longitude', coords.longitude.toString());
-            }
-
-            const filename = photoUri.split('/').pop() || 'meter.jpg';
-            const photoMatch = /\.(\w+)$/.exec(filename);
+            const photoFilename = photoUri.split('/').pop() || 'meter.jpg';
+            const photoMatch = /\.(\w+)$/.exec(photoFilename);
             const photoType = photoMatch ? `image/${photoMatch[1]}` : `image/jpeg`;
+            const cleanUri = Platform.OS === 'ios' ? photoUri.replace('file://', '') : photoUri;
 
-            // Ensure URI is correctly formatted for the Platform
-            const cleanUri = Platform.OS === 'android' ? photoUri : photoUri.replace('file://', '');
-
-            const fileObj = {
-                uri: Platform.OS === 'android' ? photoUri : cleanUri,
-                name: filename,
-                type: photoType
+            const requestBody: any = {
+                machine_id: Number(selectedMachine.id),
+                machineId: Number(selectedMachine.id),
+                start_location: location,
+                siteAddress: location,
+                site_address: location,
+                start_meter_reading: meterReading,
+                startMeterReading: meterReading,
+                clientId: clientIdToSend,
+                client_id: clientIdToSend,
+                role: 'Driver',
+                start_meter_photo: { uri: cleanUri, name: photoFilename, type: photoType },
+                startMeterPhoto: { uri: cleanUri, name: photoFilename, type: photoType },
+                beforePhoto: { uri: cleanUri, name: photoFilename, type: photoType },
+                before_photo: { uri: cleanUri, name: photoFilename, type: photoType },
             };
 
-            formData.append('start_meter_photo', fileObj as any);
-            formData.append('startMeterPhoto', fileObj as any);
-            formData.append('beforePhoto', fileObj as any);
-            formData.append('before_photo', fileObj as any);
+            if (coords) {
+                requestBody.siteLatitude = coords.latitude;
+                requestBody.siteLongitude = coords.longitude;
+                requestBody.start_latitude = coords.latitude;
+                requestBody.start_longitude = coords.longitude;
+            }
 
-            formData.append('client_id', clientIdToSend);
-            formData.append('role', 'Driver');
+            const response = await performMutation(startDuty, requestBody, {
+                endpoint: '/duty/start',
+                method: 'POST',
+                description: `Driver starting duty with ${selectedMachine.name}`
+            });
 
-            const response = await startDuty(formData).unwrap();
+            if (response.success && response.offline) {
+                Toast.show({ type: 'info', text1: 'Saved Offline', text2: 'Duty start log will sync soon' });
+                dispatch(setActiveDuty({
+                    id: response.id || `pending_${Date.now()}`,
+                    siteAddress: location,
+                    startedAt: new Date().toISOString()
+                }));
+                router.replace('/(driver)');
+                return;
+            }
 
             if (response.success && response.workSession) {
                 Toast.show({ type: 'success', text1: t('common.success'), text2: response.message || t('driver.duty_started') });
@@ -222,7 +298,7 @@ export default function StartDutyScreen() {
         }
     };
 
-    const filteredClients = clientsData?.clients?.filter(c =>
+    const filteredClients = availableClients?.filter(c =>
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.mobile.includes(searchQuery)
     ) || [];
@@ -428,7 +504,7 @@ export default function StartDutyScreen() {
                         {isLoadingMachines ? (
                             <ActivityIndicator style={{ marginTop: 20 }} color={colors.primary} />
                         ) : (
-                            machinesData?.machines?.filter(m =>
+                            availableMachines?.filter(m =>
                                 m.name.toLowerCase().includes(machineSearch.toLowerCase()) ||
                                 (m.registration_number || m.registrationNumber || '').includes(machineSearch)
                             ).map(machine => (

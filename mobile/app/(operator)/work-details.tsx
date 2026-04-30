@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useGetWorkDetailsQuery } from '@/redux/apis/workApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useAppSelector } from '@/redux/hooks';
 import { useTranslation } from 'react-i18next';
 import { resolveImageUrl } from '../../utils/imageHelpers';
 import { formatDuration, formatDate } from '@/utils/formatters';
@@ -15,10 +16,11 @@ export default function WorkDetailsScreen() {
     const router = useRouter();
     const { colors } = useAppTheme();
     const { id } = useLocalSearchParams();
+    const { isOnline } = useAppSelector(state => state.offline);
     const { t } = useTranslation();
 
     // Fetch detailed work session data
-    const { data, isLoading, error } = useGetWorkDetailsQuery(Number(id));
+    const { data, isLoading, error } = useGetWorkDetailsQuery(Number(id), { skip: !isOnline });
     const workSession = data?.workSession;
 
     const handleViewInvoice = () => {
@@ -81,6 +83,14 @@ export default function WorkDetailsScreen() {
                 <Text style={[styles.headerTitle, { color: colors.textMain }]}>{t('operator.work_details_title')} #{workSession.id}</Text>
                 <View style={{ width: 44 }} />
             </View>
+
+            {!isOnline && (
+                <View style={{ backgroundColor: colors.warning + '20', padding: 8, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 12, color: colors.warning, fontWeight: '700' }}>
+                        <MaterialCommunityIcons name="wifi-off" size={14} /> {t('common.offline_mode')} - {t('common.showing_cached_data')}
+                    </Text>
+                </View>
+            )}
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 

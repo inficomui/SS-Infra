@@ -321,7 +321,7 @@ export default function PlansScreen() {
                         Unlock{'\n'}Full Access
                     </Text>
                     <Text style={[styles.heroSub, { color: colors.textMuted }]}>
-                        Manage your entire fleet — machines, workers, bookings and salary — all in one place.
+                        Manage your entire fleet — machines, workers, and salary — all in one place.
                     </Text>
                 </View>
 

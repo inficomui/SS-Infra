@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
+import { useAppSelector } from '@/redux/hooks';
 import { useGetWalletQuery } from '@/redux/apis/walletApi';
 import { useFocusEffect } from 'expo-router';
 
@@ -12,16 +13,17 @@ export default function WalletScreen() {
     const { t } = useTranslation();
     const router = useRouter();
     const { colors } = useAppTheme();
+    const { isOnline } = useAppSelector(state => state.offline);
     const [refreshing, setRefreshing] = useState(false);
 
     // Fetch wallet data
-    const { data: walletData, isLoading, refetch } = useGetWalletQuery({ page: 1 });
+    const { data: walletData, isLoading, refetch } = useGetWalletQuery({ page: 1 }, { skip: !isOnline });
 
     // Auto-refresh on focus
     useFocusEffect(
         useCallback(() => {
-            refetch();
-        }, [refetch])
+            if (isOnline) refetch();
+        }, [refetch, isOnline])
     );
 
     const onRefresh = async () => {
@@ -46,10 +48,18 @@ export default function WalletScreen() {
                 <View style={{ width: 44 }} />
             </View>
 
+            {!isOnline && (
+                <View style={{ backgroundColor: colors.warning + '20', padding: 8, alignItems: 'center' }}>
+                    <Text style={{ fontSize: 12, color: colors.warning, fontWeight: '700' }}>
+                        <MaterialCommunityIcons name="wifi-off" size={14} /> {t('common.offline_mode')} - {t('common.showing_cached_data')}
+                    </Text>
+                </View>
+            )}
+
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+                    <RefreshControl refreshing={refreshing} onRefresh={isOnline ? onRefresh : undefined} tintColor={colors.primary} />
                 }
             >
                 {isLoading ? (

@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useTranslation } from 'react-i18next';
 import { useRequestWithdrawalMutation } from '@/redux/apis/walletApi';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 import Toast from 'react-native-toast-message';
 
 export default function WithdrawalRequestScreen() {
@@ -13,6 +14,7 @@ export default function WithdrawalRequestScreen() {
     const { colors } = useAppTheme();
     const { t } = useTranslation();
     const [requestWithdrawal, { isLoading }] = useRequestWithdrawalMutation();
+    const { performMutation } = useOfflineMutation();
 
     const [amount, setAmount] = useState('');
     const [bankDetails, setBankDetails] = useState({
@@ -48,20 +50,24 @@ export default function WithdrawalRequestScreen() {
         }
 
         try {
-            const result = await requestWithdrawal({
+            const result = await performMutation(requestWithdrawal, {
                 amount: Number(amount),
                 bankDetails
-            }).unwrap();
-
-            console.log('[Withdrawal Success]:', result);
-
-            Toast.show({
-                type: 'success',
-                text1: t('wallet.request_submitted'),
-                text2: t('wallet.request_success')
+            }, {
+                endpoint: '/wallet/withdraw',
+                method: 'POST',
+                description: `Withdraw ₹${amount}`
             });
 
-            setTimeout(() => router.back(), 1500);
+            if (result.success) {
+                Toast.show({
+                    type: 'success',
+                    text1: result.offline ? t('wallet.request_submitted') + " (Offline)" : t('wallet.request_submitted'),
+                    text2: result.offline ? "Request queued for sync." : t('wallet.request_success')
+                });
+
+                setTimeout(() => router.back(), 1500);
+            }
         } catch (error: any) {
             console.error('[Withdrawal Error]:', error);
             Toast.show({

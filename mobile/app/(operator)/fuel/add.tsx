@@ -9,6 +9,7 @@ import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAddFuelLogMutation } from '@/redux/apis/fuelApi';
 import { useGetMachinesQuery } from '@/redux/apis/ownerApi';
 import { storage } from '@/redux/storage';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 
@@ -39,10 +40,37 @@ export default function AddFuelLogScreen() {
     }, []);
 
     // Mutations
+    const { performMutation } = useOfflineMutation();
     const [addFuelLog, { isLoading }] = useAddFuelLogMutation();
     const { data: machinesData } = useGetMachinesQuery();
 
-    const pickImage = async (type: 'before' | 'after') => {
+    const takePhoto = async (type: 'before' | 'after') => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.camera_permission') });
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ['images'],
+            allowsEditing: false,
+            aspect: [4, 3],
+            quality: 0.5,
+        });
+
+        if (!result.canceled) {
+            if (type === 'before') setReadingBefore(result.assets[0]);
+            else setReadingAfter(result.assets[0]);
+        }
+    };
+
+    const pickImageFromGallery = async (type: 'before' | 'after') => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.gallery_permission') });
+            return;
+        }
+
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: false,
@@ -56,69 +84,70 @@ export default function AddFuelLogScreen() {
         }
     };
 
+    const pickImage = (type: 'before' | 'after') => {
+        import('react-native').then(({ Alert }) => {
+            Alert.alert(
+                t('fuel_management.meter_readings_opt'),
+                t('operator.site_location_desc'),
+                [
+                    { text: t('operator.camera') || 'Camera', onPress: () => takePhoto(type) },
+                    { text: t('common.cancel'), style: "cancel" }
+                ]
+            );
+        });
+    };
+
     const handleSubmit = async () => {
         if (!machineId || !fuelLiters || !amount) {
             Toast.show({ type: 'error', text1: t('common.error'), text2: t('fuel_management.error_fill_fields') });
             return;
         }
 
-        const formData = new FormData();
-        
-        // Send both camelCase and snake_case for maximum compatibility
-        formData.append('machineId', machineId);
-        formData.append('machine_id', machineId);
-        
-        formData.append('fuelLiters', fuelLiters);
-        formData.append('fuel_liters', fuelLiters);
-        
-        formData.append('amount', amount);
-        
         const dateStr = logDate.toISOString().split('T')[0];
-        formData.append('logDate', dateStr);
-        formData.append('log_date', dateStr);
+
+        const requestBody: any = {
+            machineId: Number(machineId),
+            machine_id: Number(machineId),
+            fuelLiters: fuelLiters,
+            fuel_liters: fuelLiters,
+            amount: amount,
+            logDate: dateStr,
+            log_date: dateStr,
+        };
 
         if (readingBefore) {
             const filename = readingBefore.uri.split('/').pop() || 'reading_before.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-            
-            // Clean URI for different platforms
             const cleanUri = Platform.OS === 'ios' ? readingBefore.uri.replace('file://', '') : readingBefore.uri;
-            
-            const fileObj = {
-                uri: cleanUri,
-                type: type,
-                name: filename,
-            };
-            
-            formData.append('readingBeforeImage', fileObj as any);
-            formData.append('reading_before_image', fileObj as any);
+            requestBody.readingBeforeImage = { uri: cleanUri, type, name: filename };
+            requestBody.reading_before_image = requestBody.readingBeforeImage;
         }
 
         if (readingAfter) {
             const filename = readingAfter.uri.split('/').pop() || 'reading_after.jpg';
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-            
-            // Clean URI for different platforms
             const cleanUri = Platform.OS === 'ios' ? readingAfter.uri.replace('file://', '') : readingAfter.uri;
-            
-            const fileObj = {
-                uri: cleanUri,
-                type: type,
-                name: filename,
-            };
-            
-            formData.append('readingAfterImage', fileObj as any);
-            formData.append('reading_after_image', fileObj as any);
+            requestBody.readingAfterImage = { uri: cleanUri, type, name: filename };
+            requestBody.reading_after_image = requestBody.readingAfterImage;
         }
 
-
-
         try {
-            await addFuelLog(formData).unwrap();
-            Toast.show({ type: 'success', text1: t('common.success'), text2: t('fuel_management.success_msg') });
-            router.back();
+            const response = await performMutation(addFuelLog, requestBody, {
+                endpoint: '/fuel-logs',
+                method: 'POST',
+                description: `Fuel log for machine #${machineId}`
+            });
+
+            if (response.success) {
+                Toast.show({
+                    type: response.offline ? 'info' : 'success',
+                    text1: response.offline ? 'Saved Offline' : t('common.success'),
+                    text2: response.offline ? 'Log will sync when online' : t('fuel_management.success_msg')
+                });
+                router.back();
+            }
         } catch (error: any) {
             Toast.show({ type: 'error', text1: t('common.error'), text2: error?.data?.message || t('fuel_management.error_add_failed') });
         }
