@@ -1,59 +1,60 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ─── SS-Infra Industrial Design Tokens ─────────────────────── */
+/* ─── Construction Machinery Platform Design Tokens ─────────────────────── */
 :root {
-  --background: #FFFFFF; /* Industrial White */
-  --foreground: #0B0E14; /* Deep Industrial Charcoal */
+  --background: #F8FAFC; /* Slate 50 */
+  --foreground: #0F172A; /* Slate 900 */
 
-  --card: #F9FAFB;
-  --card-foreground: #0B0E14;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
 
   --popover: #FFFFFF;
-  --popover-foreground: #0B0E14;
+  --popover-foreground: #0F172A;
 
-  --primary: #FFCC00; /* Signature Construction Yellow */
-  --primary-foreground: #000000;
+  --primary: #3B82F6; /* Modern Blue */
+  --primary-foreground: #FFFFFF;
 
-  --secondary: #E5E7EB;
-  --secondary-foreground: #0B0E14;
+  --secondary: #F1F5F9; /* Slate 100 */
+  --secondary-foreground: #1E293B;
 
-  --muted: #F3F4F6;
+  --muted: #F1F5F9;
   --muted-foreground: #64748B;
 
-  --accent: #FFCC00;
-  --accent-foreground: #000000;
+  --accent: #1D4ED8; /* Darker Blue */
+  --accent-foreground: #FFFFFF;
 
   --destructive: #EF4444;
-  --destructive-foreground: #ffffff;
+  --destructive-foreground: #FFFFFF;
 
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.08);
-  --ring: #FFCC00;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #3B82F6;
 
-  --radius: 1rem;
+  --radius: 0.75rem;
   --font-outfit: "Outfit", sans-serif;
   --font-inter: "Inter", sans-serif;
 }
 
 .dark {
-  --background: #0B0E14; /* Deep Industrial Charcoal */
-  --foreground: #FFFFFF;
+  --background: #0F172A; /* Slate 900 */
+  --foreground: #F8FAFC;
 
-  --card: #151921;
-  --card-foreground: #FFFFFF;
+  --card: #1E293B; /* Slate 800 */
+  --card-foreground: #F8FAFC;
 
-  --popover: #151921;
-  --popover-foreground: #FFFFFF;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
 
-  --secondary: #1E2530;
-  --secondary-foreground: #FFFFFF;
+  --secondary: #334155; /* Slate 700 */
+  --secondary-foreground: #F8FAFC;
 
-  --muted: #1E2530;
+  --muted: #334155;
   --muted-foreground: #94A3B8;
 
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.08);
+  --border: #334155;
+  --input: #334155;
+  --primary: #60A5FA; /* Brighter blue for dark mode */
 }
 
 body {
@@ -95,32 +96,30 @@ body {
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+    50% { transform: translateY(-10px); }
   }
 }
 
-/* ─── Premium industrial Utilities ─────────────────────────────── */
-.text-gradient-yellow {
-  background: linear-gradient(135deg, #FFCC00 0%, #FFAA00 100%);
+/* ─── Premium Utilities ─────────────────────────────── */
+.text-gradient-blue {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.industrial-grid {
-  background-image: 
-    linear-gradient(var(--foreground) 1px, transparent 1px),
-    linear-gradient(90deg, var(--foreground) 1px, transparent 1px);
-  background-size: 50px 50px;
+.blue-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.glass-card {
-  background: var(--card);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
+.dark .blue-glass {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.yellow-glow {
-  box-shadow: 0 0 30px rgba(255, 204, 0, 0.25);
+.blue-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
 /* ─── Custom Scrollbar ──────────────────────────────────────── */
@@ -128,9 +127,9 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0E14;
+  background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #FFCC00;
+  background: var(--primary);
   border-radius: 10px;
 }

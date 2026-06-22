@@ -1,161 +1,95 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
-import { motion } from "framer-motion";
-import { Phone, ArrowRight, Zap, ShieldCheck, Lock } from "lucide-react";
-import { useSendOtpMutation } from "@/redux/apis/authApi";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Hammer, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 
 export default function LoginPage() {
-    const { t } = useTranslation();
-    const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
+  return (
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative Blur */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -z-10" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-[120px] -z-10" />
 
-    const [sendOtp] = useSendOtpMutation();
+      <div className="w-full max-w-md">
+        <div className="flex items-center justify-between mb-8">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg">
+              <Hammer className="text-white w-6 h-6" />
+            </div>
+            <span className="text-xl font-bold font-heading text-slate-900 dark:text-white">SS-Infra</span>
+          </Link>
+          <ThemeToggle />
+        </div>
 
-    const handleSendOtp = async () => {
-        if (phoneNumber.length < 10) {
-            setErrorMsg("Please enter a valid 10-digit number");
-            return;
-        }
-        setIsLoading(true);
-        setErrorMsg("");
-        try {
-            await sendOtp({ mobile: phoneNumber }).unwrap();
-            router.push(`/auth/verify?phone=${phoneNumber}`);
-        } catch (err: any) {
-            setErrorMsg(err?.data?.message || "Failed to send OTP");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-slate-900 p-10 rounded-[40px] shadow-2xl border border-slate-100 dark:border-slate-800"
+        >
+          <div className="mb-10 text-center">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">Welcome Back</h1>
+            <p className="text-slate-500">Sign in to manage your construction resources.</p>
+          </div>
 
-    return (
-        <main className="min-h-screen bg-[var(--bg-muted)] text-foreground flex flex-col">
-            <Navbar />
-
-            <div className="flex-1 flex items-center justify-center p-4 pt-32 pb-20">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ type: "spring", damping: 20 }}
-                    className="relative w-full max-w-[480px] bg-[var(--card)] rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--border)]"
-                >
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50" />
-                    <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
-
-                    <div className="p-8 sm:p-12 pt-16">
-                        <div className="flex flex-col items-center text-center mb-10">
-                            <div className="relative mb-6">
-                                <motion.div
-                                    animate={{ scale: [1, 1.2, 1] }}
-                                    transition={{ duration: 4, repeat: Infinity }}
-                                    className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"
-                                />
-                                <div className="relative w-20 h-20 bg-primary rounded-[16px] flex items-center justify-center text-foreground shadow-xl shadow-primary/20">
-                                    <Lock size={32} strokeWidth={2.5} />
-                                </div>
-                            </div>
-
-                            <h3 className="text-3xl font-black mb-3 tracking-tight">
-                                Secured <span className="text-primary">Access</span>
-                            </h3>
-                            <p className="text-muted-foreground font-medium">
-                                Sign in to your SS-Infra dashboard
-                            </p>
-                        </div>
-
-                        <div className="space-y-6">
-                            {errorMsg && (
-                                <div className="text-red-500 text-sm font-bold text-center bg-red-500/10 py-2 rounded-xl">
-                                    {errorMsg}
-                                </div>
-                            )}
-
-                            <div className="group relative">
-                                <label className="absolute -top-2.5 left-4 px-2 bg-[var(--card)] text-[10px] font-black uppercase tracking-widest text-muted-foreground z-10">
-                                    Mobile Identity
-                                </label>
-                                <div className="relative flex items-center bg-background border border-[var(--border)] rounded-2xl transition-all group-focus-within:border-primary group-focus-within:ring-4 group-focus-within:ring-amber-500/10">
-                                    <div className="pl-6 flex items-center gap-2 border-r border-[var(--border)] pr-4 my-4">
-                                        <span className="text-muted-foreground font-bold">+91</span>
-                                    </div>
-                                    <input
-                                        type="tel"
-                                        placeholder="98765  43212"
-                                        value={phoneNumber}
-                                        maxLength={10}
-                                        onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
-                                        className="w-full px-4 py-5 bg-transparent text-lg font-bold outline-none placeholder:text-muted-foreground tracking-widest"
-                                    />
-                                    <div className="pr-6 text-muted-foreground group-focus-within:text-primary transition-colors">
-                                        <Phone size={20} />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <motion.button
-                                whileHover={phoneNumber.length >= 10 ? { scale: 1.01 } : {}}
-                                whileTap={phoneNumber.length >= 10 ? { scale: 0.98 } : {}}
-                                onClick={handleSendOtp}
-                                disabled={isLoading || phoneNumber.length < 10}
-                                className="w-full relative group overflow-hidden bg-[var(--fg)] text-[var(--bg)] font-black py-5 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-[var(--fg-muted)]/10 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <span className="relative z-10 uppercase tracking-widest text-xs">
-                                    {isLoading ? "Sending..." : "Authorize Device"}
-                                </span>
-                                {!isLoading && <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />}
-                                <div className="absolute inset-0 bg-gradient-to-r from-primary to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                <span className="absolute inset-0 bg-gradient-to-r from-primary to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 group-hover:text-foreground" />
-                                {!isLoading && (
-                                    <div className="absolute inset-0 bg-primary flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <span className="text-foreground uppercase tracking-widest text-xs flex items-center gap-2">
-                                            Get OTP Code <ArrowRight size={18} />
-                                        </span>
-                                    </div>
-                                )}
-                            </motion.button>
-                        </div>
-
-                        <div className="mt-10 pt-8 border-t border-[var(--border)]">
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500">
-                                        <ShieldCheck size={16} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">Security</span>
-                                        <span className="text-[11px] font-bold">SSL Encrypted</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                        <Zap size={16} />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">Network</span>
-                                        <span className="text-[11px] font-bold">Fast OTP</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <p className="text-[10px] text-center text-muted-foreground font-medium leading-relaxed">
-                                By entering your number, you agree to our <br />
-                                <span className="font-bold hover:underline cursor-pointer transition-all">Service Terms</span> & <span className="font-bold hover:underline cursor-pointer transition-all">Security Protocol</span>
-                            </p>
-                        </div>
-                    </div>
-                </motion.div>
+          <form className="space-y-6">
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                />
+              </div>
             </div>
 
-            <Footer />
-        </main>
-    );
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl py-4 pl-12 pr-12 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" />
+                <span className="text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Remember me</span>
+              </label>
+              <Link href="/auth/forgot" className="text-primary font-bold hover:underline">Forgot password?</Link>
+            </div>
+
+            <button className="w-full py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-blue-100 dark:shadow-none hover:bg-accent transition-all flex items-center justify-center gap-2">
+              Sign In
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </form>
+
+          <div className="mt-10 text-center">
+            <p className="text-slate-500">
+              Don't have an account?{' '}
+              <Link href="/auth/register" className="text-primary font-bold hover:underline">Create Account</Link>
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </main>
+  );
 }

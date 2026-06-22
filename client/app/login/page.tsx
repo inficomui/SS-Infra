@@ -9,6 +9,7 @@ import { Loader2, Lock, Mail, Eye, EyeOff, LayoutDashboard, ArrowRight, ShieldCh
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 
 export default function LoginPage() {
     const [loginInput, setLoginInput] = useState('')
@@ -194,6 +195,13 @@ export default function LoginPage() {
                                 )}
                             </button>
                         </form>
+
+                        <div className="mt-6 text-center text-sm font-medium">
+                            <span className="text-muted-foreground">Don't have an account? </span>
+                            <Link href="/register" className="text-primary hover:underline font-bold">
+                                Register here
+                            </Link>
+                        </div>
                     </motion.div>
 
                     <p className="mt-8 text-center text-xs text-foreground font-medium uppercase tracking-widest">

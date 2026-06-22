@@ -83,6 +83,12 @@ export const usersApi = createApi({
             }),
             invalidatesTags: ['Operators'],
         }),
+        getPublicOwners: builder.query<any, void>({
+            query: () => ({
+                url: '/discovery/owners',
+                params: { limit: 1000 },
+            }),
+        }),
     }),
 })
 
@@ -96,5 +102,6 @@ export const {
     useGetOperatorDetailsQuery,
     useCreateOperatorMutation,
     useUpdateOperatorMutation,
-    useDeleteOperatorMutation
+    useDeleteOperatorMutation,
+    useGetPublicOwnersQuery
 } = usersApi
