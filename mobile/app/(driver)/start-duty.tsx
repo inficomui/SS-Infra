@@ -203,8 +203,8 @@ export default function StartDutyScreen() {
                     description: `Create client ${newClientName}`
                 });
 
-                if (newClientRes.offline) {
-                    clientIdToSend = newClientRes.id || `pending_${Date.now()}`;
+                if (newClientRes.success && newClientRes.offline) {
+                    clientIdToSend = newClientRes.data?.id || `pending_${Date.now()}`;
                     dispatch(addCachedClient({
                         id: clientIdToSend,
                         name: newClientName,
@@ -213,8 +213,8 @@ export default function StartDutyScreen() {
                         taluka: tq,
                         createdAt: new Date().toISOString()
                     }));
-                } else if (newClientRes.success) {
-                    clientIdToSend = newClientRes.data.client.id.toString();
+                } else if (newClientRes.success && !newClientRes.offline) {
+                    clientIdToSend = newClientRes.data?.client?.id?.toString() || '';
                 } else {
                     return;
                 }
@@ -274,7 +274,7 @@ export default function StartDutyScreen() {
             if (response.success && response.offline) {
                 Toast.show({ type: 'info', text1: 'Saved Offline', text2: 'Duty start log will sync soon' });
                 dispatch(setActiveDuty({
-                    id: response.id || `pending_${Date.now()}`,
+                    id: response.data?.id || `pending_${Date.now()}`,
                     siteAddress: location,
                     startedAt: new Date().toISOString()
                 }));
@@ -282,12 +282,13 @@ export default function StartDutyScreen() {
                 return;
             }
 
-            if (response.success && response.workSession) {
-                Toast.show({ type: 'success', text1: t('common.success'), text2: response.message || t('driver.duty_started') });
+            if (response.success && !response.offline) {
+                const workSession = response.data?.workSession || response.data?.work_session || response.data;
+                Toast.show({ type: 'success', text1: t('common.success'), text2: response.data?.message || t('driver.duty_started') });
                 dispatch(setActiveDuty({
-                    id: response.workSession.id.toString(),
-                    siteAddress: response.workSession.startLocation || response.workSession.siteAddress,
-                    startedAt: response.workSession.startedAt
+                    id: workSession?.id?.toString() || `session_${Date.now()}`,
+                    siteAddress: workSession?.startLocation || workSession?.start_location || workSession?.siteAddress || workSession?.site_address || location,
+                    startedAt: workSession?.startedAt || workSession?.started_at || new Date().toISOString()
                 }));
                 setTimeout(() => router.replace('/(driver)'), 1500);
             }
@@ -319,6 +320,7 @@ export default function StartDutyScreen() {
                 <TouchableOpacity
                     style={[styles.selectorBtn, { backgroundColor: colors.card, borderColor: selectedMachine ? colors.primary : colors.border }]}
                     onPress={() => setShowMachineModal(true)}
+                    disabled={userData?.user?.role?.toLowerCase() !== 'owner' && !!userData?.user?.assignedVehicle}
                 >
                     <View style={[styles.selectorIcon, { backgroundColor: colors.primary + '20' }]}>
                         <MaterialCommunityIcons name="excavator" size={24} color={colors.primary} />
@@ -331,7 +333,9 @@ export default function StartDutyScreen() {
                             {selectedMachine ? `${selectedMachine.name} - ${selectedMachine.registration_number || selectedMachine.registrationNumber}` : 'Tap to Select Machine'}
                         </Text>
                     </View>
-                    <MaterialCommunityIcons name="chevron-down" size={24} color={colors.textMuted} />
+                    {(userData?.user?.role?.toLowerCase() === 'owner' || !userData?.user?.assignedVehicle) && (
+                        <MaterialCommunityIcons name="chevron-down" size={24} color={colors.textMuted} />
+                    )}
                 </TouchableOpacity>
 
                 <Text style={[styles.sectionTitle, { marginTop: 12 }]}>{t('operator.step_1_assign_client')}</Text>

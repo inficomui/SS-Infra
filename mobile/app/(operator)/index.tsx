@@ -14,6 +14,9 @@ import { useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { useAppSelector } from '@/redux/hooks';
 import { storage } from '@/redux/storage';
+import { useDispatch } from 'react-redux';
+import { setActiveRole } from '@/redux/slices/authSlice';
+import Toast from 'react-native-toast-message';
 import { formatDate, formatDuration, resolveImageUrl } from '../../utils/formatters';
 
 const { width } = Dimensions.get('window');
@@ -29,6 +32,7 @@ const formatTime = (totalSeconds: number) => {
 export default function OperatorOverview() {
     const { t } = useTranslation();
     const router = useRouter();
+    const dispatch = useDispatch();
     const { colors, isDark } = useAppTheme();
     const params = useLocalSearchParams();
     const { isOnline } = useAppSelector(state => state.offline);
@@ -337,6 +341,31 @@ export default function OperatorOverview() {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            {/* Owner mode back banner */}
+            {user?.role?.toLowerCase() === 'owner' && (
+                <View style={[styles.ownerBanner, { backgroundColor: colors.primary }]}>
+                    <MaterialCommunityIcons name="shield-crown" size={18} color="#FFF" />
+                    <Text style={styles.ownerBannerText}>
+                        {t('owner.acting_operator') || "Acting as Operator"}
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.ownerBannerBtn}
+                        onPress={() => {
+                            dispatch(setActiveRole('Owner'));
+                            Toast.show({
+                                type: 'success',
+                                text1: t('owner.returned_owner') || 'Returned to Owner Mode'
+                            });
+                        }}
+                    >
+                        <Text style={[styles.ownerBannerBtnText, { color: colors.primary }]}>
+                            {t('owner.return') || "Return"}
+                        </Text>
+                        <MaterialCommunityIcons name="arrow-right" size={14} color={colors.primary} />
+                    </TouchableOpacity>
+                </View>
+            )}
 
             <ScrollView style={styles.scrollBody} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
@@ -740,5 +769,37 @@ const styles = StyleSheet.create({
     machineItemSub: { fontSize: 12 },
     // Language Item Styles
     langItem: { padding: 16, borderRadius: 4, borderWidth: 1, borderColor: 'transparent', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-    langText: { fontSize: 16, fontWeight: '700' }
+    langText: { fontSize: 16, fontWeight: '700' },
+
+    // Owner acting banner
+    ownerBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        marginHorizontal: 24,
+        marginTop: 10,
+        borderRadius: 12,
+        gap: 8,
+    },
+    ownerBannerText: {
+        color: '#FFFFFF',
+        fontWeight: '700',
+        fontSize: 13,
+        flex: 1,
+    },
+    ownerBannerBtn: {
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    ownerBannerBtnText: {
+        fontSize: 12,
+        fontWeight: '800',
+    },
 });

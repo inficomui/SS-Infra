@@ -5,8 +5,9 @@ import { Text, Avatar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectCurrentUser, logout } from '@/redux/slices/authSlice';
+import { selectCurrentUser, logout, selectActiveRole, setActiveRole } from '@/redux/slices/authSlice';
 import { toggleTheme, selectThemeMode } from '@/redux/slices/themeSlice';
+import Toast from 'react-native-toast-message';
 import { setNotificationsEnabled } from '@/redux/slices/settingsSlice';
 import { RootState } from '@/redux/store';
 import { useAppTheme } from '@/hooks/use-theme-color';
@@ -22,6 +23,7 @@ export default function OwnerProfileScreen() {
     const { colors, isDark } = useAppTheme();
     const user = useSelector(selectCurrentUser);
     const themeMode = useSelector(selectThemeMode);
+    const activeRole = useSelector(selectActiveRole);
     const { notificationsEnabled } = useSelector((state: RootState) => state.settings);
     const { t } = useTranslation();
 
@@ -113,6 +115,46 @@ export default function OwnerProfileScreen() {
                         <StatItem label={t('profile.workers')} value={String(workerCount)} icon="account-group" color={colors.primary} colors={colors} />
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
                         <StatItem label={t('profile.sites')} value={String(clientCount)} icon="map-marker-radius" color={colors.primary} colors={colors} />
+                    </View>
+                </View>
+
+                {/* Operation Mode Switching */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('owner.operation_mode') || "Operation Mode"}</Text>
+                    <View style={[styles.menuBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                        <MenuRow
+                            icon="shield-crown"
+                            label={t('owner.mode_owner') || "Owner Mode"}
+                            value={(activeRole === 'Owner' || !activeRole) ? "Active" : ""}
+                            colors={colors}
+                            right={(activeRole === 'Owner' || !activeRole) ? <MaterialCommunityIcons name="check-circle" size={18} color={colors.primary} /> : null}
+                            onPress={() => {
+                                dispatch(setActiveRole('Owner'));
+                                Toast.show({ type: 'success', text1: 'Switched to Owner Mode' });
+                            }}
+                        />
+                        <MenuRow
+                            icon="excavator"
+                            label={t('owner.mode_operator') || "Operator Mode"}
+                            value={activeRole === 'Operator' ? "Active" : ""}
+                            colors={colors}
+                            right={activeRole === 'Operator' ? <MaterialCommunityIcons name="check-circle" size={18} color={colors.primary} /> : null}
+                            onPress={() => {
+                                dispatch(setActiveRole('Operator'));
+                                Toast.show({ type: 'success', text1: 'Switched to Operator Mode' });
+                            }}
+                        />
+                        <MenuRow
+                            icon="truck-delivery"
+                            label={t('owner.mode_driver') || "Driver Mode"}
+                            value={activeRole === 'Driver' ? "Active" : ""}
+                            colors={colors}
+                            right={activeRole === 'Driver' ? <MaterialCommunityIcons name="check-circle" size={18} color={colors.primary} /> : null}
+                            onPress={() => {
+                                dispatch(setActiveRole('Driver'));
+                                Toast.show({ type: 'success', text1: 'Switched to Driver Mode' });
+                            }}
+                        />
                     </View>
                 </View>
 

@@ -91,7 +91,9 @@ export default function StartWorkForm() {
         try {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('operator.location_permission_msg') });
+                import('react-native').then(({ Alert }) => {
+                    Alert.alert(t('common.permission_denied'), t('operator.location_permission_msg'));
+                });
                 setIsLocating(false);
                 return;
             }
@@ -104,6 +106,8 @@ export default function StartWorkForm() {
                 lat: location.coords.latitude,
                 lng: location.coords.longitude
             });
+
+            let finalAddress = `Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`;
 
             // Reverse geocode to get human-readable address only if online
             if (isOnline) {
@@ -118,34 +122,29 @@ export default function StartWorkForm() {
                         const taluka = address.subregion || address.district || "";
                         const dist = address.city || address.region || "";
 
-                        const formattedAddress = [place, taluka, dist]
+                        finalAddress = [place, taluka, dist]
                             .filter(part => part && part.length > 0)
                             .join(", ");
-
-                        setNewLocation(formattedAddress);
-                        Toast.show({ type: 'info', text1: t('operator.location_found'), text2: t('operator.site_detected_at', { address: formattedAddress }) });
-                    } else {
-                        setNewLocation(`Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`);
                     }
                 } catch (geoError) {
-                    // Geocoding failed (likely network or service issue), fallback to coordinates
                     console.log("Geocoding failed, falling back to coordinates");
-                    setNewLocation(`Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`);
                 }
-            } else {
-                // Offline mode: just use coordinates
-                const coordsStr = `Lat: ${location.coords.latitude.toFixed(4)}, Lng: ${location.coords.longitude.toFixed(4)}`;
-                setNewLocation(coordsStr);
-                Toast.show({ type: 'info', text1: t('operator.location_found'), text2: 'GPS Coordinates captured (Offline)' });
             }
+
+            setNewLocation(finalAddress);
+
+            import('react-native').then(({ Alert }) => {
+                Alert.alert(
+                    t('operator.location_found') || 'Location Found',
+                    t('operator.site_detected_at', { address: finalAddress }) || `Site detected at: ${finalAddress}`,
+                    [{ text: t('common.confirm') || 'Confirm', style: 'default' }]
+                );
+            });
         } catch (error) {
             console.error("Location Fetch Error:", error);
-            // If it's just a geocoding failure, we might still have coords
-            if (!newLocation && coords) {
-                setNewLocation(`Lat: ${coords.lat.toFixed(4)}, Lng: ${coords.lng.toFixed(4)}`);
-            } else {
-                Toast.show({ type: 'error', text1: t('common.error'), text2: t('operator.loc_fetch_error') });
-            }
+            import('react-native').then(({ Alert }) => {
+                Alert.alert(t('common.error'), t('operator.loc_fetch_error'));
+            });
         } finally {
             setIsLocating(false);
         }
@@ -176,35 +175,46 @@ export default function StartWorkForm() {
 
     const handlePickPhoto = async () => {
         try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Toast.show({ type: 'error', text1: t('common.permission_denied'), text2: t('owner.gallery_permission') || 'Gallery permission required' });
+            const permResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (permResult.status !== 'granted') {
+                import('react-native').then(({ Alert }) => {
+                    Alert.alert(
+                        t('common.permission_denied') || 'Permission Denied',
+                        t('finish_work_screen.gallery_permission') || 'Gallery access is required to pick a photo.'
+                    );
+                });
                 return;
             }
 
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ['images'],
                 allowsEditing: false,
-                aspect: [4, 3],
                 quality: 0.7,
             });
 
-            if (!result.canceled) {
+            if (!result.canceled && result.assets && result.assets.length > 0) {
                 setPhotoUri(result.assets[0].uri);
             }
-        } catch (error) {
-            Toast.show({ type: 'error', text1: t('common.error'), text2: 'Failed to pick image' });
+        } catch (error: any) {
+            console.error('Gallery pick error:', error);
+            import('react-native').then(({ Alert }) => {
+                Alert.alert(
+                    t('common.error') || 'Error',
+                    error?.message || 'Failed to open gallery. Please try again.'
+                );
+            });
         }
     };
 
     const handleCapturePhoto = () => {
         import('react-native').then(({ Alert }) => {
             Alert.alert(
-                t('operator.step_3_documentation'),
-                t('operator.site_location_desc'),
+                t('finish_work_screen.proof_of_completion') || 'Initial Documentation',
+                t('finish_work_screen.upload_method') || 'How would you like to upload the photo?',
                 [
-                    { text: t('operator.camera') || 'Camera', onPress: handleTakePhoto },
-                    { text: t('common.cancel'), style: "cancel" }
+                    { text: t('finish_work_screen.camera') || 'Camera', onPress: handleTakePhoto },
+                    { text: t('finish_work_screen.gallery') || 'Gallery', onPress: handlePickPhoto },
+                    { text: t('finish_work_screen.cancel') || 'Cancel', style: "cancel" }
                 ]
             );
         });
@@ -299,14 +309,16 @@ export default function StartWorkForm() {
             });
 
             if (response.success) {
-                const session = response.offline ? { id: 'offline_' + Date.now(), startedAt: requestBody.startedAt } : response.data.workSession;
+                const sessionData = response.offline
+                    ? { id: 'offline_' + Date.now(), startedAt: requestBody.startedAt }
+                    : (response.data?.workSession || response.data?.work_session || response.data || {});
 
                 router.replace({
                     pathname: '/(operator)',
                     params: {
                         workStarted: 'true',
-                        workId: session.id.toString(),
-                        startTime: session.startedAt,
+                        workId: sessionData?.id?.toString() || String(Date.now()),
+                        startTime: sessionData?.startedAt || sessionData?.started_at || requestBody.startedAt,
                         clientName: clientNameToSend,
                         location: newLocation
                     }

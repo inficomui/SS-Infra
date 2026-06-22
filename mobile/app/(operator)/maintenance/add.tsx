@@ -91,11 +91,12 @@ export default function OperatorAddMaintenanceScreen() {
     const pickImage = (type: 'service' | 'invoice') => {
         import('react-native').then(({ Alert }) => {
             Alert.alert(
-                t('maintenance_records.attachments'),
-                t('operator.site_location_desc'),
+                t('maintenance_records.attachments') || 'Attachments',
+                t('finish_work_screen.upload_method') || 'How would you like to upload the photo?',
                 [
-                    { text: t('operator.camera') || 'Camera', onPress: () => takePhoto(type) },
-                    { text: t('common.cancel'), style: "cancel" }
+                    { text: t('finish_work_screen.camera') || 'Camera', onPress: () => takePhoto(type) },
+                    { text: t('finish_work_screen.gallery') || 'Gallery', onPress: () => pickImageFromGallery(type) },
+                    { text: t('finish_work_screen.cancel') || 'Cancel', style: "cancel" }
                 ]
             );
         });

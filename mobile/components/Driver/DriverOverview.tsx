@@ -14,6 +14,7 @@ import { formatDate, formatDuration } from '@/utils/formatters';
 import { selectWorkStatus, selectActiveWorkId, selectSiteAddress, selectStartedAt, syncWithServer } from '@/redux/slices/driverSlice';
 import { useAppSelector } from '@/redux/hooks';
 import Toast from 'react-native-toast-message';
+import { setActiveRole } from '@/redux/slices/authSlice';
 
 const { width } = Dimensions.get('window');
 
@@ -155,6 +156,31 @@ export function DriverOverview() {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            {/* Owner mode back banner */}
+            {userData?.user?.role?.toLowerCase() === 'owner' && (
+                <View style={[styles.ownerBanner, { backgroundColor: colors.primary }]}>
+                    <MaterialCommunityIcons name="shield-crown" size={18} color="#FFF" />
+                    <Text style={styles.ownerBannerText}>
+                        {t('owner.acting_driver') || "Acting as Driver"}
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.ownerBannerBtn}
+                        onPress={() => {
+                            dispatch(setActiveRole('Owner'));
+                            Toast.show({
+                                type: 'success',
+                                text1: t('owner.returned_owner') || 'Returned to Owner Mode'
+                            });
+                        }}
+                    >
+                        <Text style={[styles.ownerBannerBtnText, { color: colors.primary }]}>
+                            {t('owner.return') || "Return"}
+                        </Text>
+                        <MaterialCommunityIcons name="arrow-right" size={14} color={colors.primary} />
+                    </TouchableOpacity>
+                </View>
+            )}
 
             <ScrollView style={styles.scrollBody} showsVerticalScrollIndicator={false}>
                 <LinearGradient
@@ -395,4 +421,36 @@ const styles = StyleSheet.create({
     gradient: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
     startBtnText: { color: '#000', fontWeight: '900', fontSize: 16, letterSpacing: 1 },
     finishBtn: { height: 64, borderRadius: 16, overflow: 'hidden' },
+
+    // Owner acting banner
+    ownerBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        marginHorizontal: 24,
+        marginTop: 10,
+        borderRadius: 12,
+        gap: 8,
+    },
+    ownerBannerText: {
+        color: '#FFFFFF',
+        fontWeight: '700',
+        fontSize: 13,
+        flex: 1,
+    },
+    ownerBannerBtn: {
+        backgroundColor: '#FFFFFF',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    ownerBannerBtnText: {
+        fontSize: 12,
+        fontWeight: '800',
+    },
 });

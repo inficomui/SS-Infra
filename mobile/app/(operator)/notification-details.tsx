@@ -164,7 +164,7 @@ export default function NotificationDetailsScreen() {
                             </View>
                             <TouchableOpacity
                                 style={[styles.actionBtn, { backgroundColor: colors.primary }]}
-                                onPress={() => router.push('/(tabs)')}
+                                onPress={() => router.push('/(tabs)' as any)}
                             >
                                 <Text style={styles.actionBtnText}>{t('notification_details.view_marketplace')}</Text>
                             </TouchableOpacity>

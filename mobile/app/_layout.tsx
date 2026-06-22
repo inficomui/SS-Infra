@@ -11,7 +11,7 @@ import { store, persistor } from '../redux/store';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { PersistGate } from 'redux-persist/integration/react';
 import { useEffect, useMemo } from 'react';
-import { selectCurrentUser, selectIsAuthenticated } from '@/redux/slices/authSlice';
+import { selectCurrentUser, selectIsAuthenticated, selectActiveRole } from '@/redux/slices/authSlice';
 import { useColorScheme as useDeviceColorScheme } from 'react-native';
 import { selectThemeMode } from '@/redux/slices/themeSlice';
 import { Colors } from '@/constants/theme';
@@ -53,6 +53,7 @@ function RootLayoutNav() {
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectCurrentUser);
+  const activeRole = useSelector(selectActiveRole);
 
   // Silently validate/refresh the user profile in the background.
   // If the token is expired the 401 handler in baseQuery auto-dispatches logout() → redirects to /login.
@@ -76,7 +77,7 @@ function RootLayoutNav() {
   useEffect(() => {
     if (!isAuthenticated) {
       // Not logged in — go to login only if not already there
-      const onAuthPage = segments[0] === 'login' || segments[0] === 'language-selection';
+      const onAuthPage = segments[0] === 'login' || segments[0] === 'language-selection' || segments[0] === 'register';
       if (!onAuthPage) {
         router.replace('/login');
       }
@@ -85,7 +86,7 @@ function RootLayoutNav() {
 
     if (!user) return; // still loading user object, wait
 
-    const role = user.role?.toLowerCase();
+    const role = (activeRole || user.role)?.toLowerCase();
     const targetRoute = ROLE_ROUTES[role ?? ''];
 
     if (!targetRoute) {
@@ -110,7 +111,7 @@ function RootLayoutNav() {
       router.replace(targetRoute as any);
     }
     // Already inside the correct group → stay put.
-  }, [isAuthenticated, user, segments]);
+  }, [isAuthenticated, user, activeRole, segments]);
 
   return (
     <PaperProvider

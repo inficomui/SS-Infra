@@ -2,7 +2,7 @@
 import { Stack, useRouter } from 'expo-router';
 import { Redirect } from 'expo-router';
 import { useSelector } from 'react-redux';
-import { selectCurrentUser, selectIsAuthenticated } from '@/redux/slices/authSlice';
+import { selectCurrentUser, selectIsAuthenticated, selectActiveRole } from '@/redux/slices/authSlice';
 import { ActivityIndicator, View } from 'react-native';
 import { useEffect } from 'react';
 
@@ -10,12 +10,14 @@ export default function StackLayout() {
     const router = useRouter();
     const user = useSelector(selectCurrentUser);
     const isAuthenticated = useSelector(selectIsAuthenticated);
+    const activeRole = useSelector(selectActiveRole);
 
     useEffect(() => {
-        if (isAuthenticated && user && user.role?.toLowerCase() !== 'owner') {
+        const currentActiveRole = activeRole || user?.role;
+        if (isAuthenticated && user && currentActiveRole?.toLowerCase() !== 'owner') {
             router.replace('/');
         }
-    }, [isAuthenticated, user, router]);
+    }, [isAuthenticated, user, activeRole, router]);
 
     if (!isAuthenticated) return <Redirect href="/login" />;
     
@@ -23,7 +25,8 @@ export default function StackLayout() {
         return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#000" /></View>;
     }
 
-    if (!user || user.role?.toLowerCase() !== 'owner') {
+    const currentActiveRole = activeRole || user?.role;
+    if (!user || currentActiveRole?.toLowerCase() !== 'owner') {
         return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
     }
 

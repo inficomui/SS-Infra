@@ -71,9 +71,9 @@ export default function CreateBillScreen() {
                             });
 
                             if (result.success) {
-                                // If offline, result.invoice might be null or partial
-                                const invoiceNum = result.invoice?.invoice_number || 'INV-PENDING-' + Date.now().toString().slice(-4);
-                                const invId = result.invoice?.id || `pending_${Date.now()}`;
+                                // If offline, result.data?.invoice might be null or partial
+                                const invoiceNum = result.data?.invoice?.invoice_number || 'INV-PENDING-' + Date.now().toString().slice(-4);
+                                const invId = result.data?.invoice?.id || `pending_${Date.now()}`;
 
                                 Alert.alert(
                                     result.offline ? t('create_bill_screen.success') + " (Offline)" : t('create_bill_screen.success'),

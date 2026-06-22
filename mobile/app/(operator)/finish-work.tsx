@@ -74,7 +74,7 @@ export default function FinishWorkScreen() {
             t('finish_work_screen.upload_method'),
             [
                 { text: t('finish_work_screen.camera'), onPress: handleTakePhoto },
-                // { text: t('finish_work_screen.gallery'), onPress: handlePickPhoto },
+                { text: t('finish_work_screen.gallery'), onPress: handlePickPhoto },
                 { text: t('finish_work_screen.cancel'), style: "cancel" }
             ]
         );

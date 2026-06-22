@@ -68,9 +68,8 @@ export default function AddClientScreen() {
 
             if (response.success) {
                 if (response.offline) {
-                    // Optimistically add to local cache
                     dispatch(addCachedClient({
-                        id: response.id || `pending_${Date.now()}`,
+                        id: response.data?.id || `pending_${Date.now()}`,
                         ...formData,
                         createdAt: new Date().toISOString()
                     }));

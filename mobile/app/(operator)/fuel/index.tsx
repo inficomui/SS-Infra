@@ -87,7 +87,7 @@ export default function FuelLogsScreen() {
         if (selectedDate) setEndDate(selectedDate);
     };
 
-    const renderItem = ({ item: log }: { item: FuelLog }) => (
+    const renderItem = ({ item: log }: { item: any }) => (
         <TouchableOpacity
             style={[styles.logCard, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={() => router.push({

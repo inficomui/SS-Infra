@@ -178,6 +178,13 @@ export default function LoginScreen() {
 
                             {/* Top Branding Section */}
                             <LinearGradient colors={[PRIMARY_BLUE, SECONDARY_BLUE]} style={styles.headerHero}>
+                                <TouchableOpacity 
+                                    style={styles.langToggleContainer} 
+                                    onPress={() => router.push('/language-selection')}
+                                    activeOpacity={0.7}
+                                >
+                                    <MaterialCommunityIcons name="translate" size={24} color="#FFF" />
+                                </TouchableOpacity>
                                 <Surface style={[styles.logoCircle, { backgroundColor: LOGO_BG }]} elevation={5}>
                                     <MaterialCommunityIcons name="crane" size={45} style={{ color: PRIMARY_BLUE }} />
                                 </Surface>
@@ -211,16 +218,25 @@ export default function LoginScreen() {
                                                 />
                                             </View>
 
-                                            <TouchableOpacity style={styles.actionButton} onPress={handleSendOtp} disabled={isSendingOtp}>
-                                                <LinearGradient colors={[PRIMARY_BLUE, SECONDARY_BLUE]} style={styles.buttonGradient}>
-                                                    {isSendingOtp ? <ActivityIndicator color={HERO_TEXT} /> : (
-                                                        <>
-                                                            <Text style={[styles.buttonText, { color: HERO_TEXT }]}>{t('auth.send_otp')}</Text>
-                                                            <MaterialCommunityIcons name="chevron-right" size={24} color={HERO_TEXT} />
-                                                        </>
-                                                    )}
-                                                </LinearGradient>
-                                            </TouchableOpacity>
+                                             <TouchableOpacity style={styles.actionButton} onPress={handleSendOtp} disabled={isSendingOtp}>
+                                                 <LinearGradient colors={[PRIMARY_BLUE, SECONDARY_BLUE]} style={styles.buttonGradient}>
+                                                     {isSendingOtp ? <ActivityIndicator color={HERO_TEXT} /> : (
+                                                         <>
+                                                             <Text style={[styles.buttonText, { color: HERO_TEXT }]}>{t('auth.send_otp', { defaultValue: 'Send OTP' })}</Text>
+                                                             <MaterialCommunityIcons name="chevron-right" size={24} color={HERO_TEXT} />
+                                                         </>
+                                                     )}
+                                                 </LinearGradient>
+                                             </TouchableOpacity>
+
+                                             <TouchableOpacity 
+                                                 style={styles.registerLinkContainer} 
+                                                 onPress={() => router.push('/register')}
+                                             >
+                                                 <Text style={[styles.registerLinkText, { color: PRIMARY_BLUE }]}>
+                                                     {t('auth.register_prompt', { defaultValue: "Don't have an account? Register" })}
+                                                 </Text>
+                                             </TouchableOpacity>
                                         </View>
                                     ) : (
                                         <View>
@@ -375,6 +391,15 @@ const styles = StyleSheet.create({
     devText: { color: '#FFD700', textAlign: 'center', fontWeight: 'bold', fontSize: 12 },
     backButton: { marginTop: 20, alignItems: 'center' },
     backButtonText: { fontSize: 13, textDecorationLine: 'underline' },
+    registerLinkContainer: {
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    registerLinkText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        textDecorationLine: 'underline',
+    },
     protocolText: {
         textAlign: 'center',
         fontSize: 10,

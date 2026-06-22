@@ -15,13 +15,14 @@ import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useGetOperatorsQuery, useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
 import { useGetNotificationsQuery, Notification as ApiNotification } from '@/redux/apis/notificationApi';
 import { useGetMySubscriptionQuery, GetMySubscriptionResponse } from '@/redux/apis/subscriptionApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
 import { formatDate, formatDuration, resolveImageUrl } from '@/utils/formatters';
+import { setActiveRole } from '@/redux/slices/authSlice';
 import { t } from 'i18next';
 import Toast from 'react-native-toast-message';
 import { useAppSelector } from '@/redux/hooks';
@@ -31,6 +32,7 @@ const { width } = Dimensions.get('window');
 export default function OwnerDashboard() {
     const { t } = useTranslation();
     const router = useRouter();
+    const dispatch = useDispatch();
     const { colors, isDark } = useAppTheme();
     const user = useSelector((state: any) => state.auth.user);
 
@@ -76,8 +78,8 @@ export default function OwnerDashboard() {
     const handleLockedAction = (feature: string) => {
         Toast.show({
             type: 'error',
-            text1: 'Subscription Required',
-            text2: `Renew your plan to access ${feature}.`,
+            text1: t('owner.subscription_required', { defaultValue: 'Subscription Required' }),
+            text2: t('owner.renew_to_access', { feature, defaultValue: `Renew your plan to access ${feature}.` }),
         });
         setTimeout(() => {
             router.push({ pathname: '/(common)/plans' as any, params: { source: 'expired' } });
@@ -159,6 +161,73 @@ export default function OwnerDashboard() {
                         onPress={() => router.push('/(common)/plans' as any)}
                     />
                 )}
+
+                {/* Operation Mode Switcher */}
+                <View style={[styles.switcherCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <View style={styles.switcherHeader}>
+                        <MaterialCommunityIcons name="cog-sync-outline" size={22} color={colors.primary} />
+                        <Text style={[styles.switcherTitle, { color: colors.textMain }]}>
+                            {t('owner.operation_mode') || 'Operation Mode'}
+                        </Text>
+                    </View>
+                    <Text style={[styles.switcherDesc, { color: colors.textMuted }]}>
+                        {t('owner.switch_mode_desc') || 'Switch your active role to start working or driving.'}
+                    </Text>
+                    <View style={styles.switcherRow}>
+                        <TouchableOpacity
+                            style={[
+                                styles.switcherBtn,
+                                { borderColor: colors.primary, backgroundColor: colors.primary + '15' }
+                            ]}
+                            disabled={true}
+                        >
+                            <MaterialCommunityIcons name="shield-crown" size={18} color={colors.primary} />
+                            <Text style={[styles.switcherBtnText, { color: colors.primary }]}>
+                                {t('owner.mode_owner') || 'Owner'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.switcherBtn,
+                                { borderColor: colors.border, backgroundColor: colors.background }
+                            ]}
+                            onPress={() => {
+                                dispatch(setActiveRole('Operator'));
+                                Toast.show({
+                                    type: 'success',
+                                    text1: t('owner.switched_operator') || 'Switched to Operator Mode',
+                                    text2: t('owner.switched_operator_desc') || 'You can now start work and manage machines.'
+                                });
+                            }}
+                        >
+                            <MaterialCommunityIcons name="excavator" size={18} color={colors.textMain} />
+                            <Text style={[styles.switcherBtnText, { color: colors.textMain }]}>
+                                {t('owner.mode_operator') || 'Operator'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.switcherBtn,
+                                { borderColor: colors.border, backgroundColor: colors.background }
+                            ]}
+                            onPress={() => {
+                                dispatch(setActiveRole('Driver'));
+                                Toast.show({
+                                    type: 'success',
+                                    text1: t('owner.switched_driver') || 'Switched to Driver Mode',
+                                    text2: t('owner.switched_driver_desc') || 'You can now start duty and log stats.'
+                                });
+                            }}
+                        >
+                            <MaterialCommunityIcons name="truck-delivery" size={18} color={colors.textMain} />
+                            <Text style={[styles.switcherBtnText, { color: colors.textMain }]}>
+                                {t('owner.mode_driver') || 'Driver'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
 
                 {/* Stats */}
                 <View style={styles.statsContainer}>
@@ -366,26 +435,40 @@ function SubscriptionWarning({ subscription, isActive, colors, t, onPress }: any
                         <MaterialCommunityIcons name="shield-off-outline" size={28} color={colors.danger} />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={[styles.expiredTitle, { color: colors.danger }]}>Subscription Expired</Text>
+                        <Text style={[styles.expiredTitle, { color: colors.danger }]}>
+                            {t('owner.subscription_expired', { defaultValue: 'Subscription Expired' })}
+                        </Text>
                         <Text style={[styles.expiredSubtitle, { color: colors.textMuted }]}>
                             {subscription?.status === 'expired'
-                                ? `Your plan ended on ${new Date(subscription.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
-                                : 'You have no active plan assigned to your account'}
+                                ? t('owner.plan_ended_on', {
+                                    date: new Date(subscription.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+                                    defaultValue: `Your plan ended on ${new Date(subscription.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                                  })
+                                : t('owner.no_active_plan_desc', { defaultValue: 'You have no active plan assigned to your account' })}
                         </Text>
                     </View>
                 </View>
                 <View style={styles.expiredBannerBody}>
                     <View style={styles.expiredFeatureRow}>
-                        {['Add Operators', 'Add Machines', 'View Bookings', 'Salary Reports'].map(f => (
-                            <View key={f} style={[styles.expiredFeatureChip, { backgroundColor: colors.danger + '15', borderColor: colors.danger + '30' }]}>
+                        {[
+                            { key: 'owner.add_operators', default: 'Add Operators' },
+                            { key: 'owner.add_machines', default: 'Add Machines' },
+                            { key: 'owner.view_bookings', default: 'View Bookings' },
+                            { key: 'owner.salary_reports', default: 'Salary Reports' }
+                        ].map(item => (
+                            <View key={item.key} style={[styles.expiredFeatureChip, { backgroundColor: colors.danger + '15', borderColor: colors.danger + '30' }]}>
                                 <MaterialCommunityIcons name="lock-outline" size={11} color={colors.danger} />
-                                <Text style={[styles.expiredFeatureText, { color: colors.danger }]}>{f}</Text>
+                                <Text style={[styles.expiredFeatureText, { color: colors.danger }]}>
+                                    {t(item.key, { defaultValue: item.default })}
+                                </Text>
                             </View>
                         ))}
                     </View>
                     <View style={[styles.expiredRenewBtn, { backgroundColor: colors.danger }]}>
                         <MaterialCommunityIcons name="crown-outline" size={16} color="#FFF" />
-                        <Text style={styles.expiredRenewText}>TAP TO VIEW PLANS & RENEW</Text>
+                        <Text style={styles.expiredRenewText}>
+                            {t('owner.tap_renew', { defaultValue: 'TAP TO VIEW PLANS & RENEW' })}
+                        </Text>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -408,14 +491,18 @@ function SubscriptionWarning({ subscription, isActive, colors, t, onPress }: any
                 </View>
                 <View style={styles.warningContent}>
                     <Text style={[styles.warningTitle, { color: urgentColor }]}>
-                        {daysLeft <= 3 ? '⚠️ Expiring Very Soon!' : 'Plan Expiring Soon'}
+                        {daysLeft <= 3 
+                            ? t('owner.expiring_very_soon', { defaultValue: '⚠️ Expiring Very Soon!' })
+                            : t('owner.plan_expiring_soon', { defaultValue: 'Plan Expiring Soon' })}
                     </Text>
                     <Text style={[styles.warningText, { color: colors.textMuted }]}>
-                        <Text style={{ fontWeight: '900', color: urgentColor }}>{daysLeft} day{daysLeft !== 1 ? 's' : ''}</Text> left on your {subscription.plan?.name ?? 'plan'}
+                        {t('owner.days_left_plan', { days: daysLeft, defaultValue: `${daysLeft} days left on your plan` })}
                     </Text>
                 </View>
                 <View style={[styles.renewBtn, { backgroundColor: urgentColor }]}>
-                    <Text style={styles.renewText}>RENEW</Text>
+                    <Text style={styles.renewText}>
+                        {t('owner.renew', { defaultValue: 'RENEW' })}
+                    </Text>
                 </View>
             </TouchableOpacity>
         );
@@ -692,5 +779,47 @@ const styles = StyleSheet.create({
         position: 'absolute', top: 10, right: 10,
         width: 18, height: 18, borderRadius: 9,
         justifyContent: 'center', alignItems: 'center',
+    },
+
+    // Operation mode switcher styles
+    switcherCard: {
+        borderRadius: 16,
+        padding: 16,
+        borderWidth: 1,
+        marginBottom: 20,
+    },
+    switcherHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 4,
+    },
+    switcherTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+    },
+    switcherDesc: {
+        fontSize: 12,
+        fontWeight: '500',
+        marginBottom: 14,
+        lineHeight: 16,
+    },
+    switcherRow: {
+        flexDirection: 'row',
+        gap: 10,
+    },
+    switcherBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        paddingVertical: 12,
+        borderRadius: 10,
+        borderWidth: 1,
+    },
+    switcherBtnText: {
+        fontSize: 12,
+        fontWeight: '800',
     },
 });

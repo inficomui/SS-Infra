@@ -6,6 +6,7 @@ interface AuthState {
     isAuthenticated: boolean;
     user: User | null;
     role: 'Owner' | 'Operator' | 'Admin' | 'Driver' | null;
+    activeRole: 'Owner' | 'Operator' | 'Admin' | 'Driver' | null;
 }
 
 const initialState: AuthState = {
@@ -13,6 +14,7 @@ const initialState: AuthState = {
     isAuthenticated: false,
     user: null,
     role: null,
+    activeRole: null,
 };
 
 const authSlice = createSlice({
@@ -27,28 +29,40 @@ const authSlice = createSlice({
             state.user = user;
             state.token = token;
             state.role = user.role;
+            state.activeRole = user.role;
             state.isAuthenticated = true;
         },
         logout: (state) => {
             state.user = null;
             state.token = null;
             state.role = null;
+            state.activeRole = null;
             state.isAuthenticated = false;
         },
         updateUser: (state, action: PayloadAction<User>) => {
             state.user = action.payload;
             state.role = action.payload.role;
+            if (!state.activeRole) {
+                state.activeRole = action.payload.role;
+            }
         },
         rehydrate: (state, action: PayloadAction<{ user: User; token: string }>) => {
             state.user = action.payload.user;
             state.token = action.payload.token;
             state.role = action.payload.user.role;
+            state.activeRole = action.payload.user.role;
             state.isAuthenticated = true;
+        },
+        setActiveRole: (
+            state,
+            action: PayloadAction<'Owner' | 'Operator' | 'Admin' | 'Driver'>
+        ) => {
+            state.activeRole = action.payload;
         },
     },
 });
 
-export const { setCredentials, logout, updateUser, rehydrate } = authSlice.actions;
+export const { setCredentials, logout, updateUser, rehydrate, setActiveRole } = authSlice.actions;
 
 export default authSlice.reducer;
 
@@ -56,3 +70,4 @@ export const selectCurrentUser = (state: any) => state.auth.user;
 export const selectCurrentToken = (state: any) => state.auth.token;
 export const selectIsAuthenticated = (state: any) => state.auth.isAuthenticated;
 export const selectCurrentRole = (state: any) => state.auth.role;
+export const selectActiveRole = (state: any) => state.auth.activeRole;

@@ -64,6 +64,27 @@ export const authApi = createApi({
                 body: data,
             }),
         }),
+        registerOwner: builder.mutation<{ success: boolean; message: string }, any>({
+            query: (data) => ({
+                url: '/auth/register/owner',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+        registerOperator: builder.mutation<{ success: boolean; message: string }, any>({
+            query: (data) => ({
+                url: '/auth/register/operator',
+                method: 'POST',
+                body: data,
+            }),
+        }),
+        getPublicOwners: builder.query<{ success: boolean; data: { data: any[] } }, { limit?: number }>({
+            query: (params) => ({
+                url: '/discovery/owners',
+                method: 'GET',
+                params,
+            }),
+        }),
     }),
 });
 
@@ -73,5 +94,8 @@ export const {
     useVerifyOtpMutation,
     useGetMeQuery,
     useUpdateProfileMutation,
-    useRegisterPushTokenMutation
+    useRegisterPushTokenMutation,
+    useRegisterOwnerMutation,
+    useRegisterOperatorMutation,
+    useGetPublicOwnersQuery,
 } = authApi;

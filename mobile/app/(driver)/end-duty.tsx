@@ -170,7 +170,7 @@ export default function EndDutyScreen() {
                 if (response.offline) {
                     Toast.show({ type: 'info', text1: 'Saved Offline', text2: 'Duty completion will sync soon' });
                 } else {
-                    Toast.show({ type: 'success', text1: t('common.success'), text2: response.message || t('driver.duty_finished') });
+                    Toast.show({ type: 'success', text1: t('common.success'), text2: response.data?.message || t('driver.duty_finished') });
                 }
                 dispatch(clearActiveDuty());
                 router.replace('/(driver)');

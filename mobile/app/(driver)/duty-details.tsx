@@ -18,7 +18,7 @@ export default function DutyDetailsScreen() {
     const [previewVisible, setPreviewVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
-    const openPreview = (url: string | undefined) => {
+    const openPreview = (url: string | null | undefined) => {
         if (!url) return;
         const resolved = resolveImageUrl(url);
         if (resolved) {
