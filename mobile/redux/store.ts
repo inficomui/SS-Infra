@@ -10,6 +10,8 @@ import { maintenanceApi } from './apis/maintenanceApi';
 import { notificationApi } from './apis/notificationApi';
 import { subscriptionApi } from './apis/subscriptionApi';
 import { bookingApi } from './apis/bookingApi';
+import { customWorkApi } from './apis/customWorkApi';
+import { tripApi } from './apis/tripApi';
 import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import driverReducer from './slices/driverSlice';
@@ -30,6 +32,8 @@ const rootReducer = combineReducers({
     [notificationApi.reducerPath]: notificationApi.reducer,
     [subscriptionApi.reducerPath]: subscriptionApi.reducer,
     [bookingApi.reducerPath]: bookingApi.reducer,
+    [customWorkApi.reducerPath]: customWorkApi.reducer,
+    [tripApi.reducerPath]: tripApi.reducer,
     auth: authReducer,
     theme: themeReducer,
     driver: driverReducer,
@@ -63,7 +67,9 @@ export const store = configureStore({
             maintenanceApi.middleware,
             notificationApi.middleware,
             subscriptionApi.middleware,
-            bookingApi.middleware
+            bookingApi.middleware,
+            customWorkApi.middleware,
+            tripApi.middleware
         ),
     enhancers: (getDefaultEnhancers) =>
         __DEV__ && Reactotron.createEnhancer ? getDefaultEnhancers().concat(Reactotron.createEnhancer()) : getDefaultEnhancers(),

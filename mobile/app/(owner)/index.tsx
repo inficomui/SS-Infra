@@ -325,6 +325,18 @@ export default function OwnerDashboard() {
                             colors={colors}
                         />
                         <ActionButton
+                            icon="briefcase-check"
+                            label={t('owner.custom_works')}
+                            onPress={() => router.push('/(owner)/custom-work' as any)}
+                            colors={colors}
+                        />
+                        <ActionButton
+                            icon="dump-truck"
+                            label={t('owner.trip_records')}
+                            onPress={() => router.push('/(owner)/trip' as any)}
+                            colors={colors}
+                        />
+                        <ActionButton
                             icon="star-outline"
                             label={t('owner.our_plans')}
                             onPress={() => router.push('/(common)/plans' as any)}

@@ -157,7 +157,7 @@ export default function NotificationDetailsScreen() {
                                 {notification.data?.searchQuery && (
                                     <View style={styles.infoRow}>
                                         <MaterialCommunityIcons name="magnify" size={18} color={colors.textMuted} />
-                                        <Text style={[styles.infoText, { color: colors.textMain }]}>Search: "{notification.data.searchQuery}"</Text>
+                                        <Text style={[styles.infoText, { color: colors.textMain }]}>Search: &quot;{notification.data.searchQuery}&quot;</Text>
                                     </View>
                                 )}
                             </View>

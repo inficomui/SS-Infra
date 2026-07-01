@@ -14,7 +14,7 @@ import { RootState } from '@/redux/store';
 import { useAppTheme } from '@/hooks/use-theme-color';
 import { storage } from '@/redux/storage';
 import { Machine } from '@/redux/apis/ownerApi';
-import { useGetDutyStatsQuery } from '@/redux/apis/workApi';
+
 
 export default function OperatorProfileScreen() {
     const router = useRouter();
@@ -25,8 +25,11 @@ export default function OperatorProfileScreen() {
     const themeMode = useSelector(selectThemeMode);
     const { notificationsEnabled } = useSelector((state: RootState) => state.settings);
 
-    const { data: dutyStats } = useGetDutyStatsQuery();
-    const stats = dutyStats?.stats;
+    const stats = {
+        rating: user?.rating || "4.9",
+        totalHours: user?.totalHours || "1.2k",
+        totalJobs: user?.totalJobs || "48"
+    };
 
     const [assignedMachine, setAssignedMachine] = useState<Machine | null>(null);
 

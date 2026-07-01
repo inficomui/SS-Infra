@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useGetMeQuery } from '@/redux/apis/authApi';
-import { useGetActiveWorkQuery, useGetWorkHistoryQuery, useGetDutyStatsQuery } from '@/redux/apis/workApi';
+import { useGetActiveWorkQuery, useGetWorkHistoryQuery } from '@/redux/apis/workApi';
 import { useGetNotificationsQuery, Notification as ApiNotification } from '@/redux/apis/notificationApi';
 import { useGetMachinesQuery, Machine } from '@/redux/apis/ownerApi';
 import { useAppTheme } from '@/hooks/use-theme-color';
@@ -122,9 +122,6 @@ export default function OperatorOverview() {
     // Let's stick to "Tasks Done" -> Completed only.
     const tasksDoneCount = completedTasksCount;
 
-    // Additional Stats for Operator (Machine Assets)
-    const { data: statsData } = useGetDutyStatsQuery(undefined, { skip: !isOnline });
-    const stats = statsData?.stats;
 
     // Profile Query
     const { data: userData } = useGetMeQuery();
@@ -484,6 +481,20 @@ export default function OperatorOverview() {
                         label={t('overview.maintenance')}
                         onPress={() => router.push('/(operator)/maintenance' as any)}
                         color={colors.primary}
+                        colors={colors}
+                    />
+                    <MenuIconButton
+                        icon="briefcase-check"
+                        label={t('overview.custom_work')}
+                        onPress={() => router.push('/(operator)/custom-work' as any)}
+                        color="#0EA5E9"
+                        colors={colors}
+                    />
+                    <MenuIconButton
+                        icon="dump-truck"
+                        label={t('overview.trip_entries')}
+                        onPress={() => router.push('/(operator)/trip' as any)}
+                        color="#F59E0B"
                         colors={colors}
                     />
                 </View>

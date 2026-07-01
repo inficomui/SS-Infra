@@ -358,6 +358,27 @@ export default function StartWorkForm() {
                     keyboardShouldPersistTaps="handled"
                 >
 
+                    {/* Private / Custom Work Question */}
+                    <View style={{ marginBottom: 20, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#0EA5E9', backgroundColor: '#0EA5E915' }}>
+                        <Text style={{ color: colors.textMain, fontSize: 14, fontWeight: '800', marginBottom: 10 }}>
+                            {t('operator.private_work_question')}
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <TouchableOpacity
+                                style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: '#0EA5E9', alignItems: 'center' }}
+                                onPress={() => router.push('/(operator)/custom-work/create' as any)}
+                            >
+                                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>{t('operator.yes_custom_work')}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center' }}
+                                disabled={true}
+                            >
+                                <Text style={{ color: colors.textMain, fontWeight: '700', fontSize: 13 }}>{t('operator.no_continue')}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
                     {selectedMachine && (
                         <View style={{ marginBottom: 24, padding: 12, borderRadius: 4, borderWidth: 1, borderColor: colors.primary, backgroundColor: colors.primary + '10', flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                             <MaterialCommunityIcons name="excavator" size={28} color={colors.primary} />
