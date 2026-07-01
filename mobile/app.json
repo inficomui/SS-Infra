@@ -2,7 +2,7 @@
   "expo": {
     "name": "ss-infra",
     "slug": "ss-infra",
-    "version": "1.0.1",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/app-logo.png",
     "scheme": "ssinfra",
@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "com.inficom.ssinfra",
-      "versionCode": 2,
+      "versionCode": 5,
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#000000",
